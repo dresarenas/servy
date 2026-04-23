@@ -15,11 +15,12 @@
 .step-progress { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
 
 .page-hero {
-  padding: 120px 32px 56px;
+  padding: 72px 32px 28px;
   border-bottom: 1px solid var(--line);
   position: relative;
 }
-@media (max-width: 820px) { .page-hero { padding: 52px 20px 32px; } }
+@media (max-width: 820px) { .page-hero { padding: 28px 20px 12px; } }
+@media (max-width: 820px) { .page-subtitle { display: none; } }
 
 .page-eyebrow {
   font-family: var(--f-mono);
@@ -839,15 +840,17 @@ const state = {
   prestadores: [], prestadorSeleccionado: null
 };
 
-// Prefill desde URL ?q=
-(function(){
+// Prefill desde URL ?q= — con soporte BFCache
+function initFromURLParams() {
   const q = new URLSearchParams(window.location.search).get('q');
   if (!q) return;
+  state.descripcion = q;
+  state.oficio = detectOficio(q);
+  state.problema = null;
+  document.querySelectorAll('#problemChips .chip').forEach(c => c.classList.remove('selected'));
   const inp = document.getElementById('inputDescripcion');
   inp.value = q;
   autoExpandTextarea(inp);
-  state.descripcion = q;
-  state.oficio = detectOficio(q);
   if (state.oficio) {
     const chip = document.querySelector(`#problemChips .chip[data-oficio="${state.oficio}"]`);
     if (chip) { chip.classList.add('selected'); state.problema = chip.getAttribute('data-prob'); }
@@ -856,7 +859,9 @@ const state = {
   document.getElementById('step2').style.display = '';
   setStepActive(2);
   mostrarOficioStep2(q);
-})();
+}
+(function(){ initFromURLParams(); })();
+window.addEventListener('pageshow', e => { if (e.persisted) initFromURLParams(); });
 
 /* ============ STEPS ============ */
 function setStepActive(n) {
