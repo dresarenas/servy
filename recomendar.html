@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="es" data-palette="midnight">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SERVY — Recomendar un prestador</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="home-v2.css">
+<style>
+/* ============ PAGE: RECOMENDAR ============ */
+.step-progress { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+
+/* Page hero — compact (no full height) */
+.page-hero {
+  padding: 120px 32px 56px;
+  position: relative;
+  border-bottom: 1px solid var(--line);
+}
+@media (max-width: 820px) { .page-hero { padding: 52px 20px 32px; } }
+
+.page-eyebrow {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin-bottom: 20px;
+}
+.page-title {
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: clamp(36px, 6vw, 88px);
+  line-height: 0.96;
+  letter-spacing: -0.035em;
+  color: var(--ink);
+  margin-bottom: 20px;
+}
+.page-title .accent { color: var(--accent); }
+.page-subtitle {
+  font-family: var(--f-sans);
+  font-size: 16px;
+  color: var(--ink-dim);
+  max-width: 44ch;
+  line-height: 1.6;
+}
+
+/* Consent banner */
+.consent-banner {
+  margin: 0 32px;
+  padding: 16px 24px;
+  border: 1px solid var(--line);
+  border-top: 0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--ink-mute);
+  text-transform: uppercase;
+  background: color-mix(in srgb, var(--accent) 4%, transparent);
+}
+@media (max-width: 820px) { .consent-banner { margin: 0 20px; } }
+.consent-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+.consent-banner strong { color: var(--accent); }
+.consent-banner em { color: var(--ink-mute); font-style: normal; }
+
+/* Steps bar */
+.steps-bar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 32px 32px 0;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 0;
+}
+@media (max-width: 820px) { .steps-bar { padding: 24px 20px 0; } }
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.3s;
+}
+.step-item.active { border-bottom-color: var(--accent); }
+.step-num-badge {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  color: var(--ink-mute);
+  transition: background 0.3s, color 0.3s, border-color 0.3s;
+  flex-shrink: 0;
+}
+.step-item.active .step-num-badge {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--accent);
+}
+.step-item.done .step-num-badge {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.step-name {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  transition: color 0.3s;
+}
+.step-item.active .step-name { color: var(--ink); }
+.step-connector {
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+  margin: 0 16px;
+  margin-bottom: 20px;
+}
+
+/* Form container */
+.form-container {
+  padding: 40px 32px 80px;
+  max-width: 740px;
+}
+@media (max-width: 820px) { .form-container { padding: 32px 20px 60px; } }
+
+/* Form blocks */
+.form-block {
+  margin-bottom: 32px;
+  padding: 28px 32px;
+  border: 1px solid var(--line);
+  position: relative;
+  transition: border-color 0.3s;
+}
+.form-block:focus-within { border-color: var(--line-strong); }
+.form-block-title {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin-bottom: 20px;
+}
+.required { color: var(--accent); }
+@media (max-width: 820px) {
+  .form-block { padding: 20px; margin-bottom: 16px; }
+}
+
+/* Field */
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+@media (max-width: 820px) { .field-row { grid-template-columns: 1fr; gap: 16px; } }
+
+.field-group { display: flex; flex-direction: column; gap: 6px; }
+
+.field-label {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.field-input {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--line-strong);
+  color: var(--ink);
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: 18px;
+  padding: 10px 0;
+  outline: none;
+  transition: border-color 0.25s;
+  width: 100%;
+}
+.field-input:focus { border-bottom-color: var(--accent); }
+.field-input::placeholder { color: var(--ink-mute); font-weight: 400; font-size: 16px; }
+
+textarea.field-input {
+  border: 1px solid var(--line-strong);
+  padding: 12px;
+  resize: vertical;
+  min-height: 96px;
+  font-size: 15px;
+  font-weight: 400;
+  border-radius: 2px;
+}
+textarea.field-input:focus { border-color: var(--accent); }
+
+.field-hint {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--ink-mute);
+  line-height: 1.5;
+}
+.char-count {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  color: var(--ink-mute);
+  text-align: right;
+  margin-top: 4px;
+}
+
+/* Phone wrapper */
+.phone-wrapper {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  border-bottom: 1px solid var(--line-strong);
+  transition: border-color 0.25s;
+}
+.phone-wrapper:focus-within { border-bottom-color: var(--accent); }
+.phone-prefix {
+  font-family: var(--f-mono);
+  font-size: 14px;
+  color: var(--ink-mute);
+  padding: 10px 10px 10px 0;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.phone-wrapper .field-input { border-bottom: none; }
+.contact-picker-btn {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 7px 14px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  border-radius: 20px;
+  color: var(--accent);
+  font-family: var(--f-sans);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.contact-picker-btn:hover { background: color-mix(in srgb, var(--accent) 22%, transparent); }
+.contact-picker-btn.visible { display: inline-flex; }
+
+/* Field error */
+.field-error {
+  display: none;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: #F87171;
+  margin-top: 4px;
+  align-items: center;
+  gap: 4px;
+}
+.field-error.visible { display: flex; }
+
+/* Chips */
+.chips-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chip {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+.chip:hover { color: var(--ink); border-color: var(--ink-dim); }
+.chip.selected {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--accent);
+}
+.chip.chip-other {
+  border-style: dashed !important;
+  background: color-mix(in srgb, var(--accent) 18%, transparent) !important;
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent) !important;
+  color: var(--accent) !important;
+  font-style: italic;
+}
+.chip.chip-other:hover {
+  background: color-mix(in srgb, var(--accent) 28%, transparent) !important;
+}
+
+/* Zone mode buttons */
+.zone-mode-btns {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.btn-zone-mode {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  padding: 10px 16px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+.btn-zone-mode:hover { color: var(--ink); border-color: var(--ink-dim); }
+.btn-zone-mode.active {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* Map */
+.map-wrap {
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  overflow: hidden;
+  height: 200px;
+  margin-bottom: 16px;
+}
+.range-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-bottom: 8px;
+}
+.range-label span:last-child { color: var(--accent); font-size: 13px; font-weight: 500; }
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+/* Stars */
+.stars-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.star-btn {
+  font-size: 40px;
+  cursor: pointer;
+  color: var(--line-strong);
+  transition: color 0.15s, transform 0.15s;
+  user-select: none;
+  line-height: 1;
+}
+.star-btn.lit { color: #F5B731; }
+.star-btn:hover { transform: scale(1.1); }
+.star-label {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-bottom: 16px;
+}
+
+/* Warning for low stars */
+.aviso-negativo {
+  display: none;
+  padding: 12px 16px;
+  border: 1px solid rgba(251,191,36,0.3);
+  background: rgba(251,191,36,0.06);
+  font-family: var(--f-sans);
+  font-size: 13px;
+  color: var(--ink-dim);
+  margin-bottom: 16px;
+  line-height: 1.55;
+}
+
+/* Other input (chip overflow) */
+.other-input-wrap {
+  display: none;
+  margin-top: 10px;
+}
+.other-input-wrap.visible { display: block; }
+
+/* Action row */
+.btn-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 32px;
+  gap: 12px;
+}
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 14px 24px;
+  cursor: pointer;
+  transition: color 0.25s, border-color 0.25s;
+}
+.btn-back:hover { color: var(--ink); border-color: var(--ink-dim); }
+.btn-next {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  padding: 14px 28px;
+  cursor: pointer;
+  transition: background 0.25s, color 0.25s, border-color 0.25s;
+}
+.btn-next:hover { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.btn-next .arr {
+  display: inline-block;
+  width: 14px; height: 1px;
+  background: currentColor;
+  position: relative;
+  transition: width 0.2s;
+}
+.btn-next .arr::after {
+  content: '';
+  position: absolute;
+  right: 0; top: -3px;
+  width: 6px; height: 6px;
+  border-top: 1px solid currentColor;
+  border-right: 1px solid currentColor;
+  transform: rotate(45deg);
+}
+.btn-next:hover .arr { width: 22px; }
+
+/* Success */
+.success-page {
+  display: none;
+  padding: 32px 32px;
+  text-align: center;
+}
+.success-page.visible { display: block; }
+.success-icon {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  border: 1px solid var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 32px;
+  font-size: 28px;
+}
+.success-title {
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: clamp(32px, 5vw, 64px);
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  margin-bottom: 16px;
+  line-height: 1;
+}
+.success-sub {
+  font-family: var(--f-sans);
+  font-size: 16px;
+  color: var(--ink-dim);
+  max-width: 38ch;
+  margin: 0 auto 48px;
+  line-height: 1.6;
+}
+.success-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ============ ACCESIBILIDAD / LEGIBILIDAD ============ */
+.form-block-title {
+  font-family: var(--f-sans) !important;
+  font-size: 17px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  color: var(--ink) !important;
+}
+.field-label {
+  font-family: var(--f-sans) !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  color: var(--ink-dim) !important;
+}
+.field-input {
+  border: 2px solid var(--line-strong) !important;
+  border-radius: 10px !important;
+  padding: 14px 16px !important;
+  background: color-mix(in srgb, var(--ink) 5%, var(--bg)) !important;
+}
+.field-input:focus {
+  border-color: var(--accent) !important;
+  background: color-mix(in srgb, var(--accent) 5%, var(--bg)) !important;
+}
+textarea.field-input { padding: 14px 16px !important; }
+.phone-wrapper {
+  border: 2px solid var(--line-strong) !important;
+  border-radius: 10px !important;
+  padding: 0 16px !important;
+  background: color-mix(in srgb, var(--ink) 5%, var(--bg)) !important;
+}
+.phone-wrapper:focus-within { border-color: var(--accent) !important; background: color-mix(in srgb, var(--accent) 5%, var(--bg)) !important; }
+.phone-wrapper .field-input { border: none !important; border-radius: 0 !important; padding: 14px 0 !important; background: transparent !important; }
+.chip {
+  font-family: var(--f-sans) !important;
+  font-size: 14px !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  padding: 10px 18px !important;
+}
+.btn-zone-mode {
+  font-family: var(--f-sans) !important;
+  font-size: 14px !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  padding: 12px 20px !important;
+}
+.field-hint { font-size: 13px !important; color: var(--ink-dim) !important; }
+</style>
+</head>
+<body class="loaded">
+
+<div class="brand-watermark" aria-hidden="true">
+  <img src="assets/servy-circle.png?v=2" alt="">
+</div>
+<!-- Custom cursor -->
+<div class="cursor-dot" aria-hidden="true"></div>
+<div class="cursor-ring" aria-hidden="true"></div>
+
+<!-- Nav -->
+<nav class="nav">
+  <a href="./" class="nav-logo">
+    <img src="uploads/Logo SERVY Final.png" alt="SERVY">
+  </a>
+  <div class="nav-links">
+    <a href="./" class="nav-link" data-magnetic>← Inicio</a>
+    <a href="buscar.html" class="nav-link" data-magnetic>Buscar</a>
+    <a href="recomendar.html" class="nav-link" data-magnetic>Recomendar</a>
+    <a href="prestador.html" class="nav-link" data-magnetic>Prestador</a>
+  </div>
+  <div class="palette-switcher" role="group" aria-label="Paleta">
+    <button data-p="midnight" title="Midnight"></button>
+    <button data-p="bone" title="Bone"></button>
+  </div>
+  <button class="nav-burger" aria-label="Menú" aria-expanded="false" id="navBurger">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<main>
+
+  <!-- Page hero -->
+  <section class="page-hero">
+    <div class="section-glow" aria-hidden="true" style="top:-20%;left:-5%;opacity:0.2;"></div>
+    <div class="page-eyebrow">§ Directorio / Recomendar</div>
+    <h1 class="page-title reveal">
+      ¿Conocés a alguien<br>para <span class="accent">recomendar</span>?
+    </h1>
+    <p class="page-subtitle reveal">
+      Ayudanos a sumar prestadores de confianza a la comunidad SERVY. Vos recomendás, nosotros verificamos.
+    </p>
+  </section>
+
+  <!-- Consent -->
+  <div class="consent-banner">
+    <div class="consent-dot"></div>
+    <span>Sin consentimiento del prestador, <strong>NO</strong> hay publicación &nbsp;<em>— Ley 25.326</em></span>
+  </div>
+
+  <!-- Steps bar -->
+  <div class="steps-bar" id="stepsBar">
+    <div class="step-item active" id="stepItem1">
+      <div class="step-num-badge">1</div>
+      <span class="step-name">Datos</span>
+    </div>
+    <div class="step-connector"></div>
+    <div class="step-item" id="stepItem2">
+      <div class="step-num-badge">2</div>
+      <span class="step-name">Detalles</span>
+    </div>
+    <div class="step-connector"></div>
+    <div class="step-item" id="stepItem3">
+      <div class="step-num-badge">✓</div>
+      <span class="step-name">Listo</span>
+    </div>
+  </div>
+
+  <!-- ======================================================
+       FORM
+       ====================================================== -->
+  <div class="form-container" id="formContainer">
+
+    <!-- ======== STEP 1 ======== -->
+    <div id="step1" class="step-content">
+
+      <!-- Datos del prestador -->
+      <div class="form-block reveal">
+        <div class="step-progress">Paso 1 de 2</div>
+        <div class="form-block-title">Datos del prestador</div>
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label">Nombre y apellido <span class="required">*</span></label>
+            <input type="text" class="field-input" id="nombre" placeholder="Ej: Mario Rodríguez"
+              oninput="this.value=this.value.replace(/[0-9]/g,'')">
+            <div class="field-error" id="nombre-error">Campo obligatorio</div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">WhatsApp <span class="required">*</span></label>
+            <div class="phone-wrapper">
+              <div class="phone-prefix">+54 9</div>
+              <input type="tel" class="field-input" id="telefono" placeholder="351 1234567"
+                inputmode="numeric" autocomplete="tel-national" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+            </div>
+            <button type="button" class="contact-picker-btn" id="contactPickerBtn">📋 Elegir de contactos</button>
+            <div class="field-hint">Sin el 0 ni el 15. Ej: 351 1234567</div>
+            <div class="field-error" id="telefono-error">Ingresá un número válido</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Zona -->
+      <div class="form-block reveal">
+        <div class="form-block-title">¿En qué zona trabaja? <span style="font-size:12px;opacity:0.5;">(opcional)</span></div>
+        <div class="zone-mode-btns">
+          <button class="btn-zone-mode" id="btnZonaBarrio" onclick="setZonaMode('barrio')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Barrio o zona
+          </button>
+          <button class="btn-zone-mode" id="btnZonaUbicacion" onclick="setZonaMode('location')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+            Usar mapa
+          </button>
+        </div>
+
+        <!-- Barrio chips -->
+        <div id="barrioWrap" style="display:none;">
+          <div class="chips-grid" id="barrioChips">
+            <button type="button" class="chip" data-value="nueva-cordoba">Nueva Córdoba</button>
+            <button type="button" class="chip" data-value="alta-cordoba">Alta Córdoba</button>
+            <button type="button" class="chip" data-value="gral-paz">General Paz</button>
+            <button type="button" class="chip" data-value="guemes">Güemes</button>
+            <button type="button" class="chip" data-value="cerro">Cerro de las Rosas</button>
+            <button type="button" class="chip" data-value="arguello">Argüello</button>
+            <button type="button" class="chip" data-value="villa-carlos-paz">Villa Carlos Paz</button>
+            <button type="button" class="chip" data-value="villa-allende">Villa Allende</button>
+            <button type="button" class="chip" data-value="toda-ciudad">📍 Toda la ciudad</button>
+            <button type="button" class="chip chip-other" data-value="otro-barrio">✏️ Otra localidad...</button>
+          </div>
+          <div class="other-input-wrap" id="otroBarrioWrap">
+            <input type="text" class="field-input" id="otroBarrio" placeholder="Escribí la localidad...">
+          </div>
+        </div>
+
+        <!-- Map -->
+        <div id="mapaWrap" style="display:none;">
+          <div class="map-wrap">
+            <div id="mapaZona" style="height:200px;"></div>
+          </div>
+          <div class="range-label">
+            <span>Radio aproximado</span>
+            <span id="radioLabel">5 km</span>
+          </div>
+          <input type="range" id="radioSlider" min="1" max="25" value="5">
+          <div id="geoStatus" style="display:none; font-family:var(--f-mono); font-size:11px; color:var(--accent); margin-top:8px; letter-spacing:0.06em;"></div>
+        </div>
+
+        <div class="field-error" id="zona-error" style="margin-top:12px;">Elegí una zona o usá el mapa</div>
+      </div>
+
+      <!-- Categoría -->
+      <div class="form-block reveal">
+        <div class="form-block-title">¿Qué servicio ofrece? <span class="required">*</span></div>
+        <div class="field-hint" style="margin-bottom:14px;">Podés seleccionar hasta 5 oficios</div>
+        <div class="chips-grid" id="categoryChips">
+          <button type="button" class="chip" data-value="plomero">🔧 Plomero</button>
+          <button type="button" class="chip" data-value="electricista">⚡ Electricista</button>
+          <button type="button" class="chip" data-value="gasista">🔥 Gasista</button>
+          <button type="button" class="chip" data-value="pintor">🎨 Pintor</button>
+          <button type="button" class="chip" data-value="albanil">🧱 Albañil</button>
+          <button type="button" class="chip" data-value="cerrajero">🔑 Cerrajero</button>
+          <button type="button" class="chip" data-value="tecnico-aire">❄️ Aire Acondicionado</button>
+          <button type="button" class="chip" data-value="jardinero">🌿 Jardinero</button>
+          <button type="button" class="chip" data-value="mudanza">📦 Mudanza / Flete</button>
+          <button type="button" class="chip" data-value="limpieza">🧹 Limpieza</button>
+          <button type="button" class="chip chip-other" data-value="otra-categoria">✏️ Otra categoría...</button>
+        </div>
+        <div class="other-input-wrap" id="otraCategoriaWrap">
+          <input type="text" class="field-input" id="otraCategoria" placeholder="Escribí la categoría..." list="categoriasDatalist">
+          <datalist id="categoriasDatalist">
+            <option value="Plomero"><option value="Electricista"><option value="Gasista">
+            <option value="Pintor"><option value="Albañil"><option value="Cerrajero">
+            <option value="Técnico en aire acondicionado"><option value="Jardinero">
+            <option value="Limpieza"><option value="Carpintero"><option value="Mudanza">
+            <option value="Herrería"><option value="Yesero"><option value="Techista">
+          </datalist>
+        </div>
+        <div class="field-error" id="categoria-error" style="margin-top:12px;">Elegí al menos una categoría</div>
+      </div>
+
+      <div class="btn-row">
+        <div></div>
+        <button class="btn-next" onclick="goToStep2()">
+          Continuar
+          <span class="arr"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ======== STEP 2 ======== -->
+    <div id="step2" class="step-content" style="display:none;">
+
+      <!-- Estrellas -->
+      <div class="form-block reveal">
+        <div class="step-progress">Paso 2 de 2</div>
+        <div class="form-block-title">¿Cuántas estrellas le das? <span class="required">*</span></div>
+        <div class="stars-row" id="starsRow">
+          <span class="star-btn" data-star="1">★</span>
+          <span class="star-btn" data-star="2">★</span>
+          <span class="star-btn" data-star="3">★</span>
+          <span class="star-btn" data-star="4">★</span>
+          <span class="star-btn" data-star="5">★</span>
+        </div>
+        <div class="star-label" id="starLabel">Tocá para calificar</div>
+        <div class="field-error" id="stars-error">Seleccioná una puntuación</div>
+        <div class="aviso-negativo" id="avisoNegativo">
+          ⚠️ Las reseñas con 1 o 2 estrellas son revisadas por nuestro equipo antes de publicarse.
+        </div>
+
+        <!-- Motivos -->
+        <div class="field-group" style="margin-top:20px;">
+          <div class="form-block-title" style="margin-bottom:12px;">Contá tu experiencia</div>
+          <div class="chips-grid" id="motivosChips">
+            <button class="chip" data-value="puntual">⏰ Es puntual</button>
+            <button class="chip" data-value="prolijo">✨ Trabaja prolijo</button>
+            <button class="chip" data-value="precio">💰 Buen precio</button>
+            <button class="chip" data-value="confiable">🤝 Muy confiable</button>
+            <button class="chip" data-value="rapido">⚡ Rápido</button>
+            <button class="chip" data-value="resuelve">🛠️ Resuelve bien</button>
+          </div>
+        </div>
+
+        <div class="field-group" style="margin-top:20px;">
+          <label class="field-label">Comentario <span style="opacity:0.6;">(opcional)</span></label>
+          <textarea class="field-input" id="experiencia" rows="3" maxlength="280"
+            placeholder="Máximo 280 caracteres..." oninput="updateCharCount()"></textarea>
+          <div class="char-count" id="charCount">0 / 280</div>
+        </div>
+
+        <div class="field-group" style="margin-top:20px;">
+          <label class="field-label">¿Cómo lo conocés?</label>
+          <div class="field-hint" style="margin-bottom:12px;">Nos ayuda a evaluar la confiabilidad</div>
+          <div class="chips-grid" id="relacionChips">
+            <button class="chip" data-value="contrate">Lo contraté</button>
+            <button class="chip" data-value="conozco">Lo conozco personalmente</button>
+            <button class="chip" data-value="recomendaron">Me lo recomendaron</button>
+            <button class="chip" data-value="familiar">Es familiar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tus datos -->
+      <div class="form-block reveal">
+        <div class="form-block-title">Tus datos</div>
+
+        <div class="field-group">
+          <label class="field-label">¿Cómo te llamás? <span class="required">*</span></label>
+          <input type="text" class="field-input" id="recomendante" placeholder="Tu nombre">
+          <div class="field-error" id="recomendante-error">Campo obligatorio</div>
+        </div>
+
+        <div class="field-group" style="margin-top:20px;">
+          <label class="field-label">Tu WhatsApp <span class="required">*</span></label>
+          <div class="phone-wrapper">
+            <div class="phone-prefix">+54 9</div>
+            <input type="tel" class="field-input" id="tel-recomendante" placeholder="351 1234567"
+              inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+          </div>
+          <div class="field-hint">Sin el 0 ni el 15. Ej: 351 1234567</div>
+          <div class="field-error" id="tel-recomendante-error">Ingresá un número válido</div>
+        </div>
+
+        <p class="field-hint" style="margin-top:16px; font-size:12px; opacity:0.65;">Necesitamos tus datos para verificar que las reseñas son reales y evitar falsas recomendaciones.</p>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-back" onclick="goToStep1()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          Volver
+        </button>
+        <button class="btn-next" onclick="enviarFormulario()">
+          Enviar recomendación
+          <span class="arr"></span>
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /form-container -->
+
+  <!-- ======== SUCCESS ======== -->
+  <div class="success-page" id="successPage">
+    <div class="success-icon">✓</div>
+    <div class="success-title">¡Gracias<br>por tu recomendación!</div>
+    <p class="success-sub">
+      Vamos a verificar los datos del prestador y te avisamos cuando esté en el directorio.
+    </p>
+    <div class="success-actions">
+      <a href="./" class="pill primary" data-magnetic>
+        <span>Volver al inicio</span>
+        <span class="arr"></span>
+      </a>
+      <a href="buscar.html" class="pill" data-magnetic>
+        <span>Buscar prestador</span>
+        <span class="arr"></span>
+      </a>
+      <a href="https://wa.me/?text=Encontr%C3%A1%20prestadores%20verificados%20en%20SERVY%20%F0%9F%94%8D%20https%3A%2F%2Fservy.ar" target="_blank" rel="noopener" class="pill" data-magnetic>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+        <span>Compartir SERVY</span>
+        <span class="arr"></span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div>
+      <div class="footer-title">Contacto</div>
+      <div><a href="mailto:hola.servy@gmail.com">hola.servy@gmail.com</a></div>
+      <div><a href="https://www.servy.ar" target="_blank" rel="noopener">www.servy.ar</a></div>
+    </div>
+    <div>
+      <div class="footer-title">Navegación</div>
+      <div><a href="buscar.html">Buscar prestador</a></div>
+      <div><a href="recomendar.html">Recomendar</a></div>
+      <div><a href="prestador.html">Soy prestador</a></div>
+    </div>
+    <div>
+      <img src="assets/servy-full.png?v=2" alt="SERVY" class="footer-logo-img">
+    </div>
+  </footer>
+
+</main>
+
+<script>
+/* ============ FORM STATE ============ */
+let selectedStar = 0;
+let zonaMode = null;
+
+/* ============ UTILS ============ */
+function showError(id) {
+  document.getElementById(id).classList.add('visible');
+}
+function hideError(id) {
+  document.getElementById(id).classList.remove('visible');
+}
+function setStepActive(n) {
+  [1,2,3].forEach(i => {
+    const el = document.getElementById('stepItem' + i);
+    el.classList.remove('active','done');
+    if (i < n) el.classList.add('done');
+    if (i === n) el.classList.add('active');
+  });
+}
+
+/* ============ CHIPS (generic) ============ */
+function initChips(containerId, maxSelect) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', (e) => {
+      e.preventDefault();
+      const val = chip.getAttribute('data-value');
+
+      if (val === 'otro-barrio') {
+        const isNowSelected = !chip.classList.contains('selected');
+        chip.classList.toggle('selected');
+        document.getElementById('otroBarrioWrap').classList.toggle('visible', isNowSelected);
+        container.querySelectorAll('.chip:not([data-value="otro-barrio"])').forEach(c => {
+          if (isNowSelected) {
+            c.classList.remove('selected');
+            c.style.pointerEvents = 'none';
+            c.style.opacity = '0.35';
+          } else {
+            c.style.pointerEvents = '';
+            c.style.opacity = '';
+          }
+        });
+        return;
+      }
+      if (val === 'otra-categoria') {
+        chip.classList.toggle('selected');
+        document.getElementById('otraCategoriaWrap').classList.toggle('visible', chip.classList.contains('selected'));
+        return;
+      }
+
+      if (chip.classList.contains('selected')) {
+        chip.classList.remove('selected');
+        return;
+      }
+      if (maxSelect) {
+        const selected = container.querySelectorAll('.chip.selected').length;
+        if (selected >= maxSelect) return;
+      }
+      chip.classList.add('selected');
+    });
+  });
+}
+
+function getChipsValues(containerId) {
+  const container = document.getElementById(containerId);
+  return [...container.querySelectorAll('.chip.selected')].map(c => c.getAttribute('data-value'));
+}
+
+initChips('barrioChips', 1);
+initChips('categoryChips', 5);
+initChips('motivosChips', null);
+initChips('relacionChips', 1);
+
+/* ============ ZONE MODE ============ */
+function setZonaMode(mode) {
+  zonaMode = mode;
+  document.getElementById('btnZonaBarrio').classList.toggle('active', mode === 'barrio');
+  document.getElementById('btnZonaUbicacion').classList.toggle('active', mode === 'location');
+  document.getElementById('barrioWrap').style.display   = mode === 'barrio'   ? '' : 'none';
+  document.getElementById('mapaWrap').style.display     = mode === 'location' ? '' : 'none';
+  if (mode === 'location') initMap();
+}
+
+/* ============ MAP ============ */
+let mapInited = false;
+let _rMap, _rMarker, _rCircle;
+function initMap() {
+  if (mapInited) return;
+  mapInited = true;
+  const wrap = document.getElementById('mapaZona');
+  wrap.style.height = '280px';
+  function _create() {
+    wrap.style.cssText = 'height:280px;';
+    const center = { lat: -31.4135, lng: -64.1811 };
+    _rMap = new google.maps.Map(wrap, { center, zoom: 13, mapTypeControl: false, streetViewControl: false, fullscreenControl: false, gestureHandling: 'cooperative' });
+    _rMarker = new google.maps.Marker({ position: center, map: _rMap, draggable: true, title: 'Arrastrá para ajustar' });
+    const initKm = +(document.getElementById('radioSlider').value) || 5;
+    _rCircle = new google.maps.Circle({ map: _rMap, center, radius: initKm * 1000, strokeColor: '#3CE6C5', strokeOpacity: 0.7, strokeWeight: 2, fillColor: '#3CE6C5', fillOpacity: 0.12 });
+    function pick(ll) {
+      if (_rCircle) _rCircle.setCenter({ lat: ll.lat(), lng: ll.lng() });
+      const geocoder = new google.maps.Geocoder();
+      geocoder.geocode({ location: { lat: ll.lat(), lng: ll.lng() } }, (results, status) => {
+        const addr = (status === 'OK' && results[0]) ? results[0].formatted_address : ll.lat().toFixed(4) + ', ' + ll.lng().toFixed(4);
+        const st = document.getElementById('geoStatus');
+        if (st) { st.style.display = ''; st.textContent = '📍 ' + addr; }
+      });
+    }
+    _rMarker.addListener('dragend', e => pick(e.latLng));
+    _rMap.addListener('click', e => { _rMarker.setPosition(e.latLng); pick(e.latLng); });
+    if (navigator.geolocation) navigator.geolocation.getCurrentPosition(pos => {
+      const ll = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+      _rMap.setCenter(ll); _rMarker.setPosition(ll); pick(ll);
+    }, () => {});
+  }
+  if (window.google && window.google.maps) { _create(); return; }
+  wrap.style.cssText = 'height:280px;display:flex;align-items:center;justify-content:center;background:var(--bg-elev);color:var(--ink-mute);font-family:var(--f-mono);font-size:12px;letter-spacing:0.08em;';
+  wrap.textContent = 'Cargando mapa...';
+  const s = document.createElement('script');
+  s.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyAlyXQU_W6Zi5sn1PhuHIJ1Qqf7aiBsOvc';
+  s.onload = _create;
+  document.head.appendChild(s);
+}
+
+document.getElementById('radioSlider').addEventListener('input', function() {
+  document.getElementById('radioLabel').textContent = this.value + ' km';
+  if (_rCircle) _rCircle.setRadius(+this.value * 1000);
+});
+
+/* ============ STARS ============ */
+const starBtns = document.querySelectorAll('.star-btn');
+const starLabels = ['', '1 — Muy malo', '2 — Malo', '3 — Regular', '4 — Muy bueno', '5 — Excelente'];
+
+starBtns.forEach(btn => {
+  btn.addEventListener('click', () => setStar(+btn.getAttribute('data-star')));
+  btn.addEventListener('mouseenter', () => highlightStars(+btn.getAttribute('data-star')));
+  btn.addEventListener('mouseleave', () => highlightStars(selectedStar));
+});
+
+function highlightStars(n) {
+  starBtns.forEach(b => b.classList.toggle('lit', +b.getAttribute('data-star') <= n));
+}
+function setStar(n) {
+  selectedStar = n;
+  highlightStars(n);
+  document.getElementById('starLabel').textContent = starLabels[n];
+  hideError('stars-error');
+  document.getElementById('avisoNegativo').style.display = n <= 2 ? '' : 'none';
+}
+
+/* ============ CHAR COUNT ============ */
+function updateCharCount() {
+  const v = document.getElementById('experiencia').value.length;
+  document.getElementById('charCount').textContent = v + ' / 280';
+}
+
+/* ============ NAVIGATION ============ */
+function goToStep2() {
+  let valid = true;
+
+  const nombre = document.getElementById('nombre').value.trim();
+  if (!nombre) { showError('nombre-error'); valid = false; } else hideError('nombre-error');
+
+  const tel = document.getElementById('telefono').value.trim();
+  if (!tel || tel.length < 8) { showError('telefono-error'); valid = false; } else hideError('telefono-error');
+
+  // Zona es opcional — solo validar si eligieron barrio y no seleccionaron ninguno
+  const barrioVals = getChipsValues('barrioChips');
+  const otroBarrioText = (document.getElementById('otroBarrio')?.value || '').trim();
+  if (zonaMode === 'barrio' && barrioVals.length === 0 && !otroBarrioText) {
+    showError('zona-error'); valid = false;
+  } else hideError('zona-error');
+
+  if (getChipsValues('categoryChips').length === 0) { showError('categoria-error'); valid = false; }
+  else hideError('categoria-error');
+
+  if (!valid) {
+    const firstErr = document.querySelector('.field-error.visible');
+    if (firstErr) {
+      firstErr.closest('.field-group, .form-block')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      firstErr.closest('.field-group')?.querySelector('input, textarea')?.focus();
+    }
+    return;
+  }
+
+  document.getElementById('step1').style.display = 'none';
+  document.getElementById('step2').style.display = '';
+  setStepActive(2);
+  window.scrollTo({ top: document.getElementById('stepsBar').offsetTop - 80, behavior: 'smooth' });
+}
+
+function goToStep1() {
+  document.getElementById('step2').style.display = 'none';
+  document.getElementById('step1').style.display = '';
+  setStepActive(1);
+  window.scrollTo({ top: document.getElementById('stepsBar').offsetTop - 80, behavior: 'smooth' });
+}
+
+async function enviarFormulario() {
+  if (!selectedStar) { showError('stars-error'); return; }
+  hideError('stars-error');
+
+  // Validar datos del recomendante
+  const recomendanteVal = (document.getElementById('recomendante')?.value || '').trim();
+  if (!recomendanteVal) { showError('recomendante-error'); document.getElementById('recomendante').focus(); return; }
+  hideError('recomendante-error');
+
+  const telRecRaw = (document.getElementById('tel-recomendante')?.value || '').replace(/\s/g, '');
+  if (telRecRaw.length < 8) { showError('tel-recomendante-error'); document.getElementById('tel-recomendante').focus(); return; }
+  hideError('tel-recomendante-error');
+
+  const WEBHOOK_PROPUESTA = 'https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-propuesta';
+
+  const nombre = (document.getElementById('nombre')?.value || '').trim();
+  const telRaw = (document.getElementById('telefono')?.value || '').replace(/\s/g, '');
+  const telefono_propuesto = telRaw ? '+549' + telRaw : '';
+
+  // Categorías
+  const catVals = getChipsValues('categoryChips');
+  const otraCat = (document.getElementById('otraCategoria')?.value || '').trim();
+  const catFinal = catVals.map(v => v === 'otra-categoria' && otraCat ? otraCat : v);
+  const categoria_sugerida = catFinal.join(', ');
+
+  // Zona
+  let zona_sugerida = '';
+  if (zonaMode === 'barrio') {
+    const barrioVals = getChipsValues('barrioChips');
+    const otroBarrio = (document.getElementById('otroBarrio')?.value || '').trim();
+    zona_sugerida = (barrioVals.includes('otro-barrio') && otroBarrio)
+      ? otroBarrio
+      : barrioVals.map(v => v === 'otro-barrio' ? otroBarrio : v).filter(Boolean).join(', ');
+  } else if (zonaMode === 'location') {
+    zona_sugerida = (document.getElementById('geoStatus')?.textContent || '').replace('📍 ', '').trim();
+  }
+
+  // Envío con lectura de respuesta (timeout 6s)
+  let esDuplicado = false;
+  try {
+    const ctrl = new AbortController();
+    const tid = setTimeout(() => ctrl.abort(), 6000);
+    const res = await fetch(WEBHOOK_PROPUESTA, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nombre_propuesto: nombre,
+        telefono_propuesto,
+        codigo_pais_propuesto: '54',
+        categoria_sugerida,
+        zona_sugerida,
+        quien_recomienda_nombre: recomendanteVal,
+        quien_recomienda_tel: '+549' + telRecRaw,
+        estrellas: selectedStar,
+        motivos: getChipsValues('motivosChips').join(', '),
+        comentario: (document.getElementById('experiencia')?.value || '').trim(),
+        relacion: getChipsValues('relacionChips')[0] || ''
+      }),
+      signal: ctrl.signal
+    });
+    clearTimeout(tid);
+    if (res.ok) {
+      const data = await res.json().catch(() => ({}));
+      esDuplicado = !!data.duplicado;
+    }
+  } catch(e) {}
+
+  document.getElementById('formContainer').style.display = 'none';
+  document.getElementById('stepsBar').style.display = 'none';
+  const sp = document.getElementById('successPage');
+  if (esDuplicado) {
+    const h2 = sp.querySelector('.success-title');
+    const p  = sp.querySelector('.success-sub');
+    if (h2) h2.innerHTML = '¡Ya estaba<br>en SERVY!';
+    if (p)  p.textContent = 'Este prestador ya fue recomendado. ¡Sumamos tu reseña al directorio!';
+  }
+  sp.classList.add('visible');
+  setStepActive(3);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+
+<script>
+(function() {
+  function parsearTelArg(raw) {
+    const digits = raw.replace(/\D/g, '');
+    if (digits.startsWith('549')) return digits.slice(3);
+    if (digits.startsWith('54')) return digits.slice(2);
+    if (digits.startsWith('0')) return digits.slice(1);
+    return digits;
+  }
+  if ('contacts' in navigator && 'ContactsManager' in window) {
+    const btn = document.getElementById('contactPickerBtn');
+    if (btn) {
+      btn.classList.add('visible');
+      btn.addEventListener('click', async function() {
+        try {
+          const contacts = await navigator.contacts.select(['tel'], { multiple: false });
+          if (contacts && contacts.length > 0 && contacts[0].tel && contacts[0].tel.length > 0) {
+            const num = parsearTelArg(contacts[0].tel[0]);
+            document.getElementById('telefono').value = num;
+          }
+        } catch(e) {}
+      });
+    }
+  }
+})();
+</script>
+<script src="home-v2.js"></script>
+</body>
+</html>

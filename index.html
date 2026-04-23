@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="es" data-palette="midnight">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SERVY — Encontrá prestadores confiables</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="home-v2.css">
+</head>
+<body>
+
+<!-- Brand watermark -->
+<div class="brand-watermark" aria-hidden="true">
+  <img src="assets/servy-circle.png?v=2" alt="">
+</div>
+
+<!-- Custom cursor -->
+<div class="cursor-ring" aria-hidden="true"></div>
+<div class="cursor-dot" aria-hidden="true"></div>
+
+<!-- Loader -->
+<div class="loader" aria-hidden="true">
+  <img src="assets/servy-full.png?v=2" alt="SERVY" class="loader-logo-img">
+  <div class="loader-count">v2 · 2026</div>
+</div>
+
+<!-- Nav -->
+<nav class="nav" aria-label="Principal">
+  <a href="index.html" class="nav-logo" data-magnetic>
+    <img src="uploads/Logo SERVY Final.png" alt="SERVY">
+  </a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link active" data-magnetic>Inicio</a>
+    <a href="buscar.html" class="nav-link" data-magnetic>Buscar</a>
+    <a href="recomendar.html" class="nav-link" data-magnetic>Recomendar</a>
+    <a href="prestador.html" class="nav-link" data-magnetic>Prestador</a>
+  </div>
+  <div class="palette-switcher" role="group" aria-label="Paleta">
+    <button data-p="midnight" title="Midnight"></button>
+    <button data-p="bone" title="Bone"></button>
+  </div>
+  <button class="nav-burger" aria-label="Menú" aria-expanded="false" id="navBurger">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<main>
+
+  <!-- =========================================
+       HERO
+       ========================================= -->
+  <section class="hero">
+    <div class="hero-tag">
+      <span class="dot" aria-hidden="true"></span>
+      <span>Solo prestadores verificados</span>
+      <span class="sep" aria-hidden="true"></span>
+    </div>
+
+    <div class="hero-core">
+      <div class="hero-eyebrow">
+        <span class="sticker"><span class="pulse"></span>Buscando en Córdoba 📍</span>
+      </div>
+
+      <!-- VARIANT 1 · ROTATOR (default) -->
+      <h1 class="hero-title" data-variant="rotator">
+        <span class="line"><span style="--d:0.15s">Encontrá tu</span></span>
+        <span class="line"><span style="--d:0.25s" class="rotator" data-rotator data-words="plomero|electricista|gasista|pintor|albañil|carpintero">
+          <span class="rot-slot"></span>
+        </span></span>
+        <span class="line"><span style="--d:0.35s">de confianza<span class="accent-dot" aria-hidden="true"></span></span></span>
+      </h1>
+
+      <!-- VARIANT 2 · EDITORIAL (hidden by default) -->
+      <h1 class="hero-title" data-variant="editorial" style="display:none;">
+        <span class="line"><span style="--d:0.15s">Encontrá</span></span>
+        <span class="line"><span style="--d:0.22s"><i class="it">prestadores</i></span></span>
+        <span class="line"><span style="--d:0.30s">confiables<span class="accent-dot" aria-hidden="true"></span></span></span>
+      </h1>
+
+      <!-- VARIANT 3 · MINIMAL (hidden) -->
+      <h1 class="hero-title" data-variant="minimal" style="display:none; font-size: clamp(40px, 7vw, 120px);">
+        <span class="line"><span style="--d:0.15s">El Google Maps</span></span>
+        <span class="line"><span style="--d:0.25s"><i class="it">de los oficios</i><span class="accent-dot" aria-hidden="true"></span></span></span>
+      </h1>
+
+      <!-- Search -->
+      <form class="search">
+        <div class="search-shell" data-cursor="text">
+          <span class="search-prompt">[ Buscar ]</span>
+          <input type="text" class="search-input" placeholder="Decinos que necesitas" autocomplete="off" list="oficios-suggest">
+          <button type="submit" class="search-submit" data-magnetic>
+            <span>Buscar contacto</span>
+          </button>
+        </div>
+        <div class="search-tags">
+          <span class="search-tags-label">Oficios populares:</span>
+          <a href="#" class="search-tag" data-tag="Plomero">Plomero</a>
+          <a href="#" class="search-tag" data-tag="Electricista">Electricista</a>
+          <a href="#" class="search-tag" data-tag="Gasista">Gasista</a>
+          <a href="#" class="search-tag" data-tag="Pintor">Pintor</a>
+          <a href="#" class="search-tag" data-tag="Albañil">Albañil</a>
+          <a href="#" class="search-tag" data-tag="Limpieza">Limpieza</a>
+          <a href="#" class="search-tag" data-tag="Carpintero">Carpintero</a>
+          <a href="#" class="search-tag" data-tag="Jardinería">Jardinería</a>
+        </div>
+        <p class="search-hint">Buscá por oficio o problema (ej: 'pierde agua')</p>
+      </form>
+    </div>
+
+    <div class="hero-bottom">
+      <div class="hero-bottom-col">
+        <b>Recomendaciones reales</b>
+        De personas que contrataron, no bots.
+      </div>
+      <div class="hero-bottom-col">
+        <b>Gratis · Sin intermediarios</b>
+        Contactás directo. Sin comisiones.
+      </div>
+      <div class="scroll-cue">
+        <span>Desplazar</span>
+        <span class="line-tall" aria-hidden="true"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================
+       MARQUEE · Oficios
+       ========================================= -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span>Plomería</span><span class="dot"></span>
+      <span class="it">Electricidad</span><span class="dot"></span>
+      <span>Gasistas</span><span class="dot"></span>
+      <span class="it">Pintura</span><span class="dot"></span>
+      <span>Albañilería</span><span class="dot"></span>
+      <span class="it">Carpintería</span><span class="dot"></span>
+      <span>Jardinería</span><span class="dot"></span>
+      <span class="it">Limpieza</span><span class="dot"></span>
+      <!-- dup -->
+      <span>Plomería</span><span class="dot"></span>
+      <span class="it">Electricidad</span><span class="dot"></span>
+      <span>Gasistas</span><span class="dot"></span>
+      <span class="it">Pintura</span><span class="dot"></span>
+      <span>Albañilería</span><span class="dot"></span>
+      <span class="it">Carpintería</span><span class="dot"></span>
+      <span>Jardinería</span><span class="dot"></span>
+      <span class="it">Limpieza</span><span class="dot"></span>
+    </div>
+  </div>
+
+  <!-- =========================================
+       CÓMO FUNCIONA
+       ========================================= -->
+  <section class="section" style="position:relative;">
+    <div class="section-glow" style="left:-20vw; top:10%;" aria-hidden="true"></div>
+    <div class="section-head">
+      <div class="section-num reveal">§ 01 / Método</div>
+      <h2 class="section-title reveal">Tres pasos, <span class="accent-bg">sin vueltas.</span></h2>
+    </div>
+
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-num">(01)</div>
+        <div class="step-title">Buscás</div>
+        <p class="step-desc">Tu ubicación y contanos tu problema. Nada más.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">(02)</div>
+        <div class="step-title">Comparás</div>
+        <p class="step-desc">Reseñas comprobables de prestadores cerca tuyo.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">(03)</div>
+        <div class="step-title">Contactás</div>
+        <p class="step-desc">Directamente o a través de SERVY. Sin intermediarios.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================
+       PRESTADORES DESTACADOS
+       ========================================= -->
+  <section class="section" style="padding-top: 24px;">
+    <div class="section-head">
+      <div class="section-num reveal">§ 02 / Directorio</div>
+      <h2 class="section-title reveal">Los más <span class="accent-bg">valorados.</span></h2>
+    </div>
+
+    <div class="providers-carousel">
+      <div class="providers-track">
+      <article class="provider" data-cursor="view">
+        <div class="provider-top">
+          <span>001 · Plomería</span>
+          <span class="provider-verified">✓ Verif.</span>
+        </div>
+        <h3 class="provider-name">Juan Rodríguez<em>Palermo · CABA</em></h3>
+        <div class="provider-bottom">
+          <span class="provider-stars">★ ★ ★ ★ ★</span>
+          <span>32 reseñas</span>
+        </div>
+      </article>
+
+      <article class="provider" data-cursor="view">
+        <div class="provider-top">
+          <span>002 · Electricidad</span>
+          <span class="provider-verified">✓ Verif.</span>
+        </div>
+        <h3 class="provider-name">María González<em>Belgrano · CABA</em></h3>
+        <div class="provider-bottom">
+          <span class="provider-stars">★ ★ ★ ★ ★</span>
+          <span>18 reseñas</span>
+        </div>
+      </article>
+
+      <article class="provider" data-cursor="view">
+        <div class="provider-top">
+          <span>003 · Gasistas</span>
+          <span class="provider-verified">✓ Verif.</span>
+        </div>
+        <h3 class="provider-name">Carlos Suárez<em>Vicente López</em></h3>
+        <div class="provider-bottom">
+          <span class="provider-stars">★ ★ ★ ★ ☆</span>
+          <span>24 reseñas</span>
+        </div>
+      </article>
+
+      <article class="provider" data-cursor="view">
+        <div class="provider-top">
+          <span>004 · Pintura</span>
+          <span class="provider-verified">✓ Verif.</span>
+        </div>
+        <h3 class="provider-name">Laura Pérez<em>Caballito · CABA</em></h3>
+        <div class="provider-bottom">
+          <span class="provider-stars">★ ★ ★ ★ ★</span>
+          <span>11 reseñas</span>
+        </div>
+      </article>
+
+      <article class="provider" data-cursor="view">
+        <div class="provider-top">
+          <span>005 · Albañilería</span>
+          <span class="provider-verified">✓ Verif.</span>
+        </div>
+        <h3 class="provider-name">Roberto Díaz<em>San Isidro</em></h3>
+        <div class="provider-bottom">
+          <span class="provider-stars">★ ★ ★ ★ ★</span>
+          <span>41 reseñas</span>
+        </div>
+      </article>
+
+      <article class="provider" data-cursor="view">
+        <div class="provider-top">
+          <span>006 · Limpieza</span>
+          <span class="provider-verified">✓ Verif.</span>
+        </div>
+        <h3 class="provider-name">Silvia Torres<em>Núñez · CABA</em></h3>
+        <div class="provider-bottom">
+          <span class="provider-stars">★ ★ ★ ★ ★</span>
+          <span>29 reseñas</span>
+        </div>
+      </article>
+
+      <article class="provider" data-cursor="view">
+        <div class="provider-top">
+          <span>007 · Carpintería</span>
+          <span class="provider-verified">✓ Verif.</span>
+        </div>
+        <h3 class="provider-name">Andrés Morales<em>Flores · CABA</em></h3>
+        <div class="provider-bottom">
+          <span class="provider-stars">★ ★ ★ ★ ★</span>
+          <span>16 reseñas</span>
+        </div>
+      </article>
+
+      <article class="provider" data-cursor="view">
+        <div class="provider-top">
+          <span>008 · Jardinería</span>
+          <span class="provider-verified">✓ Verif.</span>
+        </div>
+        <h3 class="provider-name">Patricia Ruiz<em>Tigre</em></h3>
+        <div class="provider-bottom">
+          <span class="provider-stars">★ ★ ★ ★ ★</span>
+          <span>22 reseñas</span>
+        </div>
+      </article>
+
+      <!-- duplicate for seamless loop -->
+      <article class="provider" data-cursor="view" aria-hidden="true">
+        <div class="provider-top"><span>001 · Plomería</span><span class="provider-verified">✓ Verif.</span></div>
+        <h3 class="provider-name">Juan Rodríguez<em>Palermo · CABA</em></h3>
+        <div class="provider-bottom"><span class="provider-stars">★ ★ ★ ★ ★</span><span>32 reseñas</span></div>
+      </article>
+      <article class="provider" data-cursor="view" aria-hidden="true">
+        <div class="provider-top"><span>002 · Electricidad</span><span class="provider-verified">✓ Verif.</span></div>
+        <h3 class="provider-name">María González<em>Belgrano · CABA</em></h3>
+        <div class="provider-bottom"><span class="provider-stars">★ ★ ★ ★ ★</span><span>18 reseñas</span></div>
+      </article>
+      <article class="provider" data-cursor="view" aria-hidden="true">
+        <div class="provider-top"><span>003 · Gasistas</span><span class="provider-verified">✓ Verif.</span></div>
+        <h3 class="provider-name">Carlos Suárez<em>Vicente López</em></h3>
+        <div class="provider-bottom"><span class="provider-stars">★ ★ ★ ★ ☆</span><span>24 reseñas</span></div>
+      </article>
+      <article class="provider" data-cursor="view" aria-hidden="true">
+        <div class="provider-top"><span>004 · Pintura</span><span class="provider-verified">✓ Verif.</span></div>
+        <h3 class="provider-name">Laura Pérez<em>Caballito · CABA</em></h3>
+        <div class="provider-bottom"><span class="provider-stars">★ ★ ★ ★ ★</span><span>11 reseñas</span></div>
+      </article>
+      <article class="provider" data-cursor="view" aria-hidden="true">
+        <div class="provider-top"><span>005 · Albañilería</span><span class="provider-verified">✓ Verif.</span></div>
+        <h3 class="provider-name">Roberto Díaz<em>San Isidro</em></h3>
+        <div class="provider-bottom"><span class="provider-stars">★ ★ ★ ★ ★</span><span>41 reseñas</span></div>
+      </article>
+      <article class="provider" data-cursor="view" aria-hidden="true">
+        <div class="provider-top"><span>006 · Limpieza</span><span class="provider-verified">✓ Verif.</span></div>
+        <h3 class="provider-name">Silvia Torres<em>Núñez · CABA</em></h3>
+        <div class="provider-bottom"><span class="provider-stars">★ ★ ★ ★ ★</span><span>29 reseñas</span></div>
+      </article>
+      <article class="provider" data-cursor="view" aria-hidden="true">
+        <div class="provider-top"><span>007 · Carpintería</span><span class="provider-verified">✓ Verif.</span></div>
+        <h3 class="provider-name">Andrés Morales<em>Flores · CABA</em></h3>
+        <div class="provider-bottom"><span class="provider-stars">★ ★ ★ ★ ★</span><span>16 reseñas</span></div>
+      </article>
+      <article class="provider" data-cursor="view" aria-hidden="true">
+        <div class="provider-top"><span>008 · Jardinería</span><span class="provider-verified">✓ Verif.</span></div>
+        <h3 class="provider-name">Patricia Ruiz<em>Tigre</em></h3>
+        <div class="provider-bottom"><span class="provider-stars">★ ★ ★ ★ ★</span><span>22 reseñas</span></div>
+      </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================
+       POR QUÉ
+       ========================================= -->
+  <section class="section" style="position:relative;">
+    <div class="section-glow" style="right:-20vw; top:20%;" aria-hidden="true"></div>
+    <div class="section-head">
+      <div class="section-num reveal">§ 03 / Por qué SERVY</div>
+      <h2 class="section-title reveal">Rápido, gratuito, <span class="accent-bg">confiable.</span></h2>
+    </div>
+
+    <div class="why">
+      <div class="why-item reveal">
+        <div class="why-num">01</div>
+        <div class="why-text">Solo incluimos prestadores que <em>dieron su consentimiento.</em></div>
+        <div class="why-check">✓</div>
+      </div>
+      <div class="why-item reveal">
+        <div class="why-num">02</div>
+        <div class="why-text">Verás solamente los contactos <em>de tu zona.</em></div>
+        <div class="why-check">✓</div>
+      </div>
+      <div class="why-item reveal">
+        <div class="why-num">03</div>
+        <div class="why-text">Opiniones reales, de personas que <em>contrataron sus servicios.</em></div>
+        <div class="why-check">✓</div>
+      </div>
+      <div class="why-item reveal">
+        <div class="why-num">04</div>
+        <div class="why-text">Contacto directo, <em>sin datos ni costos.</em></div>
+        <div class="why-check">✓</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================
+       STATS
+       ========================================= -->
+  <section class="stats">
+    <div class="stat reveal">
+      <div class="stat-num">+500<span class="it">.</span></div>
+      <div class="stat-label">Prestadores activos</div>
+    </div>
+    <div class="stat reveal">
+      <div class="stat-num">+1.200<span class="it">.</span></div>
+      <div class="stat-label">Recomendaciones reales</div>
+    </div>
+    <div class="stat reveal">
+      <div class="stat-num">100<span class="it">%</span></div>
+      <div class="stat-label">Verificados uno a uno</div>
+    </div>
+  </section>
+
+  <!-- =========================================
+       CTA FINAL
+       ========================================= -->
+  <section class="cta" id="sumarse" style="position:relative;">
+    <div class="section-glow" style="left:30%; top:-10%;" aria-hidden="true"></div>
+    <div class="cta-eyebrow reveal">§ 04 / Sumate al directorio</div>
+    <h2 class="cta-title reveal">
+      ¿Querés sumar un nuevo <span class="accent">contacto</span> al directorio de SERVY?
+    </h2>
+    <div class="cta-actions reveal">
+      <a href="recomendar.html" class="pill primary" data-magnetic>
+        <span>Recomendar un prestador</span>
+        <span class="arr" aria-hidden="true"></span>
+      </a>
+      <a href="prestador.html" class="pill" data-magnetic>
+        <span>Soy prestador</span>
+        <span class="arr" aria-hidden="true"></span>
+      </a>
+      <a href="https://wa.me/?text=Encontr%C3%A1%20prestadores%20verificados%20en%20SERVY%20%F0%9F%94%8D%20https%3A%2F%2Fservy.ar"
+         target="_blank" rel="noopener" class="pill" data-magnetic>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="flex-shrink:0"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        <span>Compartir por WhatsApp</span>
+        <span class="arr" aria-hidden="true"></span>
+      </a>
+    </div>
+  </section>
+
+  <!-- =========================================
+       FOOTER
+       ========================================= -->
+  <footer class="footer">
+    <div>
+      <div class="footer-title">Contacto</div>
+      <div><a href="mailto:hola.servy@gmail.com">hola.servy@gmail.com</a></div>
+      <div><a href="https://www.servy.ar" target="_blank" rel="noopener">www.servy.ar</a></div>
+    </div>
+    <div>
+      <div class="footer-title">Navegación</div>
+      <div><a href="buscar.html">Buscar prestador</a></div>
+      <div><a href="recomendar.html">Recomendar</a></div>
+      <div><a href="prestador.html">Soy prestador</a></div>
+    </div>
+    <div>
+      <img src="assets/servy-full.png?v=2" alt="SERVY" class="footer-logo-img">
+    </div>
+
+  </footer>
+
+</main>
+
+<!-- Floating search (aparece al scrollear fuera del hero) -->
+<div class="search-float" id="search-float" aria-hidden="true">
+  <a href="buscar.html" class="search-float-pill" data-magnetic>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    Buscar contacto
+  </a>
+</div>
+
+<datalist id="oficios-suggest">
+  <option value="Plomero"><option value="Electricista"><option value="Gasista">
+  <option value="Pintor"><option value="Albañil"><option value="Cerrajero">
+  <option value="Técnico en aire acondicionado"><option value="Jardinero">
+  <option value="Limpieza"><option value="Carpintero"><option value="Mudanza">
+  <option value="Herrería"><option value="Yesero"><option value="Techista">
+</datalist>
+
+<!-- Tweaks panel -->
+<div class="tweaks" aria-label="Tweaks">
+  <div class="tweaks-title">
+    <span>Tweaks</span>
+    <span>v2</span>
+  </div>
+  <div class="tweak-group">
+    <div class="tweak-label">Paleta</div>
+    <div class="tweak-options">
+      <button class="tweak-opt" data-group="palette" data-value="midnight">Midnight</button>
+      <button class="tweak-opt" data-group="palette" data-value="bone">Bone</button>
+    </div>
+  </div>
+  <div class="tweak-group">
+    <div class="tweak-label">Hero</div>
+    <div class="tweak-options">
+      <button class="tweak-opt" data-group="heroVariant" data-value="rotator">Rotator</button>
+      <button class="tweak-opt" data-group="heroVariant" data-value="editorial">Editorial</button>
+      <button class="tweak-opt" data-group="heroVariant" data-value="minimal">Minimal</button>
+    </div>
+  </div>
+</div>
+
+<script src="home-v2.js"></script>
+</body>
+</html>
