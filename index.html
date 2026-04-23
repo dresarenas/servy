@@ -477,7 +477,6 @@
   </div>
 </div>
 
-<script src="home-v2.js"></script>
 <style>
 .btn-mic { background:transparent; border:1px solid rgba(255,255,255,0.12); border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:rgba(232,239,248,0.55); flex-shrink:0; transition:color 0.2s,border-color 0.2s; }
 .btn-mic:hover { color:#00C9A7; border-color:#00C9A7; }
@@ -485,10 +484,13 @@
 .btn-mic.transcribing { border-color:#00C9A7; color:rgba(232,239,248,0.35); cursor:wait; }
 @keyframes micPulse { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.4)} 50%{box-shadow:0 0 0 8px rgba(239,68,68,0)} }
 </style>
+<script src="home-v2.js"></script>
 <script>
 (function(){
   const WEBHOOK_WHISPER = 'https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-whisper';
   let _mr = null, _chunks = [], _stream = null;
+
+  window.addEventListener('beforeunload', () => { if (_stream) _stream.getTracks().forEach(t => t.stop()); });
 
   window.toggleMicLanding = async function() {
     const btn = document.getElementById('btnMicLanding');

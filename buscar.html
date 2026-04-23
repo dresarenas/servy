@@ -860,7 +860,7 @@ function initFromURLParams() {
   setStepActive(2);
   mostrarOficioStep2(q);
 }
-(function(){ initFromURLParams(); })();
+initFromURLParams();
 window.addEventListener('pageshow', e => { if (e.persisted) initFromURLParams(); });
 
 /* ============ STEPS ============ */
