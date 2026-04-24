@@ -921,7 +921,7 @@ function detectOficio(text) {
   return null;
 }
 
-// Llamar AQUÍ: oficioMap ya inicializado
+// initFromURLParams llamada aquí: oficioMap ya está inicializado en este punto
 initFromURLParams();
 window.addEventListener('pageshow', e => { if (e.persisted) initFromURLParams(); });
 
