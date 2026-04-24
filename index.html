@@ -88,10 +88,10 @@
       </h1>
 
       <!-- Search -->
-      <form class="search">
+      <form class="search" action="buscar.html" method="get">
         <div class="search-shell" data-cursor="text">
           <span class="search-prompt">[ Buscar ]</span>
-          <input type="text" class="search-input" id="landingInput" placeholder="Describí el problema o el oficio..." autocomplete="off" list="oficios-suggest">
+          <input type="text" class="search-input" id="landingInput" name="q" placeholder="Describí el problema o el oficio..." autocomplete="off" list="oficios-suggest">
           <button class="btn-mic" id="btnMicLanding" type="button" onclick="toggleMicLanding()" title="Grabar por voz">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
           </button>
@@ -483,6 +483,7 @@
 .btn-mic.recording { background:rgba(239,68,68,0.15); border-color:#ef4444; color:#ef4444; animation:micPulse 1.2s ease-in-out infinite; }
 .btn-mic.transcribing { border-color:#00C9A7; color:rgba(232,239,248,0.35); cursor:wait; }
 @keyframes micPulse { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.4)} 50%{box-shadow:0 0 0 8px rgba(239,68,68,0)} }
+@media (max-width: 820px) { .search-tags, .search-hint { display: none; } }
 </style>
 <script src="home-v2.js"></script>
 <script>

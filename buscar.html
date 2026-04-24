@@ -388,13 +388,23 @@ input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer;
 /* Heart button on result card */
 .result-card { position: relative; }
 .btn-heart {
-  position: absolute; top: 16px; right: 16px;
+  position: absolute; top: 12px; right: 12px;
   background: transparent; border: none; cursor: pointer;
-  color: var(--ink-mute); font-size: 18px; line-height: 1;
-  transition: color 0.2s, transform 0.15s;
+  color: var(--ink-mute); font-size: 26px; line-height: 1;
+  padding: 4px; transition: color 0.2s, transform 0.15s;
   z-index: 1;
 }
-.btn-heart:hover { color: #ef4444; transform: scale(1.2); }
+.btn-heart:hover { color: #ef4444; transform: scale(1.15); }
+/* Heart in modal */
+.modal-heart {
+  position: absolute; top: 14px; left: 16px;
+  background: transparent; border: 1px solid var(--line); border-radius: 50%;
+  width: 32px; height: 32px; cursor: pointer;
+  color: var(--ink-mute); font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  transition: color 0.2s, border-color 0.2s, transform 0.15s;
+}
+.modal-heart:hover { color: #ef4444; border-color: #ef4444; transform: scale(1.1); }
 /* Favorites toast */
 .fav-toast {
   position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(20px);
@@ -449,7 +459,10 @@ input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer;
 }
 .modal-section { margin-bottom: 28px; }
 
-.testimonios-list { display: flex; flex-direction: column; gap: 12px; }
+.testimonios-list { display: flex; flex-direction: column; gap: 12px; max-height: 240px; overflow-y: auto; padding-right: 6px; }
+.testimonios-list::-webkit-scrollbar { width: 4px; }
+.testimonios-list::-webkit-scrollbar-track { background: transparent; }
+.testimonios-list::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 2px; }
 .testimonio {
   padding: 14px 16px;
   border: 1px solid var(--line);
@@ -698,7 +711,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer;
             <span>Radio aproximado</span>
             <span id="radioLabel">5 km</span>
           </div>
-          <input type="range" id="radioSlider" min="1" max="25" value="5">
+          <input type="range" id="radioSlider" min="1" max="20" value="5">
           <div id="geoStatus" style="display:none; font-family:var(--f-mono); font-size:11px; color:var(--accent); margin-top:8px; letter-spacing:0.06em;"></div>
         </div>
 
@@ -802,6 +815,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer;
 <!-- Modal prestador -->
 <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)cerrarModal()">
   <div class="modal-box">
+    <button class="modal-heart" id="modalBtnHeart" onclick="mostrarToastFav()" title="Guardar favorito">♡</button>
     <button class="modal-close" onclick="cerrarModal()">✕</button>
     <div class="modal-eyebrow" id="modalEyebrow">001 · Plomería</div>
     <div class="modal-name" id="modalName">Nombre</div>
@@ -1241,13 +1255,30 @@ async function buscar() {
 function getDemoPrestadores() {
   return [
     { id:1, num:'001', oficio:'Plomería', nombre:'Juan Rodríguez', zona:'Nueva Córdoba', tel:'3511234567', stars:5, reseñas:32,
-      testimonios:[{stars:5,texto:'Excelente trabajo, muy prolijo y puntual.',autor:'María G.'},{stars:5,texto:'Lo recomiendo, resolvió el problema en minutos.',autor:'Carlos T.'}] },
+      testimonios:[
+        {stars:5,texto:'Excelente trabajo, muy prolijo y puntual. Llegó a los 30 minutos de llamarlo.',autor:'María G.'},
+        {stars:5,texto:'Lo recomiendo, resolvió el problema en minutos. Muy buen precio.',autor:'Carlos T.'},
+        {stars:5,texto:'Arregló una pérdida de agua que teníamos hace meses. Super eficiente.',autor:'Sofía R.'},
+        {stars:5,texto:'Profesional y confiable. Ya lo contraté tres veces.',autor:'Pablo M.'},
+        {stars:4,texto:'Buen trabajo, un poco caro pero el resultado valió la pena.',autor:'Ana V.'}
+      ] },
     { id:2, num:'002', oficio:'Electricidad', nombre:'Ana González', zona:'Alta Córdoba', tel:'3519876543', stars:5, reseñas:18,
-      testimonios:[{stars:5,texto:'Muy profesional, precios razonables.',autor:'Roberto P.'}] },
+      testimonios:[
+        {stars:5,texto:'Muy profesional, precios razonables. Instaló todo el nuevo tablero en un día.',autor:'Roberto P.'},
+        {stars:5,texto:'Resolvió un problema eléctrico complejo sin drama. Muy recomendable.',autor:'Florencia K.'},
+        {stars:5,texto:'Rapidez y limpieza en el trabajo. Volvería a llamarla.',autor:'Martín S.'}
+      ] },
     { id:3, num:'003', oficio:'Gasistas', nombre:'Carlos Suárez', zona:'General Paz', tel:'3514567890', stars:4, reseñas:24,
-      testimonios:[{stars:4,texto:'Buen trabajo, llegó puntual.',autor:'Lucía M.'}] },
+      testimonios:[
+        {stars:4,texto:'Buen trabajo, llegó puntual. Revisó toda la instalación.',autor:'Lucía M.'},
+        {stars:5,texto:'Certificó la instalación de gas muy rápido. Trámite sin problemas.',autor:'Hernán B.'},
+        {stars:4,texto:'Profesional, explicó todo claramente antes de empezar.',autor:'Claudia F.'}
+      ] },
     { id:4, num:'004', oficio:'Pintura', nombre:'Laura Pérez', zona:'Güemes', tel:'3512345678', stars:5, reseñas:11,
-      testimonios:[{stars:5,texto:'Trabajo impecable, muy recomendable.',autor:'Diego F.'}] }
+      testimonios:[
+        {stars:5,texto:'Trabajo impecable, muy recomendable. El departamento quedó como nuevo.',autor:'Diego F.'},
+        {stars:5,texto:'Puntual, prolija y excelente terminación. Contrataría de nuevo.',autor:'Valeria C.'}
+      ] }
   ];
 }
 
