@@ -386,7 +386,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer;
 }
 .oficio-chip.visible { display: inline-flex; }
 .oficio-chip.loading { animation: chipPulse 1.4s ease-in-out infinite; }
-@keyframes chipPulse { 0%,100%{opacity:0.35} 50%{opacity:0.7} }
+@keyframes chipPulse { 0%,100%{opacity:0.3} 50%{opacity:1} }
 /* Heart button on result card */
 .result-card { position: relative; }
 .btn-heart {
@@ -923,13 +923,13 @@ function detectOficio(text) {
   return null;
 }
 
-// initFromURLParams llamada aquí: oficioMap ya está inicializado en este punto
-initFromURLParams();
-window.addEventListener('pageshow', e => { if (e.persisted) initFromURLParams(); });
-
 /* ============ MIC / SPEECH ============ */
 const WEBHOOK_WHISPER = 'https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-whisper';
 const WEBHOOK_CLASIFICAR = 'https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-clasificar';
+
+// initFromURLParams aquí: oficioMap y WEBHOOK_CLASIFICAR ya inicializados
+initFromURLParams();
+window.addEventListener('pageshow', e => { if (e.persisted) initFromURLParams(); });
 let _mediaRecorder = null;
 let _audioChunks = [];
 let _micStream = null;
