@@ -440,8 +440,13 @@ body::after  { width: 200px; height: 200px; top: 35%; right: -50px; }
   .footer { padding-bottom: 90px; }
   .how-step { padding: 14px 16px; }
   .section-wrap { padding: 32px 16px; }
-  .footer-inner { flex-direction: column; align-items: flex-start; }
+  .footer-inner { flex-direction: column; align-items: center; justify-content: center; }
   .footer-links { flex-direction: row; gap: 24px; }
+  .footer-logo { display: none; }
+  .footer-contact a[href^="mailto"] { display: none; }
+  .footer-contact br { display: none; }
+  .footer-contact { text-align: center; }
+  .footer-bottom { display: none; }
 }
 @media (max-width: 480px) {
   .navbar { padding: 0 14px; }
