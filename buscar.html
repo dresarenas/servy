@@ -606,7 +606,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer;
           <span class="search-prompt" style="padding-top:2px;">[ Buscar ]</span>
           <textarea class="search-input" id="inputDescripcion" rows="1"
             placeholder="Describí el problema con tus palabras... ej: tengo humedad en la pared del baño y no sé de dónde viene"
-            autocomplete="off"
+            autocomplete="on" autocorrect="on" autocapitalize="sentences" spellcheck="true"
             oninput="onDescInput(this.value);autoExpandTextarea(this);"
             onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();goToStep2();}"></textarea>
           <button class="btn-mic" id="btnMic" type="button" onclick="toggleMicWhisper()" title="Grabar por voz" style="margin-top:2px;">
@@ -874,9 +874,6 @@ function initFromURLParams() {
   setStepActive(2);
   mostrarOficioStep2(q);
 }
-initFromURLParams();
-window.addEventListener('pageshow', e => { if (e.persisted) initFromURLParams(); });
-
 /* ============ STEPS ============ */
 function setStepActive(n) {
   [1,2,3].forEach(i => {
@@ -923,6 +920,10 @@ function detectOficio(text) {
   }
   return null;
 }
+
+// Llamar AQUÍ: oficioMap ya inicializado
+initFromURLParams();
+window.addEventListener('pageshow', e => { if (e.persisted) initFromURLParams(); });
 
 /* ============ MIC / SPEECH ============ */
 const WEBHOOK_WHISPER = 'https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-whisper';
