@@ -242,11 +242,11 @@ textarea.search-input::placeholder { font-weight: 400; opacity: 0.65; }
 }
 
 /* Zone */
-.zone-mode-btns { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.zone-mode-btns { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: nowrap; }
 .btn-zone-mode {
   display: inline-flex; align-items: center; gap: 8px;
-  font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
-  color: var(--ink-dim); padding: 10px 16px; border: 1px solid var(--line);
+  font-family: var(--f-sans); font-size: 14px; letter-spacing: 0; text-transform: none;
+  color: var(--ink-dim); padding: 12px 20px; border: 1px solid var(--line);
   border-radius: 999px; background: transparent; cursor: pointer;
   transition: color 0.2s, border-color 0.2s, background 0.2s;
 }
@@ -340,6 +340,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer;
   font-family: var(--f-display); font-weight: 700;
   font-size: clamp(18px, 2vw, 24px);
   letter-spacing: -0.01em; color: var(--ink); line-height: 1.1;
+  padding-right: 34px;
 }
 .result-name em { display: block; font-size: 0.6em; color: var(--ink-dim); margin-top: 6px; font-style: normal; }
 .result-bottom {
@@ -528,13 +529,6 @@ input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer;
   letter-spacing: 0 !important;
   text-transform: none !important;
   padding: 10px 18px !important;
-}
-.btn-zone-mode {
-  font-family: var(--f-sans) !important;
-  font-size: 14px !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-  padding: 12px 20px !important;
 }
 </style>
 </head>

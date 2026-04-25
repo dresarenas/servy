@@ -310,17 +310,18 @@ textarea.field-input:focus { border-color: var(--accent); }
   display: flex;
   gap: 8px;
   margin-bottom: 16px;
+  flex-wrap: nowrap;
 }
 .btn-zone-mode {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-family: var(--f-mono);
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-family: var(--f-sans);
+  font-size: 14px;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--ink-dim);
-  padding: 10px 16px;
+  padding: 12px 20px;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: transparent;
@@ -548,13 +549,6 @@ textarea.field-input { padding: 14px 16px !important; }
   text-transform: none !important;
   padding: 10px 18px !important;
 }
-.btn-zone-mode {
-  font-family: var(--f-sans) !important;
-  font-size: 14px !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-  padding: 12px 20px !important;
-}
 .field-hint { font-size: 13px !important; color: var(--ink-dim) !important; }
 </style>
 </head>
@@ -650,7 +644,7 @@ textarea.field-input { padding: 14px 16px !important; }
             <div class="phone-wrapper">
               <div class="phone-prefix">+54 9</div>
               <input type="tel" class="field-input" id="telefono" placeholder="351 1234567"
-                inputmode="numeric" autocomplete="tel-national" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+                inputmode="numeric" autocomplete="tel" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
             </div>
             <button type="button" class="contact-picker-btn" id="contactPickerBtn">📋 Elegir de contactos</button>
             <div class="field-hint">Sin el 0 ni el 15. Ej: 351 1234567</div>
@@ -694,6 +688,11 @@ textarea.field-input { padding: 14px 16px !important; }
 
         <!-- Map -->
         <div id="mapaWrap" style="display:none;">
+          <p style="font-family:var(--f-mono);font-size:11px;letter-spacing:0.06em;color:var(--ink-mute);margin-bottom:10px;">Ingresá la dirección o mové el pin en el mapa</p>
+          <div style="display:flex;gap:8px;margin-bottom:12px;">
+            <input id="inputDireccion" type="text" style="flex:1;background:transparent;border:1px solid var(--line-strong);border-radius:8px;color:var(--ink);font-family:var(--f-mono);font-size:13px;padding:10px 14px;outline:none;transition:border-color 0.2s;" placeholder="Ej: Av. Colón 1234, Nueva Córdoba..." onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--line-strong)'" onkeydown="if(event.key==='Enter'){event.preventDefault();geocodeDireccion();}">
+            <button onclick="geocodeDireccion()" style="padding:10px 16px;background:var(--accent);color:var(--accent-ink);border:none;border-radius:8px;font-family:var(--f-mono);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap;">Ir</button>
+          </div>
           <div class="map-wrap">
             <div id="mapaZona" style="height:200px;"></div>
           </div>
@@ -1014,6 +1013,25 @@ document.getElementById('radioSlider').addEventListener('input', function() {
   if (_rCircle) _rCircle.setRadius(+this.value * 1000);
 });
 
+function geocodeDireccion() {
+  const dir = document.getElementById('inputDireccion').value.trim();
+  if (!dir || !_rMap) return;
+  const geocoder = new google.maps.Geocoder();
+  geocoder.geocode({ address: dir + ', Córdoba, Argentina' }, (results, status) => {
+    if (status === 'OK' && results[0]) {
+      const loc = results[0].geometry.location;
+      _rMap.setCenter(loc); _rMap.setZoom(14);
+      if (_rMarker) _rMarker.setPosition(loc);
+      if (_rCircle) _rCircle.setCenter({ lat: loc.lat(), lng: loc.lng() });
+      const st = document.getElementById('geoStatus');
+      if (st) { st.style.display = ''; st.textContent = '📍 ' + results[0].formatted_address; }
+    } else {
+      const st = document.getElementById('geoStatus');
+      if (st) { st.style.display = ''; st.textContent = 'No se encontró la dirección'; }
+    }
+  });
+}
+
 /* ============ STARS ============ */
 const starBtns = document.querySelectorAll('.star-btn');
 const starLabels = ['', '1 — Muy malo', '2 — Malo', '3 — Regular', '4 — Muy bueno', '5 — Excelente'];
@@ -1187,6 +1205,15 @@ async function enviarFormulario() {
           }
         } catch(e) {}
       });
+    }
+  } else {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    if (isIOS) {
+      const hint = document.createElement('div');
+      hint.style.cssText = 'font-family:var(--f-mono);font-size:11px;color:var(--ink-mute);margin-top:8px;letter-spacing:0.04em;line-height:1.5;';
+      hint.textContent = 'iOS: al escribir el número, el teclado sugiere contactos automáticamente';
+      const btn = document.getElementById('contactPickerBtn');
+      if (btn) btn.parentNode.insertBefore(hint, btn.nextSibling);
     }
   }
 })();
