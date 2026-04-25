@@ -405,7 +405,10 @@ textarea.field-input { padding: 14px 16px !important; }
       </div>
 
       <div class="btn-row">
-        <div></div>
+        <button class="btn-back" onclick="history.back()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          Volver
+        </button>
         <button class="btn-next" onclick="goToStep2()">
           Continuar
           <span class="arr"></span>
@@ -457,6 +460,11 @@ textarea.field-input { padding: 14px 16px !important; }
 
         <!-- Map -->
         <div id="mapaWrap" style="display:block;">
+          <p style="font-family:var(--f-mono);font-size:11px;letter-spacing:0.06em;color:var(--ink-mute);margin-bottom:10px;">Ingresá la dirección o mové el pin en el mapa</p>
+          <div style="display:flex;gap:8px;margin-bottom:12px;">
+            <input id="inputDireccion" type="text" style="flex:1;background:transparent;border:1px solid var(--line-strong);border-radius:8px;color:var(--ink);font-family:var(--f-mono);font-size:13px;padding:10px 14px;outline:none;transition:border-color 0.2s;" placeholder="Ej: Av. Colón 1234, Nueva Córdoba..." onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--line-strong)'" onkeydown="if(event.key==='Enter'){event.preventDefault();geocodeDireccion();}">
+            <button onclick="geocodeDireccion()" style="padding:10px 16px;background:var(--accent);color:var(--accent-ink);border:none;border-radius:8px;font-family:var(--f-mono);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap;">Ir</button>
+          </div>
           <div class="map-wrap"><div id="mapaZona" style="height:200px;"></div></div>
           <div class="range-label">
             <span>Radio de trabajo</span>
@@ -673,6 +681,25 @@ function initMap() {
   s.onload = _create;
   document.head.appendChild(s);
 }
+function geocodeDireccion() {
+  const dir = document.getElementById('inputDireccion').value.trim();
+  if (!dir || !_pMap) return;
+  const geocoder = new google.maps.Geocoder();
+  geocoder.geocode({ address: dir + ', Córdoba, Argentina' }, (results, status) => {
+    if (status === 'OK' && results[0]) {
+      const loc = results[0].geometry.location;
+      _pMap.setCenter(loc); _pMap.setZoom(14);
+      if (_pMarker) _pMarker.setPosition(loc);
+      if (_pCircle) _pCircle.setCenter({ lat: loc.lat(), lng: loc.lng() });
+      const st = document.getElementById('geoStatus');
+      if (st) { st.style.display = ''; st.textContent = '📍 ' + results[0].formatted_address; }
+    } else {
+      const st = document.getElementById('geoStatus');
+      if (st) { st.style.display = ''; st.textContent = 'No se encontró la dirección'; }
+    }
+  });
+}
+
 // initMap se llama lazy al llegar al step 2
 
 document.getElementById('radioSlider').addEventListener('input', function() {

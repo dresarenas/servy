@@ -379,9 +379,9 @@ input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer;
 /* Detected oficio chip in Step 2 */
 .oficio-chip {
   display: none; align-items: center; gap: 8px;
-  font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  font-family: var(--f-mono); font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase;
   color: var(--accent); border: 1px solid var(--accent);
-  border-radius: 999px; padding: 5px 14px; margin-bottom: 16px;
+  border-radius: 999px; padding: 9px 20px; margin-bottom: 16px;
   width: fit-content;
 }
 .oficio-chip.visible { display: inline-flex; }
@@ -462,6 +462,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer;
 .modal-section { margin-bottom: 28px; }
 
 .testimonios-list { display: flex; flex-direction: column; gap: 12px; max-height: 240px; overflow-y: auto; padding-right: 6px; }
+@media (max-width: 820px) { .testimonios-list { max-height: 120px; } }
 .testimonios-list::-webkit-scrollbar { width: 4px; }
 .testimonios-list::-webkit-scrollbar-track { background: transparent; }
 .testimonios-list::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 2px; }
@@ -653,7 +654,10 @@ input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer;
       </div>
 
       <div class="btn-row">
-        <div></div>
+        <button class="btn-back" onclick="volverAtras()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          Volver
+        </button>
         <button class="btn-next" onclick="goToStep2()">
           Continuar
           <span class="arr"></span>
@@ -1083,6 +1087,16 @@ document.querySelectorAll('#problemChips .chip').forEach(chip => {
     }
   });
 });
+
+function volverAtras() {
+  const ref = document.referrer;
+  const servyPages = ['recomendar.html', 'prestador.html', 'buscar.html'];
+  if (ref && servyPages.some(p => ref.includes(p))) {
+    history.back();
+  } else {
+    window.location.href = 'index.html';
+  }
+}
 
 function goToStep2() {
   const desc = document.getElementById('inputDescripcion').value.trim();

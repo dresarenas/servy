@@ -73,6 +73,7 @@ body {
   cursor: none;
   transition: background 0.7s var(--ease-out), color 0.7s var(--ease-out);
   position: relative;
+  overscroll-behavior-y: none;
 }
 
 /* Logo watermark (S + tilde) — hand-drawn feel */
@@ -481,8 +482,8 @@ main { position: relative; z-index: 1; }
 }
 .search-shell {
   display: flex; align-items: center;
-  border-top: 1px solid var(--line-strong);
-  border-bottom: 1px solid var(--line-strong);
+  border-top: 1px solid var(--accent);
+  border-bottom: 1px solid var(--accent);
   padding: 12px 0;
   gap: 20px;
   position: relative;
@@ -912,6 +913,15 @@ main { position: relative; z-index: 1; }
   grid-template-columns: 60px 1fr 40px;
   gap: 24px;
   align-items: start;
+}
+@media (max-width: 820px) {
+  .why-item {
+    grid-template-columns: 40px 1fr 28px;
+    gap: 12px;
+    padding: 24px 0;
+  }
+}
+.why-item {
   transition: padding-left 0.4s var(--ease-out);
   cursor: default;
 }
@@ -1084,6 +1094,8 @@ main { position: relative; z-index: 1; }
   letter-spacing: 0.06em;
   color: var(--ink-dim);
 }
+.footer > div:nth-child(3) { text-align: right; }
+.footer-logo-img { margin-left: auto; }
 @media (max-width: 820px) {
   .footer { display: flex; justify-content: center; padding: 20px; }
   .footer > div:nth-child(2),
