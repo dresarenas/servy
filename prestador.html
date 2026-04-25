@@ -307,11 +307,12 @@ textarea.field-input { padding: 14px 16px !important; }
     <a href="buscar.html" class="nav-link" data-magnetic>Buscar</a>
     <a href="recomendar.html" class="nav-link" data-magnetic>Recomendar</a>
     <a href="prestador.html" class="nav-link" data-magnetic>Prestador</a>
+    <a href="#" class="nav-link nav-login" aria-disabled="true" onclick="return false;" title="Próximamente">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Ingresar
+    </a>
   </div>
-  <div class="palette-switcher" role="group" aria-label="Paleta">
-    <button data-p="midnight" title="Midnight"></button>
-    <button data-p="bone" title="Bone"></button>
-  </div>
+  <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema" title="Cambiar tema"><span class="toggle-moon">☾</span><span class="toggle-sun">☀</span></button>
   <button class="nav-burger" aria-label="Menú" aria-expanded="false" id="navBurger">
     <span></span><span></span><span></span>
   </button>

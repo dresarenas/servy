@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="home-v2.css">
 <style>
 /* ============ PAGE: BUSCAR ============ */
-.step-progress { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+.step-progress { font-family: var(--f-mono); font-size: 14px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
 
 .page-hero {
   padding: 72px 32px 28px;
@@ -333,7 +333,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer;
 .result-top {
   display: flex; justify-content: space-between; align-items: start;
   font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-mute);
-  margin-bottom: 16px;
+  margin-bottom: 16px; padding-right: 34px;
 }
 .result-verified { color: var(--accent); }
 .result-name {
@@ -390,9 +390,9 @@ input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer;
 /* Heart button on result card */
 .result-card { position: relative; }
 .btn-heart {
-  position: absolute; top: 12px; right: 12px;
+  position: absolute; top: 10px; right: 10px;
   background: transparent; border: none; cursor: pointer;
-  color: var(--ink-mute); font-size: 36px; line-height: 1;
+  color: var(--ink-mute); font-size: 22px; line-height: 1;
   padding: 4px; transition: color 0.2s, transform 0.15s;
   z-index: 1;
 }
@@ -555,11 +555,12 @@ input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer;
     <a href="buscar.html" class="nav-link" data-magnetic>Buscar</a>
     <a href="recomendar.html" class="nav-link" data-magnetic>Recomendar</a>
     <a href="prestador.html" class="nav-link" data-magnetic>Prestador</a>
+    <a href="#" class="nav-link nav-login" aria-disabled="true" onclick="return false;" title="Próximamente">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Ingresar
+    </a>
   </div>
-  <div class="palette-switcher" role="group" aria-label="Paleta">
-    <button data-p="midnight" title="Midnight"></button>
-    <button data-p="bone" title="Bone"></button>
-  </div>
+  <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema" title="Cambiar tema"><span class="toggle-moon">☾</span><span class="toggle-sun">☀</span></button>
   <button class="nav-burger" aria-label="Menú" aria-expanded="false" id="navBurger">
     <span></span><span></span><span></span>
   </button>
@@ -665,62 +666,64 @@ input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer;
       <div class="form-block reveal">
         <div class="step-progress">Paso 2 de 2</div>
         <div id="oficioBlock" style="display:none; margin-bottom:16px;">
-          <div style="font-family:var(--f-mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink);margin-bottom:6px;">Parece que necesitás</div>
+          <div style="font-family:var(--f-mono);font-size:15px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink);margin-bottom:6px;">Parece que necesitás</div>
           <div id="oficioChip" class="oficio-chip" style="display:inline-flex;"></div>
-          <div id="oficioNoDetect" style="display:none;font-family:var(--f-mono);font-size:12px;color:var(--ink-mute);letter-spacing:0.04em;">No detectamos el tipo de servicio. ¿Podés describir un poco más el problema? Así te conectamos con el prestador correcto.</div>
-          <a href="#" onclick="goToStep1();return false;" style="font-family:var(--f-mono);font-size:11px;letter-spacing:0.06em;color:var(--ink-dim);opacity:0.7;text-decoration:none;margin-top:8px;display:inline-block;">&#8592; Cambiar descripción</a>
+          <div id="oficioNoDetect" style="display:none;font-family:var(--f-mono);font-size:15px;color:var(--ink-mute);letter-spacing:0.04em;line-height:1.5;">No detectamos el tipo de servicio. ¿Podés describir un poco más el problema? Así te conectamos con el prestador correcto.</div>
+          <a href="#" onclick="goToStep1();return false;" style="font-family:var(--f-mono);font-size:14px;letter-spacing:0.06em;color:var(--ink-dim);opacity:0.7;text-decoration:none;margin-top:10px;display:inline-block;">&#8592; Cambiar descripción</a>
         </div>
-        <div class="form-block-title">¿En qué zona lo necesitás?</div>
-        <div class="zone-mode-btns">
-          <button class="btn-zone-mode" id="btnZonaBarrio" onclick="setZonaMode('barrio')">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            Barrio o zona
-          </button>
-          <button class="btn-zone-mode" id="btnZonaMapa" onclick="setZonaMode('mapa')">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-            Usar mapa
-          </button>
-        </div>
+        <div id="zonaSection">
+          <div class="form-block-title">¿En qué zona lo necesitás?</div>
+          <div class="zone-mode-btns">
+            <button class="btn-zone-mode" id="btnZonaBarrio" onclick="setZonaMode('barrio')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              Barrio o zona
+            </button>
+            <button class="btn-zone-mode" id="btnZonaMapa" onclick="setZonaMode('mapa')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+              Usar mapa
+            </button>
+          </div>
 
-        <!-- Barrio chips -->
-        <div id="barrioWrap" style="display:none;">
-          <div class="chips-grid" id="barrioChips">
-            <button class="chip" data-value="nueva-cordoba">Nueva Córdoba</button>
-            <button class="chip" data-value="alta-cordoba">Alta Córdoba</button>
-            <button class="chip" data-value="gral-paz">General Paz</button>
-            <button class="chip" data-value="guemes">Güemes</button>
-            <button class="chip" data-value="cerro">Cerro de las Rosas</button>
-            <button class="chip" data-value="arguello">Argüello</button>
-            <button class="chip" data-value="villa-carlos-paz">Villa Carlos Paz</button>
-            <button class="chip" data-value="villa-allende">Villa Allende</button>
-            <button class="chip" data-value="toda-ciudad">📍 Toda la ciudad</button>
-            <button class="chip chip-other" data-value="otro-barrio">✏️ Otra localidad</button>
+          <!-- Barrio chips -->
+          <div id="barrioWrap" style="display:none;">
+            <div class="chips-grid" id="barrioChips">
+              <button class="chip" data-value="nueva-cordoba">Nueva Córdoba</button>
+              <button class="chip" data-value="alta-cordoba">Alta Córdoba</button>
+              <button class="chip" data-value="gral-paz">General Paz</button>
+              <button class="chip" data-value="guemes">Güemes</button>
+              <button class="chip" data-value="cerro">Cerro de las Rosas</button>
+              <button class="chip" data-value="arguello">Argüello</button>
+              <button class="chip" data-value="villa-carlos-paz">Villa Carlos Paz</button>
+              <button class="chip" data-value="villa-allende">Villa Allende</button>
+              <button class="chip" data-value="toda-ciudad">📍 Toda la ciudad</button>
+              <button class="chip chip-other" data-value="otro-barrio">✏️ Otra localidad</button>
+            </div>
+            <div id="otroBarrioWrap" style="display:none; margin-top:10px;">
+              <input type="text" style="background:transparent; border:none; border-bottom:1px solid var(--line-strong); color:var(--ink); font-family:var(--f-display); font-size:16px; font-weight:600; padding:8px 0; outline:none; width:100%;" placeholder="Escribí la localidad...">
+            </div>
           </div>
-          <div id="otroBarrioWrap" style="display:none; margin-top:10px;">
-            <input type="text" style="background:transparent; border:none; border-bottom:1px solid var(--line-strong); color:var(--ink); font-family:var(--f-display); font-size:16px; font-weight:600; padding:8px 0; outline:none; width:100%;" placeholder="Escribí la localidad...">
-          </div>
-        </div>
 
-        <!-- Map -->
-        <div id="mapaWrap" style="display:none;">
-          <p style="font-family:var(--f-mono);font-size:11px;letter-spacing:0.06em;color:var(--ink-mute);margin-bottom:10px;">Ingresá la dirección o mové el pin en el mapa</p>
-          <div style="display:flex;gap:8px;margin-bottom:12px;">
-            <input id="inputDireccion" type="text" style="flex:1;background:transparent;border:1px solid var(--line-strong);border-radius:8px;color:var(--ink);font-family:var(--f-mono);font-size:13px;padding:10px 14px;outline:none;transition:border-color 0.2s;" placeholder="Ej: Av. Colón 1234, Nueva Córdoba..." onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--line-strong)'" onkeydown="if(event.key==='Enter'){event.preventDefault();geocodeDireccion();}">
-            <button onclick="geocodeDireccion()" style="padding:10px 16px;background:var(--accent);color:var(--accent-ink);border:none;border-radius:8px;font-family:var(--f-mono);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap;">Ir</button>
+          <!-- Map -->
+          <div id="mapaWrap" style="display:none;">
+            <p style="font-family:var(--f-mono);font-size:11px;letter-spacing:0.06em;color:var(--ink-mute);margin-bottom:10px;">Ingresá la dirección o mové el pin en el mapa</p>
+            <div style="display:flex;gap:8px;margin-bottom:12px;">
+              <input id="inputDireccion" type="text" style="flex:1;background:transparent;border:1px solid var(--line-strong);border-radius:8px;color:var(--ink);font-family:var(--f-mono);font-size:13px;padding:10px 14px;outline:none;transition:border-color 0.2s;" placeholder="Ej: Av. Colón 1234, Nueva Córdoba..." onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--line-strong)'" onkeydown="if(event.key==='Enter'){event.preventDefault();geocodeDireccion();}">
+              <button onclick="geocodeDireccion()" style="padding:10px 16px;background:var(--accent);color:var(--accent-ink);border:none;border-radius:8px;font-family:var(--f-mono);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap;">Ir</button>
+            </div>
+            <div class="map-wrap"><div id="mapaZona" style="height:200px;"></div></div>
+            <div class="range-label">
+              <span>Radio aproximado</span>
+              <span id="radioLabel">5 km</span>
+            </div>
+            <input type="range" id="radioSlider" min="1" max="20" value="5">
+            <div id="geoStatus" style="display:none; font-family:var(--f-mono); font-size:11px; color:var(--accent); margin-top:8px; letter-spacing:0.06em;"></div>
           </div>
-          <div class="map-wrap"><div id="mapaZona" style="height:200px;"></div></div>
-          <div class="range-label">
-            <span>Radio aproximado</span>
-            <span id="radioLabel">5 km</span>
-          </div>
-          <input type="range" id="radioSlider" min="1" max="20" value="5">
-          <div id="geoStatus" style="display:none; font-family:var(--f-mono); font-size:11px; color:var(--accent); margin-top:8px; letter-spacing:0.06em;"></div>
-        </div>
 
-        <div class="field-error" id="zona-error" style="margin-top:12px;">Elegí una zona o usá el mapa</div>
+          <div class="field-error" id="zona-error" style="margin-top:12px;">Elegí una zona o usá el mapa</div>
+        </div>
       </div>
 
-      <div class="btn-row">
+      <div class="btn-row" id="buscarBtnRow">
         <button class="btn-back" onclick="goToStep1()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
           Volver
@@ -1089,6 +1092,8 @@ function mostrarOficioStep2(desc) {
     chip.classList.remove('loading');
     chip.style.display = 'inline-flex'; noDetect.style.display = 'none';
     block.style.display = '';
+    document.getElementById('zonaSection').style.display = '';
+    document.getElementById('buscarBtnRow').style.display = '';
   }
   function showLoading() {
     chip.textContent = 'Analizando...'; chip.style.opacity = '';
@@ -1100,6 +1105,8 @@ function mostrarOficioStep2(desc) {
     chip.classList.remove('loading');
     chip.style.display = 'none'; noDetect.style.display = '';
     block.style.display = '';
+    document.getElementById('zonaSection').style.display = 'none';
+    document.getElementById('buscarBtnRow').style.display = 'none';
   }
 
   if (state.oficio) {

@@ -238,12 +238,13 @@
     });
   });
 
-  document.querySelectorAll('.palette-switcher button').forEach(b => {
-    b.addEventListener('click', () => {
-      tweaks.palette = b.getAttribute('data-p');
+  const themeToggle = document.getElementById('themeToggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+      tweaks.palette = tweaks.palette === 'bone' ? 'midnight' : 'bone';
       applyTweaks();
     });
-  });
+  }
 
   applyTweaks();
 
