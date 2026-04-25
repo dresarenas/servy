@@ -896,25 +896,47 @@ function scrollToSteps() {
 
 /* ============ STEP 1 ============ */
 const oficioMap = {
-  'plomer': 'Plomero', 'caño': 'Plomero', 'canio': 'Plomero',
+  // Plomero
+  'plomer': 'Plomero', 'caño': 'Plomero', 'canio': 'Plomero', 'cano': 'Plomero',
   'humedad': 'Plomero', 'gotera': 'Plomero', 'filtrac': 'Plomero',
   'inundac': 'Plomero', 'perdida': 'Plomero', 'pérdida': 'Plomero',
   'llave de paso': 'Plomero', 'calefon': 'Plomero', 'termotanque': 'Plomero',
+  'caneria': 'Plomero', 'cañería': 'Plomero', 'desague': 'Plomero', 'desagüe': 'Plomero',
+  'baño tapado': 'Plomero', 'inodoro': 'Plomero', 'pileta': 'Plomero',
+  'tacho pierde': 'Plomero', 'agua caliente': 'Plomero', 'no sale agua': 'Plomero',
+  // Electricista
   'electric': 'Electricista', 'corto': 'Electricista',
   'enchufe': 'Electricista', 'cable': 'Electricista', 'lampara': 'Electricista',
-  'luminaria': 'Electricista', 'tablero': 'Electricista',
+  'lámpara': 'Electricista', 'luminaria': 'Electricista', 'tablero': 'Electricista',
+  'disyuntor': 'Electricista', 'luz': 'Electricista', 'interruptor': 'Electricista',
+  'toma corriente': 'Electricista', 'no prende': 'Electricista',
+  // Gasista
   'gas': 'Gasista', 'garrafa': 'Gasista', 'estufa': 'Gasista',
-  'pint': 'Pintor', 'pintur': 'Pintor', 'repin': 'Pintor',
-  'alban': 'Albañil', 'refacc': 'Albañil', 'obra': 'Albañil',
+  'caldera': 'Gasista', 'cocina': 'Gasista', 'olor a gas': 'Gasista',
+  'fuga de gas': 'Gasista', 'medidor de gas': 'Gasista',
+  // Pintor
+  'pint': 'Pintor', 'pintur': 'Pintor', 'repin': 'Pintor', 'empape': 'Pintor',
+  // Albañil
+  'alban': 'Albañil', 'refacc': 'Albañil', 'reforma': 'Albañil',
   'grieta': 'Albañil', 'piso': 'Albañil', 'techo': 'Albañil',
-  'cerraj': 'Cerrajero', 'cerradura': 'Cerrajero', 'puerta': 'Cerrajero',
-  'candado': 'Cerrajero', 'llave': 'Cerrajero',
+  'construccion': 'Albañil', 'construcción': 'Albañil', 'demoler': 'Albañil',
+  'revoqu': 'Albañil', 'azulejo': 'Albañil', 'ceramic': 'Albañil',
+  // Cerrajero
+  'cerraj': 'Cerrajero', 'cerradura': 'Cerrajero', 'candado': 'Cerrajero',
+  'me quede afuera': 'Cerrajero', 'quedé afuera': 'Cerrajero',
+  'no puedo entrar': 'Cerrajero', 'llave trancada': 'Cerrajero',
+  'duplicado de llave': 'Cerrajero', 'caja fuerte': 'Cerrajero',
+  // Técnico en Aire Acond.
   'aire': 'Técnico en Aire Acond.', 'refriger': 'Técnico en Aire Acond.',
-  'split': 'Técnico en Aire Acond.', 'calor': 'Técnico en Aire Acond.',
-  'limpiez': 'Limpieza', 'jardin': 'Jardinero', 'pasto': 'Jardinero',
+  'split': 'Técnico en Aire Acond.', 'no enfria': 'Técnico en Aire Acond.',
+  'no enfría': 'Técnico en Aire Acond.', 'calefacci': 'Técnico en Aire Acond.',
+  // Limpieza
+  'limpiez': 'Limpieza', 'ordenar la casa': 'Limpieza', 'mucama': 'Limpieza',
+  // Otros
+  'jardin': 'Jardinero', 'pasto': 'Jardinero', 'podad': 'Jardinero',
   'mudanz': 'Flete / Mudanza', 'flete': 'Flete / Mudanza',
   'carpint': 'Carpintero', 'mueble': 'Carpintero', 'madera': 'Carpintero',
-  'herrer': 'Herrero', 'reja': 'Herrero', 'porton': 'Herrero',
+  'herrer': 'Herrero', 'reja': 'Herrero', 'porton': 'Herrero', 'portón': 'Herrero',
   'techist': 'Techista', 'membrana': 'Techista', 'impermeab': 'Techista'
 };
 
