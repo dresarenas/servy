@@ -99,7 +99,10 @@
     const slot = rotator.querySelector('.rot-slot');
     function tick() {
       if (!slot) return;
-      const prev = slot.querySelector('.rot-word');
+      // Only target the visible (non-animating-out) word to avoid stacking on rapid calls
+      const prev = slot.querySelector('.rot-word:not(.out)');
+      // Safety: purge any extra visible words accumulated by throttled timers
+      slot.querySelectorAll('.rot-word:not(.out)').forEach((el, idx) => { if (idx > 0) el.remove(); });
       const next = document.createElement('span');
       next.className = 'rot-word';
       next.textContent = words[i % words.length];
@@ -115,22 +118,22 @@
       }
       i++;
     }
-    if (slot) slot.innerHTML = ''; // clear bfcache residue
+    function resetRotator() {
+      clearInterval(rotatorTimer);
+      if (slot) slot.innerHTML = '';
+      i = 0;
+      tick();
+      rotatorTimer = setInterval(tick, 2400);
+    }
+    if (slot) slot.innerHTML = '';
     tick();
     let rotatorTimer = setInterval(tick, 2400);
 
-    // Fix bfcache: cuando el usuario vuelve a la pestaña el JS se re-ejecuta
-    // acumulando múltiples intervals. Limpiar en pagehide, reiniciar en pageshow.
+    // bfcache: reiniciar al volver con back/forward
     window.addEventListener('pagehide', () => clearInterval(rotatorTimer));
-    window.addEventListener('pageshow', (e) => {
-      if (e.persisted) {
-        clearInterval(rotatorTimer);
-        if (slot) slot.innerHTML = '';
-        i = 0;
-        tick();
-        rotatorTimer = setInterval(tick, 2400);
-      }
-    });
+    window.addEventListener('pageshow', (e) => { if (e.persisted) resetRotator(); });
+    // tab switch: cuando el browser throttlea los timers y acumula ticks
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) resetRotator(); });
   }
 
   /* ============ FLOATING SEARCH ============ */

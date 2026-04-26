@@ -120,9 +120,9 @@ body {
   animation: glowDrift 14s var(--ease-in-out) infinite alternate;
 }
 [data-palette="bone"] .section-glow {
-  opacity: 0.55;
+  opacity: 0.9;
   background: radial-gradient(circle,
-    color-mix(in srgb, #3CE6C5 50%, transparent) 0%,
+    color-mix(in srgb, #3CE6C5 70%, transparent) 0%,
     transparent 65%);
 }
 @keyframes glowDrift {
@@ -991,7 +991,7 @@ main { position: relative; z-index: 1; }
 .stat-num {
   font-family: var(--f-display);
   font-weight: 700;
-  font-size: clamp(72px, 10vw, 168px);
+  font-size: clamp(44px, 5vw, 84px);
   line-height: 0.9;
   letter-spacing: -0.04em;
   color: var(--ink);
@@ -1024,7 +1024,7 @@ main { position: relative; z-index: 1; }
 .cta-title {
   font-family: var(--f-display);
   font-weight: 700;
-  font-size: clamp(48px, 9vw, 148px);
+  font-size: clamp(40px, 6.5vw, 100px);
   line-height: 0.98;
   letter-spacing: -0.025em;
   color: var(--ink);

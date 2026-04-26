@@ -162,7 +162,7 @@
   <section class="section" style="position:relative;">
     <div class="section-glow" style="left:-20vw; top:10%;" aria-hidden="true"></div>
     <div class="section-head">
-      <div class="section-num reveal">§ 01 / Método</div>
+      <div class="section-num reveal">§ / Método</div>
       <h2 class="section-title reveal">Tres pasos, <span class="accent-bg">sin vueltas.</span></h2>
     </div>
 
@@ -193,9 +193,9 @@
   <!-- =========================================
        PRESTADORES DESTACADOS
        ========================================= -->
-  <section class="section" style="padding-top: 24px;">
+  <section class="section section-valorados" style="padding-top: 24px;">
     <div class="section-head">
-      <div class="section-num reveal">§ 02 / Directorio</div>
+      <div class="section-num reveal">§ / Directorio</div>
       <h2 class="section-title reveal">Los más <span class="accent-bg">valorados.</span></h2>
     </div>
 
@@ -348,7 +348,7 @@
   <section class="section" style="position:relative;">
     <div class="section-glow" style="right:-20vw; top:20%;" aria-hidden="true"></div>
     <div class="section-head">
-      <div class="section-num reveal">§ 03 / Por qué SERVY</div>
+      <div class="section-num reveal">§ / Por qué SERVY</div>
       <h2 class="section-title reveal">Rápido, gratuito, <span class="accent-bg">confiable.</span></h2>
     </div>
 
@@ -381,15 +381,15 @@
        ========================================= -->
   <section class="stats">
     <div class="stat reveal">
-      <div class="stat-num">+500<span class="it">.</span></div>
+      <div class="stat-num" data-count="500" data-prefix="+">+500<span class="it">.</span></div>
       <div class="stat-label">Prestadores activos</div>
     </div>
     <div class="stat reveal">
-      <div class="stat-num">+1.200<span class="it">.</span></div>
+      <div class="stat-num" data-count="1200" data-prefix="+">+1.200<span class="it">.</span></div>
       <div class="stat-label">Recomendaciones reales</div>
     </div>
     <div class="stat reveal">
-      <div class="stat-num">100<span class="it">%</span></div>
+      <div class="stat-num" data-count="100" data-prefix="">100<span class="it">%</span></div>
       <div class="stat-label">Verificados uno a uno</div>
     </div>
   </section>
@@ -399,7 +399,7 @@
        ========================================= -->
   <section class="cta" id="sumarse" style="position:relative;">
     <div class="section-glow" style="left:30%; top:-10%;" aria-hidden="true"></div>
-    <div class="cta-eyebrow reveal">§ 04 / Sumate al directorio</div>
+    <div class="cta-eyebrow reveal">§ / Sumate al directorio</div>
     <h2 class="cta-title reveal">
       ¿Querés sumar un nuevo <span class="accent">contacto</span> al directorio de SERVY?
     </h2>
@@ -490,6 +490,7 @@
 .btn-mic.transcribing { border-color:#00C9A7; color:rgba(232,239,248,0.35); cursor:wait; }
 @keyframes micPulse { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.4)} 50%{box-shadow:0 0 0 8px rgba(239,68,68,0)} }
 @media (max-width: 820px) { .search-tags, .search-hint { display: none; } }
+@media (max-width: 820px) { .section-valorados { display: none; } }
 </style>
 <script src="home-v2.js"></script>
 <script>
@@ -591,6 +592,39 @@
       alert('No se pudo acceder al micrófono. Verificá los permisos.');
     }
   };
+})();
+</script>
+<script>
+(function() {
+  var stats = document.querySelectorAll('.stat-num[data-count]');
+  if (!stats.length || !window.IntersectionObserver) return;
+  function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+  function fmt(n) {
+    return n >= 1000
+      ? Math.floor(n / 1000) + '.' + String(n % 1000).padStart(3, '0')
+      : String(n);
+  }
+  function animate(el) {
+    var target = parseInt(el.dataset.count, 10);
+    var prefix = el.dataset.prefix || '';
+    var suffix = el.querySelector('.it');
+    var duration = 1600;
+    var start = null;
+    function step(ts) {
+      if (!start) start = ts;
+      var progress = Math.min((ts - start) / duration, 1);
+      var current = Math.round(easeOut(progress) * target);
+      el.childNodes[0].textContent = prefix + fmt(current);
+      if (progress < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  var io = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) { animate(e.target); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.5 });
+  stats.forEach(function(el) { io.observe(el); });
 })();
 </script>
 </body>
