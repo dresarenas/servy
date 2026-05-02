@@ -31,7 +31,7 @@
 <!-- Nav -->
 <nav class="nav" aria-label="Principal">
   <a href="index.html" class="nav-logo" data-magnetic>
-    <img src="uploads/Logo SERVY Final.png" alt="SERVY">
+    <img src="assets/servy-full.png" alt="SERVY">
   </a>
   <div class="nav-links">
     <a href="index.html" class="nav-link active" data-magnetic>Inicio</a>
@@ -54,7 +54,7 @@
   <!-- =========================================
        HERO
        ========================================= -->
-  <section class="hero">
+  <section class="hero" id="hero-vanta">
     <div class="hero-tag">
       <span class="dot" aria-hidden="true"></span>
       <span>Solo prestadores verificados</span>
@@ -100,18 +100,7 @@
             <span>Buscar contacto</span>
           </button>
         </div>
-        <div class="search-tags">
-          <span class="search-tags-label">Oficios populares:</span>
-          <a href="#" class="search-tag" data-tag="Plomero">Plomero</a>
-          <a href="#" class="search-tag" data-tag="Electricista">Electricista</a>
-          <a href="#" class="search-tag" data-tag="Gasista">Gasista</a>
-          <a href="#" class="search-tag" data-tag="Pintor">Pintor</a>
-          <a href="#" class="search-tag" data-tag="Albañil">Albañil</a>
-          <a href="#" class="search-tag" data-tag="Limpieza">Limpieza</a>
-          <a href="#" class="search-tag" data-tag="Carpintero">Carpintero</a>
-          <a href="#" class="search-tag" data-tag="Jardinería">Jardinería</a>
-        </div>
-        <p class="search-hint">Buscá por oficio o problema (ej: 'pierde agua')</p>
+        <p class="search-hint">Buscá por oficio o problema (ej: "se me rompió un caño", "necesito alguien para limpieza"...)</p>
       </form>
     </div>
 
@@ -163,24 +152,38 @@
     <div class="section-glow" style="left:-20vw; top:10%;" aria-hidden="true"></div>
     <div class="section-head">
       <div class="section-num reveal">§ / Método</div>
-      <h2 class="section-title reveal">Tres pasos, <span class="accent-bg">sin vueltas.</span></h2>
+      <div class="fu-wrap reveal">
+      <h2 class="section-title fu-ghost" aria-hidden="true">Tres pasos, <span class="accent-bg">sin vueltas.</span></h2>
+      <h2 class="section-title fu-anim" aria-live="polite">
+        <span class="fw a0">Tres&nbsp;</span><span class="fw a1">pasos,&nbsp;</span><span class="fw accent-bg a2">sin vueltas.</span>
+      </h2>
+    </div>
     </div>
 
     <div class="steps" id="stepsCarousel">
       <div class="step reveal">
-        <div class="step-num">(01)</div>
-        <div class="step-title">Buscás</div>
-        <p class="step-desc">Tu ubicación y contanos tu problema. Nada más.</p>
+        <div class="step-bg" style="background-image:url('assets/step-buscar.jpg')"></div>
+        <div class="step-content">
+          <div class="step-num">(01)</div>
+          <div class="step-title">Buscás</div>
+          <p class="step-desc">Tu ubicación y contanos tu problema. Nada más.</p>
+        </div>
       </div>
       <div class="step reveal">
-        <div class="step-num">(02)</div>
-        <div class="step-title">Comparás</div>
-        <p class="step-desc">Reseñas comprobables de prestadores cerca tuyo.</p>
+        <div class="step-bg" style="background-image:url('assets/step-comparar.jpg')"></div>
+        <div class="step-content">
+          <div class="step-num">(02)</div>
+          <div class="step-title">Comparás</div>
+          <p class="step-desc">Reseñas comprobables de prestadores cerca tuyo.</p>
+        </div>
       </div>
       <div class="step reveal">
-        <div class="step-num">(03)</div>
-        <div class="step-title">Contactás</div>
-        <p class="step-desc">Directamente o a través de SERVY. Sin intermediarios.</p>
+        <div class="step-bg" style="background-image:url('assets/step-contactar.jpg')"></div>
+        <div class="step-content">
+          <div class="step-num">(03)</div>
+          <div class="step-title">Contactás</div>
+          <p class="step-desc">Directamente o a través de SERVY. Sin intermediarios.</p>
+        </div>
       </div>
     </div>
     <div class="steps-dots" id="stepsDots">
@@ -349,7 +352,12 @@
     <div class="section-glow" style="right:-20vw; top:20%;" aria-hidden="true"></div>
     <div class="section-head">
       <div class="section-num reveal">§ / Por qué SERVY</div>
-      <h2 class="section-title reveal">Rápido, gratuito, <span class="accent-bg">confiable.</span></h2>
+      <div class="fu-wrap reveal">
+      <h2 class="section-title fu-ghost" aria-hidden="true">Rápido, gratuito, <span class="accent-bg">confiable.</span></h2>
+      <h2 class="section-title fu-anim" aria-live="polite">
+        <span class="fw a0">Rápido,&nbsp;</span><span class="fw a1">gratuito,&nbsp;</span><span class="fw accent-bg a2">confiable.</span>
+      </h2>
+    </div>
     </div>
 
     <div class="why">
@@ -400,9 +408,12 @@
   <section class="cta" id="sumarse" style="position:relative;">
     <div class="section-glow" style="left:30%; top:-10%;" aria-hidden="true"></div>
     <div class="cta-eyebrow reveal">§ / Sumate al directorio</div>
-    <h2 class="cta-title reveal">
-      ¿Querés sumar un nuevo <span class="accent">contacto</span> al directorio de SERVY?
-    </h2>
+    <div class="fu-wrap reveal">
+      <h2 class="cta-title fu-ghost" aria-hidden="true">¿Querés sumar un nuevo <span class="accent">contacto</span> al directorio de SERVY?</h2>
+      <h2 class="cta-title fu-anim" aria-live="polite">
+        <span class="fw a0">¿Querés&nbsp;</span><span class="fw a1">sumar&nbsp;</span><span class="fw a2">un&nbsp;</span><span class="fw a3">nuevo&nbsp;</span><span class="fw accent a4">contacto</span><span class="fw a5">&nbsp;al directorio de SERVY?</span>
+      </h2>
+    </div>
     <div class="cta-actions reveal">
       <a href="recomendar.html" class="pill primary" data-magnetic>
         <span>Recomendar un prestador</span>
@@ -626,6 +637,33 @@
   }, { threshold: 0.5 });
   stats.forEach(function(el) { io.observe(el); });
 })();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.net.min.js"></script>
+<script>
+  var vantaInst = VANTA.NET({
+    el: '#hero-vanta',
+    mouseControls: true,
+    touchControls: true,
+    gyroControls: false,
+    minHeight: 200.00,
+    minWidth: 200.00,
+    scale: 1.00,
+    scaleMobile: 1.00,
+    color: 0x3ce6c5,
+    backgroundColor: 0x0e0f12,
+    points: 9.00,
+    maxDistance: 22.00,
+    spacing: 18.00,
+    showDots: true
+  });
+  // Update Vanta bg when palette changes
+  new MutationObserver(function() {
+    var p = document.documentElement.getAttribute('data-palette');
+    var bg = p === 'bone' ? 0xffffff : (p === 'candy' ? 0x0f0e12 : 0x0e0f12);
+    var col = p === 'bone' ? 0x0d6b55 : 0x3ce6c5;
+    if (vantaInst) vantaInst.setOptions({ backgroundColor: bg, color: col });
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-palette'] });
 </script>
 </body>
 </html>
