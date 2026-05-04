@@ -80,12 +80,15 @@
   if ('IntersectionObserver' in window) {
     const io = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
+        const isFuWrap = entry.target.classList.contains('fu-wrap');
         if (entry.isIntersecting) {
           entry.target.classList.add('in');
-          io.unobserve(entry.target);
+          if (!isFuWrap) io.unobserve(entry.target);
+        } else if (isFuWrap) {
+          entry.target.classList.remove('in');
         }
       });
-    }, { threshold: 0.1, rootMargin: '0px 0px -80px 0px' });
+    }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
 
     document.querySelectorAll('.reveal, .reveal-mask').forEach(el => io.observe(el));
   }
