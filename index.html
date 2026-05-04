@@ -660,8 +660,8 @@
   // Update Vanta bg when palette changes
   new MutationObserver(function() {
     var p = document.documentElement.getAttribute('data-palette');
-    var bg = p === 'bone' ? 0xffffff : (p === 'candy' ? 0x0f0e12 : 0x0e0f12);
-    var col = p === 'bone' ? 0x0d6b55 : 0x3ce6c5;
+    var bg = p === 'bone' ? 0xEEEAE0 : (p === 'candy' ? 0x0f0e12 : 0x0e0f12);
+    var col = p === 'bone' ? 0x0d6b55 : (p === 'candy' ? 0xd5ff4a : 0x3ce6c5);
     if (vantaInst) vantaInst.setOptions({ backgroundColor: bg, color: col });
   }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-palette'] });
 </script>
