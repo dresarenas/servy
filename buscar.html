@@ -9,265 +9,512 @@
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="home-v2.css">
 <style>
-/* ============ BUSCAR — OVERLAY LAYOUT ============ */
-.buscar-page {
-  position: relative;
-  min-height: 100svh;
-  overflow: hidden;
-  background: var(--bg);
-}
-
-/* Vanta fills the whole page */
-#buscarHeroVanta {
-  position: absolute;
+/* ============ VANTA BACKGROUND ============ */
+#wizVanta {
+  position: fixed;
   inset: 0;
   z-index: 0;
 }
-#buscarHeroVanta canvas {
+#wizVanta canvas {
   opacity: 0.38 !important;
   transition: opacity 0.8s;
 }
-[data-palette="bone"] #buscarHeroVanta canvas {
+[data-palette="bone"] #wizVanta canvas {
   opacity: 1 !important;
   mix-blend-mode: normal;
 }
 
-/* Hero text: bottom-left, behind panel */
-.buscar-left-content {
+/* ============ WIZARD CONTAINER ============ */
+.wiz {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* progress-bar removed */
+
+/* ============ STEPS ============ */
+.wiz-step {
   position: absolute;
-  bottom: 64px;
-  left: 48px;
-  z-index: 2;
-  max-width: 52%;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  transform: translateX(100%);
+  transition: transform 0.45s cubic-bezier(0.4,0,0.2,1), opacity 0.35s;
+  opacity: 0;
   pointer-events: none;
 }
-.buscar-hero-title {
+.wiz-step::-webkit-scrollbar { display: none; }
+.wiz-step.active {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: all;
+}
+.wiz-step.past {
+  transform: translateX(-28%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ============ STEP CONTENT ============ */
+.wiz-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 100px 28px 0;
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.wiz-eyebrow {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+
+.wiz-title {
   font-family: var(--f-display);
   font-weight: 800;
-  font-size: clamp(38px, 6vw, 68px);
-  line-height: 1.02;
+  font-size: clamp(42px, 7vw, 72px);
+  line-height: 1.0;
   letter-spacing: -0.03em;
   color: var(--ink);
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
-.buscar-hero-title span { color: var(--accent); }
-.buscar-hero-sub {
+.wiz-title span { color: var(--accent); }
+
+.wiz-title-sm {
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: clamp(28px, 5vw, 48px);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  margin-bottom: 10px;
+}
+.wiz-title-sm span { color: var(--accent); }
+
+.wiz-sub {
   font-family: var(--f-sans);
   font-size: 15px;
   color: var(--ink-dim);
+  margin-bottom: 28px;
+  line-height: 1.5;
 }
 
-/* Right column: holds the panel, full-height, pointer-events passthrough */
-.buscar-right {
+/* ============ TEXTAREA ============ */
+.wiz-textarea-wrap {
   position: relative;
-  z-index: 3;
-  min-height: 100svh;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 78px 28px 28px;
-  pointer-events: none;
+  margin-bottom: 8px;
+}
+.wiz-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  background: color-mix(in srgb, var(--bg-elev) 60%, transparent);
+  border: 1px solid var(--line-strong);
+  border-radius: 16px;
+  color: var(--ink);
+  font-family: var(--f-sans);
+  font-size: 18px;
+  line-height: 1.55;
+  padding: 20px 22px;
+  outline: none;
+  resize: none;
+  min-height: 90px;
+  transition: border-color 0.2s, background 0.2s;
+  display: block;
+}
+.wiz-textarea::placeholder { color: var(--ink-mute); opacity: 0.6; }
+.wiz-textarea:focus {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--bg-elev) 80%, transparent);
 }
 
-/* Glass panel */
-.bpanel {
-  width: 540px;
-  height: calc(100svh - 78px - 28px);
+/* ============ MIC CIRCLE ============ */
+.wiz-mic-area {
   display: flex;
   flex-direction: column;
-  background: color-mix(in srgb, var(--bg-elev) 72%, transparent);
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
-  border: 1px solid var(--line-strong);
-  border-radius: 20px;
-  overflow: hidden;
-  pointer-events: all;
+  align-items: center;
+  margin: 20px 0;
+  gap: 8px;
+}
+.wiz-mic-circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: none;
+  color: var(--accent-ink);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 40%, transparent);
+}
+.wiz-mic-circle:hover {
+  transform: scale(1.06);
+  box-shadow: 0 6px 24px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+.wiz-mic-circle.recording {
+  background: #ef4444;
+  animation: micCirclePulse 1.2s ease-in-out infinite;
+}
+.wiz-mic-circle.transcribing {
+  background: var(--line-strong);
+  animation: none;
+}
+@keyframes micCirclePulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.5); }
+  50%      { box-shadow: 0 0 0 16px rgba(239,68,68,0); }
+}
+.wiz-mic-label {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
 }
 
-/* Tab headers */
-.ptabs-header {
-  position: relative;
+/* ============ SUGGESTION CHIPS ============ */
+.wiz-chips-row {
   display: flex;
-  border-bottom: 1px solid var(--line);
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.wiz-chip {
+  font-family: var(--f-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--ink-dim);
+  background: color-mix(in srgb, var(--bg-elev) 50%, transparent);
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+  white-space: nowrap;
   flex-shrink: 0;
 }
-.ptab {
-  flex: 1;
-  padding: 14px 6px;
+.wiz-chip:hover, .wiz-chip.selected {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+/* Oficio badge */
+.wiz-oficio-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--f-mono);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  margin-bottom: 16px;
+  animation: badgeIn 0.3s ease forwards;
+}
+@keyframes badgeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
+.wiz-oficio-icon {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 11px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ============ FIELD ERROR ============ */
+.field-error {
+  display: none;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: #F87171;
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+.field-error.visible { display: block; }
+
+/* ============ SPACER ============ */
+.wiz-spacer { flex: 1; min-height: 24px; }
+
+/* ============ FOOTER CTA ============ */
+.wiz-foot {
+  padding: 20px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding-bottom: calc(28px + env(safe-area-inset-bottom));
+}
+.wiz-cta {
+  width: 100%;
+  padding: 18px 24px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  border: 1px solid var(--accent);
+  border-radius: 14px;
+  font-family: var(--f-mono);
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: background 0.25s, opacity 0.25s, transform 0.15s, border-color 0.25s;
+}
+.wiz-cta:active:not(.sig-empty) { transform: scale(0.98); opacity: 0.85; }
+.wiz-cta.sig-empty {
+  opacity: 0.35;
+  background: var(--line-strong) !important;
+  border-color: var(--line-strong) !important;
+  color: var(--ink-mute) !important;
+  pointer-events: none;
+}
+.wiz-skip {
+  width: 100%;
+  padding: 12px;
   background: transparent;
   border: none;
   font-family: var(--f-mono);
   font-size: 12px;
   letter-spacing: 0.06em;
-  text-transform: uppercase;
   color: var(--ink-mute);
   cursor: pointer;
-  transition: color 0.2s, opacity 0.2s;
+  text-align: center;
+  transition: color 0.2s;
 }
-.ptab.active { color: var(--accent); font-size: 12px; font-weight: 600; }
-.ptab.locked { opacity: 0.35; cursor: not-allowed; }
-.ptab-indicator {
-  position: absolute;
-  bottom: 0;
-  height: 2px;
-  background: var(--accent);
-  transition: left 0.3s cubic-bezier(0.4,0,0.2,1), width 0.3s cubic-bezier(0.4,0,0.2,1);
-}
-@keyframes tab-unlock {
-  0%   { box-shadow: 0 0 0 0 rgba(60,230,197,0.8); }
-  70%  { box-shadow: 0 0 0 10px rgba(60,230,197,0); }
-  100% { box-shadow: 0 0 0 0 rgba(60,230,197,0); }
-}
-.ptab.just-unlocked { animation: tab-unlock 0.6s ease-out; }
+.wiz-skip:hover { color: var(--ink-dim); }
 
-/* Panes */
-.ptab-panes-wrap {
-  flex: 1;
-  position: relative;
-  overflow: hidden;
+/* back-button removed */
+
+/* ============ STEP 1 — ZONA ============ */
+.wiz-geo-btn {
+  width: 100%;
+  padding: 20px 24px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  border: none;
+  border-radius: 14px;
+  font-family: var(--f-mono);
+  font-size: 14px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  transition: background 0.2s, transform 0.15s;
 }
-.ptab-pane {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transform: translateX(56px);
-  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.4,0,0.2,1);
-  pointer-events: none;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--line-strong) transparent;
-}
-.ptab-pane::-webkit-scrollbar { width: 4px; }
-.ptab-pane::-webkit-scrollbar-track { background: transparent; }
-.ptab-pane::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 2px; }
-.ptab-pane.active { opacity: 1; transform: translateX(0); pointer-events: all; }
-.pane-body { padding: 20px; }
-.pane-label {
+.wiz-geo-btn:hover { background: color-mix(in srgb, var(--accent) 85%, white); }
+.wiz-geo-btn:active { transform: scale(0.98); }
+
+.wiz-geo-confirm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-family: var(--f-mono);
   font-size: 13px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink-dim);
-  margin-bottom: 14px;
+  color: var(--accent);
+  margin: -8px 0 16px;
+  animation: badgeIn 0.3s ease forwards;
 }
+.wiz-geo-check { font-size: 15px; }
 
-/* Summary bar */
-.bsummary {
-  flex-shrink: 0;
-  min-height: 34px;
-  padding: 8px 20px;
+.wiz-sep {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.wiz-sep-line {
+  flex: 1;
+  height: 1px;
+  background: var(--line-strong);
+}
+.wiz-sep-text {
   font-family: var(--f-mono);
   font-size: 11px;
-  letter-spacing: 0.05em;
-  color: var(--ink-dim);
-  border-top: 1px solid var(--line);
-  background: color-mix(in srgb, var(--accent) 5%, transparent);
-  display: flex;
-  align-items: center;
-}
-.bsummary:empty { display: none; }
-
-/* Actions */
-.bactions {
-  flex-shrink: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 20px;
-  border-top: 1px solid var(--line);
-  gap: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
 }
 
-/* Search shell */
-.search-shell {
+.wiz-addr-wrap {
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.wiz-addr {
+  flex: 1;
+  background: color-mix(in srgb, var(--bg-elev) 60%, transparent);
   border: 1px solid var(--line-strong);
   border-radius: 12px;
-  padding: 12px 14px;
-  background: transparent;
-  transition: border-color 0.2s;
-  margin-bottom: 10px;
-}
-.search-shell:focus-within { border-color: var(--accent); }
-.search-prompt { display: none; }
-.search-input {
-  flex: 1;
-  background: transparent;
-  border: none;
   color: var(--ink);
-  font-family: var(--f-sans);
-  font-size: 16px;
+  font-family: var(--f-mono);
+  font-size: 14px;
+  padding: 14px 16px;
   outline: none;
-  resize: none;
-  min-height: 80px;
-  line-height: 1.5;
+  min-height: 52px;
+  transition: border-color 0.2s;
 }
-.search-input::placeholder { color: var(--ink-mute); opacity: 0.7; }
-.buscar-search-hint {
-  display: block;
-  font-family: var(--f-sans);
+.wiz-addr:focus { border-color: var(--accent); }
+.wiz-addr::placeholder { color: var(--ink-mute); }
+.wiz-addr-btn {
+  padding: 14px 18px;
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  color: var(--ink-dim);
+  font-family: var(--f-mono);
   font-size: 12px;
-  color: var(--ink-mute);
-  line-height: 1.5;
-  margin-bottom: 14px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  min-height: 52px;
+  transition: color 0.2s, border-color 0.2s;
+  flex-shrink: 0;
+}
+.wiz-addr-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+#wizMapContainer {
+  height: 180px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--bg-elev);
+  margin-bottom: 8px;
+}
+#wizGeoStatus {
+  display: none;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  color: var(--accent);
+  margin-bottom: 8px;
+  letter-spacing: 0.05em;
+  line-height: 1.4;
 }
 
-/* Mic */
-.btn-mic { background: transparent; border: 1px solid var(--line); border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--ink-dim); flex-shrink: 0; transition: color 0.2s, border-color 0.2s, background 0.2s; }
-.btn-mic:hover { color: var(--accent); border-color: var(--accent); }
-.btn-mic.recording { background: color-mix(in srgb, #ef4444 20%, transparent); border-color: #ef4444; color: #ef4444; animation: micPulse 1.2s ease-in-out infinite; }
-.btn-mic.transcribing { animation: none; border-color: var(--accent); color: var(--ink-mute); cursor: wait; }
-@keyframes micPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); } 50% { box-shadow: 0 0 0 8px rgba(239,68,68,0); } }
+/* ============ STEP 2 — CUANDO (OPCIONAL) ============ */
+.wiz-optional-badge {
+  display: inline-block;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  padding: 4px 10px;
+  margin-bottom: 16px;
+}
 
-/* Oficio chip */
-.oficio-chip { display: none; align-items: center; gap: 8px; font-family: var(--f-mono); font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 8px 18px; margin-bottom: 12px; width: fit-content; }
-.oficio-chip.visible { display: inline-flex; }
-@keyframes chipPulse { 0%,100%{opacity:0.3} 50%{opacity:1} }
-.oficio-chip.loading { animation: chipPulse 1.4s ease-in-out infinite; }
+.wiz-time-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.wiz-time-chip {
+  padding: 20px 14px;
+  background: color-mix(in srgb, var(--bg-elev) 50%, transparent);
+  border: 1.5px solid var(--line-strong);
+  border-radius: 14px;
+  color: var(--ink-dim);
+  font-family: var(--f-sans);
+  font-size: 14px;
+  line-height: 1.3;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+.wiz-time-chip:hover {
+  border-color: var(--line-strong);
+  color: var(--ink);
+}
+.wiz-time-chip.selected {
+  border-color: var(--accent);
+  color: var(--ink);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+.wiz-time-chip em {
+  display: block;
+  font-style: normal;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-top: 4px;
+}
 
-/* Sugerencia / Confirm */
-.sugerencia-card { display: none; padding: 12px 14px; border: 1px solid var(--accent); background: color-mix(in srgb, var(--accent) 6%, transparent); border-radius: 10px; margin-top: 10px; }
-.sugerencia-card.visible { display: block; }
-.sugerencia-label { font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
-.sugerencia-value { font-family: var(--f-display); font-weight: 700; font-size: 17px; color: var(--ink); }
-.confirm-card { display: none; padding: 12px 14px; border: 1px solid var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); border-radius: 10px; margin-top: 10px; }
-.confirm-label { font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
-.confirm-value { font-family: var(--f-display); font-weight: 700; font-size: 17px; color: var(--ink); margin-bottom: 10px; }
-.confirm-btns { display: flex; gap: 8px; flex-wrap: wrap; }
-.btn-confirm-yes { padding: 7px 14px; background: var(--accent); color: var(--accent-ink); border: none; border-radius: 8px; font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; }
-.btn-confirm-no { padding: 7px 14px; background: transparent; border: 1px solid var(--line-strong); border-radius: 8px; color: var(--ink-dim); font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; }
+/* ============ STEP 3 — RESULTS ============ */
+.wiz-success-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+.wiz-success-icon {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 24px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 18px;
+  animation: successPop 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+@keyframes successPop {
+  from { transform: scale(0); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
 
-/* Field error */
-.field-error { display: none; font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.06em; color: #F87171; margin-top: 6px; }
-.field-error.visible { display: flex; align-items: center; gap: 4px; }
+.wiz-results-summary {
+  font-family: var(--f-sans);
+  font-size: 14px;
+  color: var(--ink-dim);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+.wiz-results-summary strong { color: var(--ink); }
 
-/* Zona inputs */
-.zona-input-group { display: flex; gap: 8px; margin-bottom: 12px; }
-.zona-input-group input { flex: 1; background: transparent; border: 1px solid var(--line-strong); border-radius: 10px; color: var(--ink); font-family: var(--f-mono); font-size: 13px; padding: 12px; min-height: 48px; outline: none; transition: border-color 0.2s; }
-.zona-input-group input:focus { border-color: var(--accent); }
-.btn-geolocate { padding: 12px; min-height: 48px; background: transparent; border: 1px solid var(--line-strong); border-radius: 10px; color: var(--ink-dim); font-size: 16px; cursor: pointer; flex-shrink: 0; transition: color 0.2s, border-color 0.2s; line-height: 1; }
-.btn-geolocate:hover { color: var(--accent); border-color: var(--accent); }
-#bMapContainer { height: 210px; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); background: var(--bg-elev); }
-#geoStatus { display: none; font-family: var(--f-mono); font-size: 11px; color: var(--accent); margin-top: 8px; letter-spacing: 0.05em; line-height: 1.4; }
-
-/* Loading */
-.loading-view { display: none; padding: 32px 0; text-align: center; }
+.loading-view { display: none; padding: 24px 0; text-align: center; }
 .loading-view.visible { display: block; }
 .loading-dots { display: inline-flex; gap: 8px; margin-bottom: 16px; }
-.loading-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: loadDot 1.2s var(--ease-in-out) infinite; }
+.loading-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: loadDot 1.2s ease-in-out infinite; }
 .loading-dot:nth-child(2) { animation-delay: 0.2s; }
 .loading-dot:nth-child(3) { animation-delay: 0.4s; }
-@keyframes loadDot { 0%,80%,100% { opacity: 0.2; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }
+@keyframes loadDot { 0%,80%,100%{opacity:0.2;transform:scale(0.8)} 40%{opacity:1;transform:scale(1)} }
 .loading-text { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-mute); }
 
-/* Results */
 .results-view { display: none; }
 .results-view.visible { display: block; }
-.results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-mute); }
-.results-count { color: var(--ink); font-size: 12px; }
+.results-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.results-count-label { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-mute); }
+.results-count { font-family: var(--f-display); font-weight: 700; font-size: 18px; color: var(--ink); }
 .results-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 16px; }
+
+/* Result cards — same as buscar.html */
 .result-card {
   position: relative;
   background: rgba(255,255,255,0.04);
@@ -296,7 +543,6 @@
 .btn-heart { position: absolute; top: 10px; right: 10px; background: transparent; border: none; cursor: pointer; color: var(--ink-mute); font-size: 17px; line-height: 1; padding: 4px; transition: color 0.2s, transform 0.15s; }
 .btn-heart:hover { color: #ef4444; transform: scale(1.15); }
 
-/* No results */
 .no-results { padding: 20px 0; text-align: center; }
 .no-results-title { font-family: var(--f-display); font-weight: 700; font-size: 18px; color: var(--ink); margin-bottom: 8px; }
 .no-results-sub { font-family: var(--f-sans); font-size: 13px; color: var(--ink-dim); margin-bottom: 14px; line-height: 1.5; }
@@ -305,19 +551,32 @@
 .no-results-wa input:focus { border-color: var(--accent); }
 .no-results-wa button { padding: 9px 14px; background: var(--accent); color: var(--accent-ink); border: none; border-radius: 8px; font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; white-space: nowrap; }
 
-/* Buttons */
-.btn-volver { display: inline-flex; align-items: center; gap: 6px; font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-dim); background: transparent; border: 1px solid var(--line); border-radius: 999px; padding: 11px 18px; cursor: pointer; transition: color 0.25s, border-color 0.25s; }
-.btn-volver:hover { color: var(--ink); border-color: var(--ink-dim); }
-.btn-primary { display: inline-flex; align-items: center; gap: 8px; font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-ink); background: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 11px 20px; cursor: pointer; transition: background 0.25s, color 0.25s, border-color 0.25s; }
-.btn-primary:hover { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.wiz-new-search {
+  width: 100%;
+  margin-top: 8px;
+  padding: 14px 24px;
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  border-radius: 14px;
+  color: var(--ink-dim);
+  font-family: var(--f-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+.wiz-new-search:hover { color: var(--ink); border-color: var(--ink-dim); }
+
+/* btn-arr */
 .btn-arr { display: inline-block; width: 12px; height: 1px; background: currentColor; position: relative; }
 .btn-arr::after { content: ''; position: absolute; right: 0; top: -3px; width: 5px; height: 5px; border-top: 1px solid currentColor; border-right: 1px solid currentColor; transform: rotate(45deg); }
 
-/* Modal */
+/* ============ MODAL ============ */
 .modal-overlay { display: none; position: fixed; inset: 0; z-index: 500; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; }
 .modal-overlay.visible { display: flex; }
 .modal-box { background: var(--bg-elev); border: 1px solid var(--line-strong); border-radius: 16px; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; position: relative; padding: 40px; }
-@media (max-width: 820px) { .modal-box { padding: 24px 20px; } }
+@media (max-width: 600px) { .modal-box { padding: 24px 20px; } }
 .modal-close { position: absolute; top: 16px; right: 16px; background: transparent; border: 1px solid var(--line); border-radius: 50%; width: 32px; height: 32px; cursor: pointer; color: var(--ink-dim); font-family: var(--f-mono); font-size: 14px; display: flex; align-items: center; justify-content: center; transition: color 0.2s, border-color 0.2s; }
 .modal-close:hover { color: var(--ink); border-color: var(--ink-dim); }
 .modal-heart { position: absolute; top: 14px; left: 16px; background: transparent; border: 1px solid var(--line); border-radius: 50%; width: 42px; height: 42px; cursor: pointer; color: var(--ink-mute); font-size: 22px; display: flex; align-items: center; justify-content: center; transition: color 0.2s, border-color 0.2s, transform 0.15s; }
@@ -331,10 +590,7 @@
 .modal-chip { font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); padding: 5px 12px; border: 1px solid var(--accent); border-radius: 999px; }
 .modal-section-title { font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-dim); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
 .modal-section { margin-bottom: 28px; }
-.testimonios-list { display: flex; flex-direction: column; gap: 12px; max-height: 220px; overflow-y: auto; padding-right: 4px; }
-.testimonios-list::-webkit-scrollbar { width: 4px; }
-.testimonios-list::-webkit-scrollbar-track { background: transparent; }
-.testimonios-list::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 2px; }
+.testimonios-list { display: flex; flex-direction: column; gap: 12px; max-height: 220px; overflow-y: auto; padding-right: 4px; scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
 .testimonio { padding: 12px 14px; border: 1px solid var(--line); border-radius: 8px; font-family: var(--f-sans); font-size: 14px; color: var(--ink-dim); line-height: 1.55; }
 .testimonio-stars { color: #F5B731; font-size: 13px; margin-bottom: 5px; }
 .testimonio-autor { font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.08em; color: var(--ink-mute); text-transform: uppercase; margin-top: 7px; }
@@ -346,54 +602,150 @@
 .fav-toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--bg-elev); border: 1px solid var(--line-strong); font-family: var(--f-mono); font-size: 12px; letter-spacing: 0.06em; color: var(--ink-dim); padding: 12px 24px; border-radius: 8px; opacity: 0; transition: opacity 0.3s, transform 0.3s; z-index: 600; white-space: nowrap; }
 .fav-toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-/* Mobile */
-@media (max-width: 820px) {
-  .buscar-left-content {
-    bottom: auto;
-    top: 62px;
-    left: 20px;
-    max-width: calc(100% - 40px);
-  }
-  .buscar-hero-title { font-size: clamp(36px, 8.5vw, 52px); }
-  .buscar-right {
-    align-items: flex-end;
-    justify-content: center;
-    padding: 16px;
-  }
-  .bpanel {
-    width: 100%;
-    height: 82svh;
-  }
+
+/* ============ WSTEP CIRCLES ============ */
+.wsteps {
+  position: fixed;
+  top: 60px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 0;
+  padding: 10px 20px; z-index: 180;
+  pointer-events: none;
 }
-
-/* Zona block deshabilitado hasta ingresar problema */
-.zona-block { transition: opacity 0.4s ease, filter 0.4s ease; margin-top: 16px; }
-.zona-block.zona-disabled { opacity: 0.28; filter: grayscale(0.8); pointer-events: none; user-select: none; }
-
-@media (max-width: 820px) { .buscar-hero-sub { display: none; } }
-@media (max-width: 820px) { .buscar-left-content { display: none; } }
-/* Siguiente button dynamic state */
-#btnSiguiente { transition: background 0.25s ease, opacity 0.25s ease, transform 0.15s ease, border-color 0.25s ease; }
-#btnSiguiente.sig-empty { opacity: 0.38; background: var(--line-strong) !important; border-color: var(--line-strong) !important; color: var(--ink-mute) !important; pointer-events: none; }
-#btnSiguiente.sig-ready { background: var(--accent); border-color: var(--accent); }
-#btnSiguiente:active:not(.sig-empty) { transform: scale(0.97); opacity: 0.85; }
-/* Mic hint */
-.mic-hint { font-family: var(--f-mono); font-size: 11px; color: var(--ink-mute); letter-spacing: 0.05em; margin-top: 10px; margin-bottom: 4px; display: flex; align-items: center; gap: 5px; }
-.mic-hint-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); opacity: 0.6; animation: micHintPulse 2s ease-in-out infinite; }
-@keyframes micHintPulse { 0%,100%{opacity:0.3;transform:scale(0.9)} 50%{opacity:0.8;transform:scale(1.1)} }
-
-/* Wizard steps */
-.wsteps { display: flex; align-items: center; padding: 12px 20px 0; flex-shrink: 0; }
-.wstep { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.06em; border: 1.5px solid var(--line-strong); color: var(--ink-mute); opacity: 0.4; transition: border-color 0.3s, background 0.3s, color 0.3s, opacity 0.3s, width 0.3s, height 0.3s, font-size 0.3s; flex-shrink: 0; }
+.wstep {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.06em;
+  border: 1.5px solid var(--line-strong); color: var(--ink-mute); opacity: 0.4;
+  transition: border-color 0.3s, background 0.3s, color 0.3s, opacity 0.3s, width 0.3s, height 0.3s, font-size 0.3s;
+  flex-shrink: 0;
+}
 .wstep.active { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); width: 34px; height: 34px; font-size: 13px; font-weight: 700; opacity: 1; }
 .wstep.done { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); opacity: 1; }
-.wstep-line { flex: 1; height: 1px; background: var(--line-strong); transition: background 0.3s; margin: 0 6px; }
+.wstep-line { flex: 1; min-width: 24px; height: 1px; background: var(--line-strong); transition: background 0.3s; margin: 0 4px; }
 .wstep-line.done { background: var(--accent); }
-/* Zona confirm check */
-.zona-confirm { display: flex; align-items: center; gap: 6px; font-family: var(--f-mono); font-size: 12px; color: var(--accent); margin: 4px 0 12px; }
-.zona-check { font-size: 15px; }
-/* CTA dominant */
-#btnSiguiente { flex: 1; justify-content: center; padding: 16px 20px; font-size: 13px; border-radius: 12px; letter-spacing: 0.06em; }
+
+/* ============ FOOTER 2 BUTTONS ============ */
+.wiz-foot-row { display: flex; gap: 10px; width: 100%; }
+.wiz-btn-back {
+  padding: 18px 20px;
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  border-radius: 14px;
+  color: var(--ink-mute);
+  font-family: var(--f-mono); font-size: 13px; letter-spacing: 0.07em;
+  cursor: pointer; flex-shrink: 0;
+  transition: color 0.2s, border-color 0.2s;
+}
+.wiz-btn-back:hover { color: var(--ink); border-color: var(--ink-dim); }
+.wiz-foot-row .wiz-cta { flex: 1; }
+
+/* ============ TEXTAREA ARROW BUTTON ============ */
+.wiz-textarea-arrow {
+  position: absolute; right: 14px; bottom: 14px;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--accent); color: var(--accent-ink);
+  border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transform: scale(0.8);
+  transition: opacity 0.2s, transform 0.2s, background 0.2s;
+  pointer-events: none;
+}
+.wiz-textarea-arrow.visible { opacity: 1; transform: scale(1); pointer-events: all; }
+.wiz-textarea-arrow.locked { background: var(--line-strong); pointer-events: none; }
+
+/* ============ DESKTOP DESPLAZAR HINT ============ */
+@media (min-width: 821px) {
+  .wiz-scroll-cue {
+    position: fixed; right: 32px; top: 50%; transform: translateY(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    color: var(--ink-mute); font-family: var(--f-mono); font-size: 10px;
+    letter-spacing: 0.12em; text-transform: uppercase; writing-mode: vertical-lr; z-index: 50;
+  }
+  .wiz-scroll-cue .line-tall {
+    width: 1px; height: 28px; background: var(--ink-mute);
+    animation: scrollLine 2s var(--ease-in-out) infinite; transform-origin: top;
+  }
+}
+@media (max-width: 820px) { .wiz-scroll-cue { display: none; } }
+
+/* ============ MOBILE NAV ALWAYS VISIBLE ============ */
+@media (max-width: 820px) {
+  .nav { display: flex !important; background: transparent !important; backdrop-filter: blur(12px); }
+}
+
+/* ============ FLIP ANIMATION ============ */
+.flip-scale-down-ver {
+  -webkit-animation: flip-scale-down-ver 0.5s linear both;
+  animation: flip-scale-down-ver 0.5s linear both;
+}
+@-webkit-keyframes flip-scale-down-ver {
+  0%   { -webkit-transform: scale(1) rotateY(0); transform: scale(1) rotateY(0); }
+  50%  { -webkit-transform: scale(.4) rotateY(-90deg); transform: scale(.4) rotateY(-90deg); }
+  100% { -webkit-transform: scale(1) rotateY(-180deg); transform: scale(1) rotateY(-180deg); }
+}
+@keyframes flip-scale-down-ver {
+  0%   { transform: scale(1) rotateY(0); }
+  50%  { transform: scale(.4) rotateY(-90deg); }
+  100% { transform: scale(1) rotateY(-180deg); }
+}
+
+/* ============ SCALE-UP-CENTER ============ */
+.scale-up-center {
+  -webkit-animation: scale-up-center .4s cubic-bezier(.39,.575,.565,1.000) both;
+  animation: scale-up-center .4s cubic-bezier(.39,.575,.565,1.000) both;
+}
+@-webkit-keyframes scale-up-center {
+  0%   { -webkit-transform: scale(.5); transform: scale(.5); }
+  100% { -webkit-transform: scale(1);  transform: scale(1);  }
+}
+@keyframes scale-up-center {
+  0%   { transform: scale(.5); }
+  100% { transform: scale(1); }
+}
+
+/* ============ SUCCESS ICON RIGHT ============ */
+.wiz-success-wrap { position: relative; min-height: 80px; }
+.wiz-success-icon { position: absolute; right: 0; top: 0; }
+
+/* ============ MOBILE FONTS ============ */
+@media (max-width: 600px) {
+  .wiz-title { font-size: 12vw !important; }
+  .wiz-sub { font-size: 17px; }
+  .wiz-textarea {
+    font-size: 20px;
+    background: color-mix(in srgb, var(--bg-elev) 85%, transparent);
+    border: 1.5px solid var(--line-strong);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+  }
+  .wiz-textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 20%, transparent);
+  }
+  .wiz-mic-label { font-size: 13px; }
+}
+
+/* ============ MISC ============ */
+.wiz-sep-text { font-size: 13px; }
+.wiz-continue-anyway {
+  display: inline; background: none; border: none;
+  color: var(--accent); font-family: var(--f-mono); font-size: 11px;
+  letter-spacing: 0.06em; cursor: pointer; text-decoration: underline;
+  padding: 0; margin-left: 4px;
+}
+.wiz-results-summary { font-size: 17px !important; }
+.wiz-skip-text {
+  font-family: var(--f-mono); font-size: 12px; letter-spacing: 0.06em;
+  color: var(--ink-mute); text-align: center; margin-top: 10px;
+  cursor: pointer; transition: color 0.2s;
+}
+.wiz-skip-text:hover { color: var(--ink-dim); }
+
+/* ============ MOBILE ============ */
+@media (max-width: 600px) {
+  .wiz-content { padding: 90px 20px 0; }
+  .wiz-foot { padding: 16px 20px calc(20px + env(safe-area-inset-bottom)); }
+  .wiz-time-grid { grid-template-columns: 1fr; }
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.net.min.js"></script>
@@ -413,7 +765,7 @@
   </a>
   <div class="nav-links">
     <a href="./" class="nav-link" data-magnetic>← Inicio</a>
-    <a href="buscar-v2.html" class="nav-link" data-magnetic>Buscar</a>
+    <a href="buscar.html" class="nav-link" data-magnetic>Buscar</a>
     <a href="recomendar.html" class="nav-link" data-magnetic>Recomendar</a>
     <a href="prestador.html" class="nav-link" data-magnetic>Prestador</a>
     <a href="#" class="nav-link nav-login" aria-disabled="true" onclick="return false;" title="Próximamente">
@@ -427,168 +779,192 @@
   </button>
 </nav>
 
-<main>
-  <div class="buscar-page">
+<!-- Vanta full-page background -->
+<div id="wizVanta"></div>
 
-    <!-- Vanta full-page background -->
-    <div id="buscarHeroVanta"></div>
+<!-- Wstep circles (fixed, shared) -->
+<div class="wsteps" id="wsteps">
+  <div class="wstep active" id="ws-dot-0">1</div>
+  <div class="wstep-line" id="wsl-0"></div>
+  <div class="wstep" id="ws-dot-1">2</div>
+  <div class="wstep-line" id="wsl-1"></div>
+  <div class="wstep" id="ws-dot-2">3</div>
+  <div class="wstep-line" id="wsl-2"></div>
+  <div class="wstep" id="ws-dot-3">4</div>
+</div>
 
-    <!-- Hero text: bottom-left, over Vanta, under panel -->
-    <div class="buscar-left-content">
-      <h1 class="buscar-hero-title">
-        El contacto<br>
-        que te <span>salva</span>,<br>
-        sin vueltas.
-      </h1>
-      <p class="buscar-hero-sub">Rápido y sin costos</p>
+<!-- Wizard -->
+<div class="wiz" id="wizContainer">
+
+  <!-- ── STEP 0: Problema ── -->
+  <div class="wiz-step active" id="ws0">
+    <div class="wiz-content">
+      <h1 class="wiz-title">Contanos qué<br><span>necesitás</span></h1>
+      <p class="wiz-sub">Ingresá el problema, servicio u oficio, con tus palabras</p>
+
+      <div class="wiz-textarea-wrap">
+        <textarea id="wizDesc" class="wiz-textarea"
+          placeholder="Ej: Se me rompió un caño en la cocina"
+          rows="1"
+          autocorrect="on" autocapitalize="sentences" spellcheck="true"
+          oninput="onWizInput(this.value);wizAutoExpand(this);"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();wizNext();}"></textarea>
+        <button class="wiz-textarea-arrow" id="wizTextareaArrow" onclick="wizNext()" tabindex="-1" aria-label="Siguiente">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+
+      <div class="wiz-mic-area">
+        <button class="wiz-mic-circle" id="wizMicBtn" onclick="toggleWizMic()" title="Hablar por voz">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        </button>
+        <span class="wiz-mic-label" id="wizMicLabel">Hablar directo</span>
+      </div>
+
+      <div class="wiz-chips-row" id="wizChipsRow">
+        <button class="wiz-chip" onclick="setWizChip(this,'Cuidado de mascotas')">Cuidado de mascotas</button>
+        <button class="wiz-chip" onclick="setWizChip(this,'Instalación eléctrica')">Instalación eléctrica</button>
+        <button class="wiz-chip" onclick="setWizChip(this,'Service de lavarropas')">Service de lavarropas</button>
+        <button class="wiz-chip" onclick="setWizChip(this,'Desagotes')">Desagotes</button>
+        <button class="wiz-chip" onclick="setWizChip(this,'Pintura interior')">Pintura</button>
+        <button class="wiz-chip" onclick="setWizChip(this,'Necesito limpieza')">Limpieza</button>
+        <button class="wiz-chip" onclick="setWizChip(this,'Jardinero')">Jardinero</button>
+        <button class="wiz-chip" onclick="setWizChip(this,'Problema con el gas')">Gas</button>
+      </div>
+
+      <div class="wiz-oficio-badge" id="wizOficioBadge" style="display:none;">
+        <div class="wiz-oficio-icon">✓</div>
+        <span id="wizOficioText">—</span>
+      </div>
+
+      <div class="field-error" id="wiz-err-0">Contanos qué necesitás para continuar</div>
+      <div class="wiz-spacer"></div>
+      <div class="wiz-scroll-cue" aria-hidden="true"><span>Desplazar</span><span class="line-tall"></span></div>
     </div>
+    <div class="wiz-foot">
+      <div class="wiz-foot-row">
+        <button class="wiz-btn-back" onclick="wizPrev()">← Volver</button>
+        <button class="wiz-cta sig-empty" id="wizCtaBtn0" onclick="wizNext()">Siguiente <span class="btn-arr"></span></button>
+      </div>
+    </div>
+  </div>
 
-    <!-- Right: glass tab panel -->
-    <div class="buscar-right">
-      <div class="bpanel">
+  <!-- ── STEP 1: Zona ── -->
+  <div class="wiz-step" id="ws1">
+    <div class="wiz-content">
+      <h1 class="wiz-title">¿Dónde lo<br><span>necesitás</span>?</h1>
+      <p class="wiz-sub">Los mejores prestadores cerca tuyo</p>
 
-        <div class="wsteps" id="wsteps">
-          <div class="wstep active" id="ws0">1</div>
-          <div class="wstep-line" id="wline0"></div>
-          <div class="wstep" id="ws1">2</div>
-          <div class="wstep-line" id="wline1"></div>
-          <div class="wstep" id="ws2">3</div>
+      <button class="wiz-geo-btn" id="wizGeoBtn" onclick="wizGeolocate()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" opacity="0.3"/></svg>
+        Usar mi ubicación
+      </button>
+
+
+      <div class="wiz-sep">
+        <span class="wiz-sep-line"></span>
+        <span class="wiz-sep-text">o escribí la dirección</span>
+        <span class="wiz-sep-line"></span>
+      </div>
+
+      <div class="wiz-addr-wrap">
+        <input type="text" id="wizAddr" class="wiz-addr"
+          placeholder="Av. Colón 1234, Córdoba..."
+          onkeydown="if(event.key==='Enter'){event.preventDefault();wizGeocode();}">
+        <button class="wiz-addr-btn" onclick="wizGeocode()">Buscar</button>
+      </div>
+
+      <div id="wizGeoStatus"></div>
+      <div id="wizMapContainer"></div>
+
+      <div class="field-error" id="wiz-err-1">Ingresá una dirección o usá tu ubicación</div>
+      <div class="wiz-spacer"></div>
+    </div>
+    <div class="wiz-foot">
+      <div class="wiz-foot-row">
+        <button class="wiz-btn-back" onclick="wizPrev()">← Volver</button>
+        <button class="wiz-cta sig-empty" id="wizCtaBtn1" onclick="wizNext()">Siguiente <span class="btn-arr"></span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STEP 2: Cuándo (OPCIONAL) ── -->
+  <div class="wiz-step" id="ws2">
+    <div class="wiz-content">
+      <h1 class="wiz-title">¿Para cuándo<br>lo <span>necesitás</span>?</h1>
+      <p class="wiz-sub">Este paso es OPCIONAL</p>
+
+      <div class="wiz-time-grid">
+        <button class="wiz-time-chip" onclick="selectWizTime(this,'urgente')">
+          Lo antes posible
+          <em>Hoy · Urgente</em>
+        </button>
+        <button class="wiz-time-chip" onclick="selectWizTime(this,'semana')">
+          Esta semana
+          <em>Flexible</em>
+        </button>
+        <button class="wiz-time-chip" onclick="selectWizTime(this,'elegir')">
+          Elegir fecha
+          <em>Fecha y horario</em>
+        </button>
+      </div>
+
+      <p class="wiz-skip-text" onclick="wizNext()">Podés saltar este paso</p>
+      <div class="wiz-spacer"></div>
+    </div>
+    <div class="wiz-foot">
+      <div class="wiz-foot-row">
+        <button class="wiz-btn-back" onclick="wizPrev()">← Volver</button>
+        <button class="wiz-cta" id="wizCtaBtn2" onclick="wizNext()">Siguiente <span class="btn-arr"></span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STEP 3: Resultados ── -->
+  <div class="wiz-step" id="ws3">
+    <div class="wiz-content">
+      <div class="wiz-success-wrap">
+        <div class="wiz-success-icon scale-up-center">✓</div>
+        <h1 class="wiz-title">¡Listo! Encontramos estos<br>prestadores <span>disponibles</span></h1>
+        <p class="wiz-results-summary" id="wizResultsSummary"></p>
+      </div>
+
+      <div class="loading-view" id="wizLoading">
+        <div class="loading-dots">
+          <div class="loading-dot"></div>
+          <div class="loading-dot"></div>
+          <div class="loading-dot"></div>
         </div>
-        <div class="ptabs-header">
-          <button class="ptab active" data-tab="0" onclick="setTab(0)">1 · Problema</button>
-          <button class="ptab locked" data-tab="1" onclick="setTab(1)">2 · Zona</button>
-          <button class="ptab locked" data-tab="2" onclick="setTab(2)">3 · Resultados</button>
-          <div class="ptab-indicator" id="ptabIndicator"></div>
+        <div class="loading-text">Buscando prestadores...</div>
+      </div>
+
+      <div class="results-view" id="wizResultsView">
+        <div class="results-header-row">
+          <span class="results-count-label">Encontrados</span>
+          <span class="results-count" id="wizResultsCount">—</span>
         </div>
-
-        <div class="ptab-panes-wrap">
-
-          <!-- Pane 0: Problema -->
-          <div class="ptab-pane active" id="pane-0">
-            <div class="pane-body">
-              <div class="pane-label">Contanos que necesitas</div>
-              <div class="search-shell" data-cursor="text">
-                <textarea class="search-input" id="inputDescripcion" rows="1"
-                  placeholder="Ej: Se me rompió un caño en la cocina"
-                  autocorrect="on" autocapitalize="sentences" spellcheck="true"
-                  oninput="onDescInput(this.value);autoExpandTextarea(this);"
-                  onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();nextTab();}"></textarea>
-                <button class="btn-mic" id="btnMic" type="button" onclick="toggleMicWhisper()" title="Grabar por voz">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-                </button>
-              </div>
-              <p class="buscar-search-hint">Por oficio o problema (ej: "se me rompió un caño", "necesito limpieza"...)</p>
-              <p class="mic-hint" id="micHint"><span class="mic-hint-dot"></span> También podés hablar directo</p>
-              <div id="oficioBlock" style="display:none;">
-                <div id="oficioChip" class="oficio-chip"></div>
-                <div id="oficioNoDetect" style="display:none; font-family:var(--f-mono); font-size:12px; color:var(--ink-mute); line-height:1.5; margin-bottom:8px;">No detectamos el tipo de servicio. ¿Podés describir un poco más?</div>
-              </div>
-              <div class="sugerencia-card" id="sugerenciaCard">
-                <div class="sugerencia-label">Esto que contás suena a que necesitás:</div>
-                <div class="sugerencia-value" id="sugerenciaValue">—</div>
-              </div>
-              <div class="confirm-card" id="confirmCard">
-                <div class="confirm-label">Parece que necesitás un</div>
-                <div class="confirm-value" id="confirmValue">—</div>
-                <div class="confirm-btns">
-                  <button class="btn-confirm-yes" onclick="confirmarOficio()">Sí, continuar →</button>
-                  <button class="btn-confirm-no" onclick="rechazarOficio()">Intentar de nuevo</button>
-                </div>
-              </div>
-              <div class="field-error" id="problema-error">Describí qué necesitás para continuar</div>
-            </div>
+        <div class="results-grid" id="wizResultsGrid"></div>
+        <div class="no-results" id="wizNoResults" style="display:none;">
+          <div class="no-results-title">Todavía no tenemos prestadores en tu zona</div>
+          <p class="no-results-sub">Dejanos tu WhatsApp y te avisamos cuando sumemos prestadores cerca tuyo.</p>
+          <div class="no-results-wa">
+            <input id="wizNoResultsWA" type="tel" placeholder="Tu WhatsApp (ej: 351 123 4567)">
+            <button onclick="wizEnviarWA()">Avisar</button>
           </div>
-
-          <!-- Pane 1: Zona -->
-          <div class="ptab-pane" id="pane-1">
-            <div class="pane-body">
-              <div class="pane-label">¿Dónde lo necesitás?</div>
-              <div class="zona-input-group">
-                <input type="text" id="inputDireccion" placeholder="Ingresá la dirección..."
-                  onkeydown="if(event.key==='Enter'){event.preventDefault();geocodeDireccion();}">
-                <button class="btn-geolocate" onclick="geolocateUser()" title="Usar mi ubicación">📍</button>
-              </div>
-              <div class="zona-confirm" id="zonaConfirm" style="display:none">
-                <span class="zona-check">✓</span> <span id="zonaConfirmText"></span>
-              </div>
-              <div id="bMapContainer"></div>
-              <div id="geoStatus"></div>
-              <div class="field-error" id="zona-error">Ingresá una dirección o usá tu ubicación</div>
-            </div>
-          </div>
-
-          <!-- Pane 2: Resultados -->
-          <div class="ptab-pane" id="pane-2">
-            <div class="pane-body">
-              <div class="resultado-header" id="resultadoHeader" style="display:none;padding-bottom:12px;border-bottom:1px solid var(--line);margin-bottom:14px;">
-                <p style="font-size:15px;color:var(--ink);line-height:1.5;margin-bottom:8px;">Vamos a mostrarte <strong id="resultadoOficio"></strong> cerca de <strong id="resultadoZona"></strong></p>
-                <button onclick="resetBusqueda()" style="font-size:12px;color:var(--accent);background:none;border:none;cursor:pointer;text-decoration:underline;padding:0;">No es lo que quiero, hacé otra búsqueda</button>
-              </div>
-              <div class="loading-view" id="loadingView">
-                <div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div>
-                <div class="loading-text">Buscando prestadores...</div>
-              </div>
-              <div class="results-view" id="resultsView">
-                <div class="results-header">
-                  <span>Prestadores encontrados</span>
-                  <span class="results-count" id="resultsCount">—</span>
-                </div>
-                <div class="results-grid" id="resultsGrid"></div>
-                <div class="no-results" id="noResults" style="display:none;">
-                  <div class="no-results-title">Todavía no tenemos prestadores en tu zona</div>
-                  <p class="no-results-sub">Dejanos tu WhatsApp y te avisamos cuando sumemos prestadores cerca tuyo.</p>
-                  <div class="no-results-wa">
-                    <input id="noResultsWA" type="tel" placeholder="Tu WhatsApp (ej: 351 123 4567)">
-                    <button onclick="enviarWANoResults()">Avisar</button>
-                  </div>
-                  <p style="font-family:var(--f-mono);font-size:11px;color:var(--ink-mute);">¿Conocés a alguien? <a href="recomendar.html" style="color:var(--accent);text-decoration:none;">Recomendalo acá</a></p>
-                </div>
-              </div>
-              <div id="newSearchWrap" style="display:none;justify-content:center;margin-top:14px;">
-                <button class="btn-primary" onclick="resetBusqueda()">Nueva búsqueda <span class="btn-arr"></span></button>
-              </div>
-            </div>
-          </div>
-
-        </div><!-- /panes-wrap -->
-
-        <div class="bsummary" id="bsummary"></div>
-
-        <div class="bactions">
-          <button id="btnVolver" class="btn-volver" onclick="handleVolver()">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-            <span id="btnVolverLabel">Inicio</span>
-          </button>
-          <button id="btnSiguiente" class="btn-primary" onclick="nextTab()">
-            Siguiente <span class="btn-arr"></span>
-          </button>
+          <p style="font-family:var(--f-mono);font-size:11px;color:var(--ink-mute);">¿Conocés a alguien? <a href="recomendar.html" style="color:var(--accent);text-decoration:none;">Recomendalo acá</a></p>
         </div>
+      </div>
 
-      </div><!-- /bpanel -->
-    </div><!-- /buscar-right -->
-
-  </div><!-- /buscar-page -->
-
-  <footer class="footer">
-    <div>
-      <div class="footer-title">Contacto</div>
-      <div><a href="mailto:hola.servy@gmail.com">hola.servy@gmail.com</a></div>
-      <div><a href="https://www.servy.ar" target="_blank" rel="noopener">www.servy.ar</a></div>
+      <div class="wiz-spacer"></div>
     </div>
-    <div>
-      <div class="footer-title">Navegación</div>
-      <div><a href="buscar.html">Buscar prestador</a></div>
-      <div><a href="recomendar.html">Recomendar</a></div>
-      <div><a href="prestador.html">Soy prestador</a></div>
+    <div class="wiz-foot">
+      <button class="wiz-new-search" onclick="wizReset()">← Nueva búsqueda</button>
     </div>
-    <div>
-      <img src="assets/servy-full.png?v=2" alt="SERVY" class="footer-logo-img">
-    </div>
-  </footer>
+  </div>
 
-</main>
+</div><!-- /wiz -->
 
-<!-- Modal -->
+<!-- Modal prestador -->
 <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)cerrarModal()">
   <div class="modal-box">
     <button class="modal-heart" onclick="mostrarToastFav()" title="Guardar favorito">♡</button>
@@ -621,95 +997,181 @@
 <script>
 var WEBHOOK_BUSQUEDA   = 'https://TU_N8N/webhook/servy-busqueda';
 var WEBHOOK_WHISPER    = 'https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-whisper';
-var WEBHOOK_CLASIFICAR = 'https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-clasificar';
 
-var state = { descripcion: null, oficio: null, zonaText: '', prestadores: [] };
+/* ---- STATE ---- */
+var wizState = { descripcion: null, oficio: null, zonaText: '', tiempo: null, prestadores: [] };
+var wizCurrent = 0;
 
-/* ============ TABS ============ */
-var currentTab = 0;
-var unlockedTabs = [true, false, false];
-
-function setTab(n) {
-  if (!unlockedTabs[n]) return;
-  document.querySelectorAll('.ptab').forEach(function(t) { t.classList.remove('active'); });
-  document.querySelectorAll('.ptab-pane').forEach(function(p) { p.classList.remove('active'); });
-  document.querySelector('.ptab[data-tab="' + n + '"]').classList.add('active');
-  document.getElementById('pane-' + n).classList.add('active');
-  currentTab = n;
-  moveIndicator();
-  updateActions();
-  updateSummary();
-  updateWizardSteps();
-  updateBtnSiguiente();
+/* ---- NAVIGATION ---- */
+function goToStep(n) {
+  var steps = document.querySelectorAll('.wiz-step');
+  steps.forEach(function(s, i) {
+    s.classList.remove('active', 'past');
+    if (i < n) s.classList.add('past');
+    else if (i === n) {
+      s.classList.add('active');
+      var title = s.querySelector('.wiz-title');
+      if (title) {
+        title.classList.remove('flip-scale-down-ver');
+        void title.offsetWidth;
+        title.classList.add('flip-scale-down-ver');
+      }
+    }
+  });
+  wizCurrent = n;
+  updateWizSteps();
 }
 
-function unlockTab(n) {
-  if (unlockedTabs[n]) return;
-  unlockedTabs[n] = true;
-  var tab = document.querySelector('.ptab[data-tab="' + n + '"]');
-  tab.classList.remove('locked');
-  tab.classList.add('just-unlocked');
-  setTimeout(function() { tab.classList.remove('just-unlocked'); }, 700);
+function updateWizSteps() {
+  [0,1,2,3].forEach(function(i) {
+    var el = document.getElementById('ws-dot-' + i);
+    if (!el) return;
+    el.classList.remove('active','done');
+    if (i < wizCurrent) el.classList.add('done');
+    else if (i === wizCurrent) el.classList.add('active');
+  });
+  [0,1,2].forEach(function(i) {
+    var l = document.getElementById('wsl-' + i);
+    if (l) l.classList.toggle('done', i < wizCurrent);
+  });
 }
 
-function nextTab() {
-  if (currentTab === 0) {
-    var desc = document.getElementById('inputDescripcion').value.trim();
-    if (!desc) { document.getElementById('problema-error').classList.add('visible'); document.getElementById('inputDescripcion').focus(); return; }
-    document.getElementById('problema-error').classList.remove('visible');
-    state.descripcion = desc;
-    var _oficio = detectOficio(desc);
-    state.oficio = _oficio;
-    if (!_oficio) {
-      document.getElementById('confirmValue').textContent = 'No reconocemos el tipo exacto — podés ser más específico o continuar igual.';
-      document.getElementById('confirmCard').style.display = 'block';
-      document.getElementById('oficioBlock').style.display = 'block';
-      document.getElementById('sugerenciaCard').classList.remove('visible');
+function wizPrev() {
+  if (wizCurrent === 0) {
+    window.location.href = 'index.html';
+  } else {
+    goToStep(wizCurrent - 1);
+  }
+}
+
+function wizNext() {
+  if (wizCurrent === 0) {
+    var desc = document.getElementById('wizDesc').value.trim();
+    if (!desc) {
+      document.getElementById('wiz-err-0').classList.add('visible');
+      document.getElementById('wizDesc').focus();
       return;
     }
-    unlockTab(1); setTab(1);
-    if (!mapInited) { setTimeout(initMap, 80); }
-  } else if (currentTab === 1) {
-    if (!state.zonaText) { document.getElementById('zona-error').classList.add('visible'); document.getElementById('inputDireccion').focus(); return; }
-    document.getElementById('zona-error').classList.remove('visible');
-    unlockTab(2); setTab(2); buscar();
+    wizState.descripcion = desc;
+    var _oficio = detectOficio(desc);
+    wizState.oficio = _oficio;
+    if (!_oficio) {
+      var errEl = document.getElementById('wiz-err-0');
+      errEl.innerHTML = 'No identificamos el tipo de servicio. Intentá con más detalle o <button class="wiz-continue-anyway" onclick="wizContinueAnyway()">Continuar igual →</button>';
+      errEl.classList.add('visible');
+      return;
+    }
+    document.getElementById('wiz-err-0').classList.remove('visible');
+    goToStep(1);
+    if (!wizMapInited) setTimeout(wizInitMap, 80);
+  } else if (wizCurrent === 1) {
+    if (!wizState.zonaText) {
+      document.getElementById('wiz-err-1').classList.add('visible');
+      document.getElementById('wizAddr').focus();
+      return;
+    }
+    document.getElementById('wiz-err-1').classList.remove('visible');
+    goToStep(2);
+  } else if (wizCurrent === 2) {
+    goToStep(3);
+    wizBuscar();
   }
 }
 
-function handleVolver() {
-  if (currentTab === 0) { window.location.href = 'index.html'; }
-  else { setTab(currentTab - 1); }
+function wizContinueAnyway() {
+  document.getElementById('wiz-err-0').classList.remove('visible');
+  wizState.oficio = null;
+  goToStep(1);
+  if (!wizMapInited) setTimeout(wizInitMap, 80);
 }
 
-function updateActions() {
-  var label = document.getElementById('btnVolverLabel');
-  var btnS  = document.getElementById('btnSiguiente');
-  label.textContent = currentTab === 0 ? 'Inicio' : 'Volver';
-  if (currentTab === 2) { btnS.style.display = 'none'; }
-  else {
-    btnS.style.display = '';
-    btnS.innerHTML = currentTab === 0 ? 'Continuar <span class="btn-arr"></span>' : 'Ver resultados <span class="btn-arr"></span>';
+function wizReset() {
+  wizState = { descripcion: null, oficio: null, zonaText: '', tiempo: null, prestadores: [] };
+  var desc = document.getElementById('wizDesc');
+  desc.value = ''; desc.style.height = 'auto';
+  document.getElementById('wizAddr').value = '';
+  document.getElementById('wizOficioBadge').style.display = 'none';
+  var _gst = document.getElementById('wizGeoStatus'); if (_gst) { _gst.style.display = 'none'; _gst.textContent = ''; }
+  document.getElementById('wizResultsGrid').innerHTML = '';
+  document.getElementById('wizLoading').classList.remove('visible');
+  document.getElementById('wizResultsView').classList.remove('visible');
+  document.getElementById('wizNoResults').style.display = 'none';
+  document.querySelectorAll('.wiz-chip').forEach(function(c) { c.classList.remove('selected'); });
+  document.querySelectorAll('.wiz-time-chip').forEach(function(c) { c.classList.remove('selected'); });
+  updateWizCta0();
+  updateWizCta1();
+  goToStep(0);
+  document.getElementById('wizDesc').focus();
+}
+
+/* ---- INPUT ---- */
+var _wizDescTimer = null;
+function onWizInput(val) {
+  wizState.descripcion = val.trim();
+  wizState.oficio = detectOficio(val);
+  updateWizCta0();
+  clearTimeout(_wizDescTimer);
+  document.getElementById('wizOficioBadge').style.display = 'none';
+  document.querySelectorAll('.wiz-chip').forEach(function(c) { c.classList.remove('selected'); });
+  if (val.trim().length >= 3) {
+    _wizDescTimer = setTimeout(function() {
+      if (wizState.oficio) {
+        document.getElementById('wizOficioText').textContent = wizState.oficio;
+        document.getElementById('wizOficioBadge').style.display = 'flex';
+      }
+    }, 600);
   }
 }
 
-function updateSummary() {
-  var o = state.oficio ? '🔧 ' + state.oficio : '';
-  var z = state.zonaText ? '📍 ' + (state.zonaText.length > 28 ? state.zonaText.substring(0,28) + '…' : state.zonaText) : '';
-  document.getElementById('bsummary').textContent = [o, z].filter(Boolean).join('  ·  ');
+function updateWizCta0() {
+  var btn = document.getElementById('wizCtaBtn0');
+  var arr = document.getElementById('wizTextareaArrow');
+  var val = document.getElementById('wizDesc').value.trim();
+  var oficio = detectOficio(val);
+  if (val.length > 0) {
+    btn.classList.remove('sig-empty');
+    if (arr) {
+      arr.classList.add('visible');
+      if (oficio) arr.classList.remove('locked');
+      else arr.classList.add('locked');
+    }
+  } else {
+    btn.classList.add('sig-empty');
+    if (arr) arr.classList.remove('visible');
+  }
 }
 
-function moveIndicator() {
-  var tab = document.querySelector('.ptab[data-tab="' + currentTab + '"]');
-  var header = document.querySelector('.ptabs-header');
-  var ind = document.getElementById('ptabIndicator');
-  if (!tab || !header || !ind) return;
-  var tR = tab.getBoundingClientRect(), hR = header.getBoundingClientRect();
-  ind.style.left = (tR.left - hR.left) + 'px';
-  ind.style.width = tR.width + 'px';
+function updateWizCta1() {
+  var btn = document.getElementById('wizCtaBtn1');
+  if (wizState.zonaText) {
+    btn.classList.remove('sig-empty');
+  } else {
+    btn.classList.add('sig-empty');
+  }
 }
-window.addEventListener('DOMContentLoaded', function() { setTimeout(moveIndicator, 60); updateBtnSiguiente(); });
 
-/* ============ OFICIO ============ */
+function wizAutoExpand(el) {
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
+
+function setWizChip(el, text) {
+  document.querySelectorAll('.wiz-chip').forEach(function(c) { c.classList.remove('selected'); });
+  el.classList.add('selected');
+  var ta = document.getElementById('wizDesc');
+  ta.value = text;
+  wizAutoExpand(ta);
+  onWizInput(text);
+  ta.focus();
+}
+
+function selectWizTime(el, key) {
+  document.querySelectorAll('.wiz-time-chip').forEach(function(c) { c.classList.remove('selected'); });
+  el.classList.add('selected');
+  wizState.tiempo = key;
+}
+
+/* ---- OFICIO DETECTION (identical to buscar.html) ---- */
 var oficioMap = {
   'plomer':'Plomero','caño':'Plomero','canio':'Plomero','cano':'Plomero',
   'humedad':'Plomero','gotera':'Plomero','filtrac':'Plomero','inundac':'Plomero',
@@ -717,6 +1179,7 @@ var oficioMap = {
   'calefon':'Plomero','termotanque':'Plomero','caneria':'Plomero','cañería':'Plomero',
   'desague':'Plomero','desagüe':'Plomero','baño tapado':'Plomero','inodoro':'Plomero',
   'pileta':'Plomero','agua caliente':'Plomero','no sale agua':'Plomero',
+  'griferia':'Plomero','grifería':'Plomero',
   'electric':'Electricista','corto':'Electricista','enchufe':'Electricista',
   'cable':'Electricista','lampara':'Electricista','lámpara':'Electricista',
   'luminaria':'Electricista','tablero':'Electricista','disyuntor':'Electricista',
@@ -729,7 +1192,6 @@ var oficioMap = {
   'demoler':'Albañil','revoqu':'Albañil','azulejo':'Albañil','ceramic':'Albañil',
   'cerraj':'Cerrajero','cerradura':'Cerrajero','candado':'Cerrajero',
   'me quede afuera':'Cerrajero','quedé afuera':'Cerrajero','no puedo entrar':'Cerrajero',
-  'llave trancada':'Cerrajero','duplicado de llave':'Cerrajero','caja fuerte':'Cerrajero',
   'aire':'Técnico en Aire Acond.','refriger':'Técnico en Aire Acond.','split':'Técnico en Aire Acond.',
   'no enfria':'Técnico en Aire Acond.','no enfría':'Técnico en Aire Acond.','calefacci':'Técnico en Aire Acond.',
   'limpiez':'Limpieza','ordenar la casa':'Limpieza','mucama':'Limpieza',
@@ -737,181 +1199,176 @@ var oficioMap = {
   'mudanz':'Flete / Mudanza','flete':'Flete / Mudanza',
   'carpint':'Carpintero','mueble':'Carpintero','madera':'Carpintero',
   'herrer':'Herrero','reja':'Herrero','porton':'Herrero','portón':'Herrero',
-  'techist':'Techista','membrana':'Techista','impermeab':'Techista'
+  'techist':'Techista','membrana':'Techista','impermeab':'Techista',
+  'destapac':'Plomero','tapado':'Plomero'
 };
-
 function detectOficio(text) {
   var t = text.toLowerCase();
   for (var kw in oficioMap) { if (t.includes(kw)) return oficioMap[kw]; }
   return null;
 }
 
-var _descTimer = null;
-function onDescInput(val) {
-  state.descripcion = val.trim();
-  var oficio = detectOficio(val);
-  state.oficio = oficio;
-  document.getElementById('confirmCard').style.display = 'none';
-  document.getElementById('sugerenciaCard').classList.remove('visible');
-  updateBtnSiguiente();
-  clearTimeout(_descTimer);
-  if (val.trim().length >= 3) {
-    _descTimer = setTimeout(function() {
-      if (state.oficio) {
-        document.getElementById('sugerenciaValue').textContent = state.oficio;
-        document.getElementById('sugerenciaCard').classList.add('visible');
-      }
-    }, 700);
+/* ---- MIC ---- */
+var _wizMediaRecorder = null, _wizAudioChunks = [], _wizMicStream = null;
+async function getWizMicStream() {
+  if (_wizMicStream && _wizMicStream.active) return _wizMicStream;
+  _wizMicStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  return _wizMicStream;
+}
+window.addEventListener('beforeunload', function() {
+  if (_wizMicStream) _wizMicStream.getTracks().forEach(function(t) { t.stop(); });
+});
+
+async function toggleWizMic() {
+  var btn = document.getElementById('wizMicBtn');
+  var lbl = document.getElementById('wizMicLabel');
+  if (_wizMediaRecorder && _wizMediaRecorder.state === 'recording') {
+    _wizMediaRecorder.stop(); return;
   }
-  updateSummary();
-}
-
-function updateBtnSiguiente() {
-  var desc = document.getElementById('inputDescripcion').value.trim();
-  var btn = document.getElementById('btnSiguiente');
-  if (!btn) return;
-  if (currentTab !== 0) return;
-  if (desc.length > 0) {
-    btn.classList.remove('sig-empty');
-    btn.classList.add('sig-ready');
-  } else {
-    btn.classList.remove('sig-ready');
-    btn.classList.add('sig-empty');
-  }
-}
-
-function autoExpandTextarea(el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
-
-/* ============ MIC ============ */
-var _mediaRecorder = null, _audioChunks = [], _micStream = null;
-async function getMicStream() {
-  if (_micStream && _micStream.active) return _micStream;
-  _micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  return _micStream;
-}
-window.addEventListener('beforeunload', function() { if (_micStream) _micStream.getTracks().forEach(function(t) { t.stop(); }); });
-
-async function toggleMicWhisper() {
-  var btn = document.getElementById('btnMic');
-  if (_mediaRecorder && _mediaRecorder.state === 'recording') { _mediaRecorder.stop(); return; }
   try {
-    var stream = await getMicStream();
-    _audioChunks = [];
+    var stream = await getWizMicStream();
+    _wizAudioChunks = [];
     var _mime = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : '';
-    _mediaRecorder = new MediaRecorder(stream, _mime ? { mimeType: _mime } : {});
-    _mediaRecorder.ondataavailable = function(e) { _audioChunks.push(e.data); };
-    _mediaRecorder.onstop = async function() {
+    _wizMediaRecorder = new MediaRecorder(stream, _mime ? { mimeType: _mime } : {});
+    _wizMediaRecorder.ondataavailable = function(e) { _wizAudioChunks.push(e.data); };
+    _wizMediaRecorder.onstop = async function() {
       btn.classList.remove('recording');
-      var blob = new Blob(_audioChunks, { type: _mime || 'audio/webm' });
-      if (!blob.size) { btn.classList.remove('transcribing'); return; }
+      lbl.textContent = 'Procesando...';
+      var blob = new Blob(_wizAudioChunks, { type: _mime || 'audio/webm' });
+      if (!blob.size) { lbl.textContent = 'Hablar directo'; btn.classList.remove('transcribing'); return; }
       btn.classList.add('transcribing');
       try {
         var fd = new FormData();
         fd.append('audio', blob, 'audio.' + (_mime === 'audio/mp4' ? 'm4a' : 'webm'));
         var res = await fetch(WEBHOOK_WHISPER, { method: 'POST', body: fd });
         var data = await res.json();
-        if (data.text) { var inp = document.getElementById('inputDescripcion'); inp.value = data.text; autoExpandTextarea(inp); onSpeechResult(data.text); }
+        if (data.text) {
+          var ta = document.getElementById('wizDesc');
+          ta.value = data.text;
+          wizAutoExpand(ta);
+          onWizInput(data.text);
+        }
       } catch(e) {}
       btn.classList.remove('transcribing');
+      lbl.textContent = 'Hablar directo';
     };
-    _mediaRecorder.start(250); btn.classList.add('recording');
-  } catch(e) { alert('No se pudo acceder al micrófono. Verificá los permisos.'); }
+    _wizMediaRecorder.start(250);
+    btn.classList.add('recording');
+    lbl.textContent = 'Grabando...';
+  } catch(e) {
+    alert('No se pudo acceder al micrófono. Verificá los permisos.');
+  }
 }
 
-function onSpeechResult(transcript) {
-  state.descripcion = transcript.trim();
-  var oficio = detectOficio(transcript); state.oficio = oficio;
-  document.getElementById('sugerenciaCard').classList.remove('visible');
-  if (oficio && transcript.trim().length > 3) { document.getElementById('confirmValue').textContent = oficio; document.getElementById('confirmCard').style.display = ''; }
-  else { document.getElementById('confirmCard').style.display = 'none'; }
-  updateSummary();
-}
+/* ---- MAP ---- */
+var wizMapInited = false, _wizMap, _wizMarker, _wizCircle;
 
-function confirmarOficio() { document.getElementById('confirmCard').style.display = 'none'; unlockTab(1); setTab(1); if (!mapInited) { setTimeout(initMap, 80); } }
-function rechazarOficio() { state.oficio = null; state.descripcion = null; document.getElementById('inputDescripcion').value = ''; document.getElementById('confirmCard').style.display = 'none'; document.getElementById('inputDescripcion').focus(); }
-
-/* ============ MAP ============ */
-var mapInited = false, _bMap, _bMarker, _bCircle;
-
-function initMap() {
-  if (mapInited) return; mapInited = true;
-  var wrap = document.getElementById('bMapContainer');
+function wizInitMap() {
+  if (wizMapInited) return; wizMapInited = true;
+  var wrap = document.getElementById('wizMapContainer');
   function _create() {
+    wrap.style.height = '180px';
     var center = { lat: -31.4135, lng: -64.1811 };
-    _bMap = new google.maps.Map(wrap, { center: center, zoom: 13, mapTypeControl: false, streetViewControl: false, fullscreenControl: false, gestureHandling: 'cooperative' });
-    _bMarker = new google.maps.Marker({ position: center, map: _bMap, draggable: true, title: 'Arrastrá para ajustar' });
-    _bCircle = new google.maps.Circle({ map: _bMap, center: center, radius: 3000, strokeColor: '#3CE6C5', strokeOpacity: 0.7, strokeWeight: 2, fillColor: '#3CE6C5', fillOpacity: 0.12 });
+    _wizMap = new google.maps.Map(wrap, {
+      center: center, zoom: 13,
+      mapTypeControl: false, streetViewControl: false,
+      fullscreenControl: false, gestureHandling: 'cooperative'
+    });
+    _wizMarker = new google.maps.Marker({ position: center, map: _wizMap, draggable: true });
+    _wizCircle = new google.maps.Circle({
+      map: _wizMap, center: center, radius: 3000,
+      strokeColor: '#3CE6C5', strokeOpacity: 0.7, strokeWeight: 2,
+      fillColor: '#3CE6C5', fillOpacity: 0.12
+    });
     function pick(ll) {
-      if (_bCircle) _bCircle.setCenter({ lat: ll.lat(), lng: ll.lng() });
+      if (_wizCircle) _wizCircle.setCenter({ lat: ll.lat(), lng: ll.lng() });
       new google.maps.Geocoder().geocode({ location: { lat: ll.lat(), lng: ll.lng() } }, function(results, status) {
         var addr = (status === 'OK' && results[0]) ? results[0].formatted_address : ll.lat().toFixed(4) + ', ' + ll.lng().toFixed(4);
-        setZonaSuccess(addr);
-        document.getElementById('inputDireccion').value = addr;
-        var st = document.getElementById('geoStatus'); st.style.display = ''; st.textContent = '📍 ' + addr;
+        setWizZona(addr);
       });
     }
-    _bMarker.addListener('dragend', function(e) { pick(e.latLng); });
-    _bMap.addListener('click', function(e) { _bMarker.setPosition(e.latLng); pick(e.latLng); });
+    _wizMarker.addListener('dragend', function(e) { pick(e.latLng); });
+    _wizMap.addListener('click', function(e) { _wizMarker.setPosition(e.latLng); pick(e.latLng); });
   }
   if (window.google && window.google.maps) { _create(); return; }
-  wrap.style.cssText = 'height:210px;display:flex;align-items:center;justify-content:center;background:var(--bg-elev);color:var(--ink-mute);font-family:var(--f-mono);font-size:12px;border-radius:12px;';
+  wrap.style.cssText = 'height:180px;display:flex;align-items:center;justify-content:center;background:var(--bg-elev);color:var(--ink-mute);font-family:var(--f-mono);font-size:12px;border-radius:12px;';
   wrap.textContent = 'Cargando mapa...';
   var s = document.createElement('script');
   s.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyAlyXQU_W6Zi5sn1PhuHIJ1Qqf7aiBsOvc';
   s.onload = _create; document.head.appendChild(s);
 }
 
-function geocodeDireccion() {
-  var dir = document.getElementById('inputDireccion').value.trim();
+function wizGeocode() {
+  var dir = document.getElementById('wizAddr').value.trim();
   if (!dir) return;
-  if (!mapInited) { initMap(); setTimeout(geocodeDireccion, 400); return; }
-  if (!_bMap) { setTimeout(geocodeDireccion, 300); return; }
+  if (!wizMapInited) { wizInitMap(); setTimeout(wizGeocode, 400); return; }
+  if (!_wizMap) { setTimeout(wizGeocode, 300); return; }
   new google.maps.Geocoder().geocode({ address: dir + ', Córdoba, Argentina' }, function(results, status) {
-    var st = document.getElementById('geoStatus'); st.style.display = '';
+    var st = document.getElementById('wizGeoStatus'); st.style.display = 'block';
     if (status === 'OK' && results[0]) {
       var loc = results[0].geometry.location;
-      _bMap.setCenter(loc); _bMap.setZoom(14);
-      if (_bMarker) _bMarker.setPosition(loc);
-      if (_bCircle) _bCircle.setCenter({ lat: loc.lat(), lng: loc.lng() });
-      setZonaSuccess(results[0].formatted_address);
-      document.getElementById('inputDireccion').value = results[0].formatted_address;
-      st.textContent = '📍 ' + results[0].formatted_address;
-    } else { st.textContent = 'No se encontró la dirección'; }
+      _wizMap.setCenter(loc); _wizMap.setZoom(14);
+      if (_wizMarker) _wizMarker.setPosition(loc);
+      if (_wizCircle) _wizCircle.setCenter({ lat: loc.lat(), lng: loc.lng() });
+      setWizZona(results[0].formatted_address);
+    } else {
+      st.textContent = 'No se encontró la dirección';
+    }
   });
 }
 
-function geolocateUser() {
+function wizGeolocate() {
   if (!navigator.geolocation) return;
-  var st = document.getElementById('geoStatus'); st.style.display = ''; st.textContent = 'Detectando ubicación...';
+  var btn = document.getElementById('wizGeoBtn');
+  btn.textContent = 'Detectando...';
+  var st = document.getElementById('wizGeoStatus'); st.style.display = 'block'; st.textContent = 'Detectando ubicación...';
   navigator.geolocation.getCurrentPosition(function(pos) {
     var ll = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-    if (!mapInited) initMap();
+    if (!wizMapInited) wizInitMap();
     function doReverse() {
-      if (!_bMap) { setTimeout(doReverse, 200); return; }
-      _bMap.setCenter(ll); _bMap.setZoom(14); _bMarker.setPosition(ll);
-      if (_bCircle) _bCircle.setCenter(ll);
+      if (!_wizMap) { setTimeout(doReverse, 200); return; }
+      _wizMap.setCenter(ll); _wizMap.setZoom(14);
+      _wizMarker.setPosition(ll);
+      if (_wizCircle) _wizCircle.setCenter(ll);
       new google.maps.Geocoder().geocode({ location: ll }, function(results, status2) {
         var addr = (status2 === 'OK' && results[0]) ? results[0].formatted_address : ll.lat.toFixed(4) + ', ' + ll.lng.toFixed(4);
-        setZonaSuccess(addr); document.getElementById('inputDireccion').value = addr;
-        st.textContent = '📍 ' + addr;
+        setWizZona(addr);
+        btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" opacity="0.3"/></svg> Usar mi ubicación';
       });
     }
     doReverse();
-  }, function() { st.textContent = 'No se pudo obtener tu ubicación'; });
+  }, function() {
+    st.textContent = 'No se pudo obtener tu ubicación';
+    btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" opacity="0.3"/></svg> Usar mi ubicación';
+  });
 }
 
-/* ============ BUSCAR ============ */
-async function buscar() {
-  document.getElementById('loadingView').classList.add('visible');
-  document.getElementById('resultsView').classList.remove('visible');
-  document.getElementById('newSearchWrap').style.display = 'none';
-  var payload = { descripcion: state.descripcion, oficio: state.oficio, zona: state.zonaText };
+function setWizZona(text) {
+  wizState.zonaText = text;
+  var addrEl = document.getElementById('wizAddr');
+  if (addrEl) addrEl.value = text;
+  var st = document.getElementById('wizGeoStatus');
+  if (st) { st.style.display = 'none'; st.textContent = ''; }
+  document.getElementById('wiz-err-1').classList.remove('visible');
+  updateWizCta1();
+}
+
+/* ---- BUSCAR ---- */
+async function wizBuscar() {
+  document.getElementById('wizLoading').classList.add('visible');
+  document.getElementById('wizResultsView').classList.remove('visible');
+  var sum = document.getElementById('wizResultsSummary');
+  var ofStr = wizState.oficio || 'el servicio';
+  var zoStr = wizState.zonaText ? 'cerca de ' + (wizState.zonaText.length > 28 ? wizState.zonaText.substring(0,28)+'…' : wizState.zonaText) : 'en tu zona';
+  sum.innerHTML = 'Buscamos <strong>' + ofStr + '</strong> ' + zoStr;
+  var payload = { descripcion: wizState.descripcion, oficio: wizState.oficio, zona: wizState.zonaText, tiempo: wizState.tiempo };
   var prestadores = [];
   try {
     var res = await fetch(WEBHOOK_BUSQUEDA, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     if (res.ok) prestadores = await res.json(); else prestadores = getDemoPrestadores();
   } catch(e) { prestadores = getDemoPrestadores(); }
-  state.prestadores = prestadores; renderResults(prestadores);
+  wizState.prestadores = prestadores;
+  wizRenderResults(prestadores);
 }
 
 function getDemoPrestadores() {
@@ -927,18 +1384,13 @@ function getDemoPrestadores() {
   ];
 }
 
-function renderResults(prestadores) {
-  document.getElementById('loadingView').classList.remove('visible');
-  document.getElementById('resultsView').classList.add('visible');
-  var hdr = document.getElementById('resultadoHeader');
-  hdr.style.display = '';
-  document.getElementById('resultadoOficio').textContent = state.oficio || 'el servicio';
-  var _rz = state.zonaText || 'tu zona';
-  document.getElementById('resultadoZona').textContent = _rz.length > 32 ? _rz.substring(0,32)+'…' : _rz;
-  document.getElementById('resultsCount').textContent = prestadores.length + ' encontrados';
-  var grid = document.getElementById('resultsGrid'); grid.innerHTML = '';
-  if (prestadores.length === 0) { document.getElementById('noResults').style.display = ''; return; }
-  document.getElementById('noResults').style.display = 'none';
+function wizRenderResults(prestadores) {
+  document.getElementById('wizLoading').classList.remove('visible');
+  document.getElementById('wizResultsView').classList.add('visible');
+  document.getElementById('wizResultsCount').textContent = prestadores.length;
+  var grid = document.getElementById('wizResultsGrid'); grid.innerHTML = '';
+  if (prestadores.length === 0) { document.getElementById('wizNoResults').style.display = ''; return; }
+  document.getElementById('wizNoResults').style.display = 'none';
   prestadores.forEach(function(p, idx) {
     var stars = '★'.repeat(p.stars) + (p.stars < 5 ? '☆'.repeat(5 - p.stars) : '');
     var card = document.createElement('div'); card.className = 'result-card'; card.style.animationDelay = (idx * 80) + 'ms';
@@ -951,10 +1403,9 @@ function renderResults(prestadores) {
     setTimeout(function() { card.classList.add('reveal'); }, 50 + idx * 80);
     grid.appendChild(card);
   });
-  document.getElementById('newSearchWrap').style.display = 'flex';
 }
 
-/* ============ MODAL ============ */
+/* ---- MODAL ---- */
 var prestadorActual = null;
 function abrirModal(p) {
   prestadorActual = p;
@@ -977,68 +1428,31 @@ function contactarWhatsApp() {
 }
 function solicitarPresupuesto() { alert('Función próximamente — envío de solicitud vía SERVY.'); }
 
-function enviarWANoResults() {
-  var wa = document.getElementById('noResultsWA').value.trim(); if (!wa) return;
-  var btn = document.querySelector('#noResults .no-results-wa button');
-  btn.textContent = '✓ Anotado'; btn.style.background = 'var(--ink-mute)'; btn.disabled = true;
-}
-
 var _favToastTimer = null;
 function mostrarToastFav() {
   var toast = document.getElementById('favToast'); toast.classList.add('visible');
   clearTimeout(_favToastTimer); _favToastTimer = setTimeout(function() { toast.classList.remove('visible'); }, 3000);
 }
 
-function resetBusqueda() {
-  state.descripcion = null; state.oficio = null; state.zonaText = ''; state.prestadores = [];
-  var inp = document.getElementById('inputDescripcion'); inp.value = ''; inp.style.height = 'auto';
-  document.getElementById('sugerenciaCard').classList.remove('visible');
-  document.getElementById('confirmCard').style.display = 'none';
-  document.getElementById('oficioBlock').style.display = 'none';
-  document.getElementById('loadingView').classList.remove('visible');
-  document.getElementById('resultsView').classList.remove('visible');
-  document.getElementById('newSearchWrap').style.display = 'none';
-  document.getElementById('resultsGrid').innerHTML = '';
-  document.getElementById('geoStatus').style.display = 'none';
-  document.getElementById('inputDireccion').value = '';
-  currentTab = 0; unlockedTabs = [true, false, false];
-  var zonaConfirm = document.getElementById('zonaConfirm'); if (zonaConfirm) zonaConfirm.style.display = 'none';
-  document.getElementById('resultadoHeader').style.display = 'none';
-  document.querySelectorAll('.ptab').forEach(function(t, i) { t.classList.remove('active','just-unlocked'); if (i === 0) t.classList.add('active'); else t.classList.add('locked'); });
-  document.querySelectorAll('.ptab-pane').forEach(function(p, i) { p.classList.remove('active'); if (i === 0) p.classList.add('active'); });
-  moveIndicator(); updateActions(); updateSummary();
+function wizEnviarWA() {
+  var wa = document.getElementById('wizNoResultsWA').value.trim(); if (!wa) return;
+  var btn = document.querySelector('#wizNoResults .no-results-wa button');
+  btn.textContent = '✓ Anotado'; btn.style.background = 'var(--ink-mute)'; btn.disabled = true;
 }
 
-function setZonaSuccess(text) {
-  state.zonaText = text;
-  var el = document.getElementById('zonaConfirm');
-  if (el) { document.getElementById('zonaConfirmText').textContent = text.length > 42 ? text.substring(0,42)+'…' : text; el.style.display = 'flex'; }
-  document.getElementById('zona-error').classList.remove('visible');
-  updateSummary();
-}
-
-function updateWizardSteps() {
-  [0,1,2].forEach(function(i) {
-    var el = document.getElementById('ws' + i);
-    if (!el) return;
-    el.classList.remove('active','done');
-    if (i < currentTab) el.classList.add('done');
-    else if (i === currentTab) el.classList.add('active');
-  });
-  document.querySelectorAll('.wstep-line').forEach(function(l, i) {
-    l.classList.toggle('done', i < currentTab);
-  });
-}
-
+/* ---- INIT ---- */
 function initFromURLParams() {
   var q = new URLSearchParams(window.location.search).get('q'); if (!q) return;
-  state.descripcion = q; state.oficio = detectOficio(q);
-  var inp = document.getElementById('inputDescripcion'); inp.value = q; autoExpandTextarea(inp);
-  if (state.oficio) { document.getElementById('sugerenciaValue').textContent = state.oficio; document.getElementById('sugerenciaCard').classList.add('visible'); }
-  if (q.length >= 3) { unlockTab(1); setTab(1); if (!mapInited) { setTimeout(initMap, 80); } }
-  updateSummary();
+  wizState.descripcion = q; wizState.oficio = detectOficio(q);
+  var ta = document.getElementById('wizDesc'); ta.value = q; wizAutoExpand(ta);
+  onWizInput(q);
+  if (q.length >= 3) { goToStep(1); if (!wizMapInited) setTimeout(wizInitMap, 80); }
 }
-initFromURLParams();
+
+window.addEventListener('DOMContentLoaded', function() {
+  updateWizSteps();
+  initFromURLParams();
+});
 window.addEventListener('pageshow', function(e) { if (e.persisted) initFromURLParams(); });
 </script>
 
@@ -1048,7 +1462,7 @@ window.addEventListener('pageshow', function(e) { if (e.persisted) initFromURLPa
   function initVanta() {
     if (typeof VANTA === 'undefined' || !VANTA.NET) { setTimeout(initVanta, 100); return; }
     var inst = VANTA.NET({
-      el: '#buscarHeroVanta',
+      el: '#wizVanta',
       mouseControls: true, touchControls: true, gyroControls: false,
       minHeight: 200, minWidth: 200, scale: 1, scaleMobile: 1,
       color: 0x3ce6c5, backgroundColor: 0x0e0f12,
@@ -1060,7 +1474,6 @@ window.addEventListener('pageshow', function(e) { if (e.persisted) initFromURLPa
       var col = p === 'bone' ? 0x0d6b55 : (p === 'candy' ? 0xd5ff4a : 0x3ce6c5);
       if (inst) inst.setOptions({ backgroundColor: bg, color: col });
     }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-palette'] });
-    // Apply current palette on load
     (function(){ var _p = document.documentElement.getAttribute('data-palette'); if (_p && _p !== 'midnight') { var _bg = _p === 'bone' ? 0xEEEAE0 : (_p === 'candy' ? 0x0f0e12 : 0x0e0f12); var _col = _p === 'bone' ? 0x0d6b55 : (_p === 'candy' ? 0xd5ff4a : 0x3ce6c5); if (inst) inst.setOptions({ backgroundColor: _bg, color: _col }); } })();
   }
   initVanta();

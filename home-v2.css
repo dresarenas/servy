@@ -167,6 +167,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   width: 36px; height: 36px;
   border: 1px solid rgba(255,255,255,0.7);
   transform: translate(-50%, -50%);
+  display: none !important;
 }
 .cursor-ready .cursor-dot,
 .cursor-ready .cursor-ring { opacity: 1; }
