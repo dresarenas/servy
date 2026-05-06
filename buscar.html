@@ -65,7 +65,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 100px 28px 0;
+  padding: 80px 28px 0;
   max-width: 600px;
   width: 100%;
   margin: 0 auto;
@@ -237,12 +237,12 @@
 /* ============ FIELD ERROR ============ */
 .field-error {
   display: none;
-  font-family: var(--f-mono);
-  font-size: 11px;
-  letter-spacing: 0.06em;
+  font-family: var(--f-sans);
+  font-size: 14px;
   color: #F87171;
-  margin-top: 6px;
+  margin-top: 10px;
   margin-bottom: 6px;
+  line-height: 1.4;
 }
 .field-error.visible { display: block; }
 
@@ -603,26 +603,20 @@
 .fav-toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 
-/* ============ WSTEP CIRCLES ============ */
-.wsteps {
-  position: fixed;
-  top: 60px; left: 50%; transform: translateX(-50%);
-  display: flex; align-items: center; gap: 0;
-  padding: 10px 20px; z-index: 180;
-  pointer-events: none;
-}
-.wstep {
-  width: 28px; height: 28px; border-radius: 50%;
+/* ============ WSTEP BAR (inline, flujo normal) ============ */
+.wsteps-bar { display: flex; align-items: center; gap: 0; margin-bottom: 20px; }
+.wb-dot {
+  width: 26px; height: 26px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.06em;
   border: 1.5px solid var(--line-strong); color: var(--ink-mute); opacity: 0.4;
   transition: border-color 0.3s, background 0.3s, color 0.3s, opacity 0.3s, width 0.3s, height 0.3s, font-size 0.3s;
   flex-shrink: 0;
 }
-.wstep.active { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); width: 34px; height: 34px; font-size: 13px; font-weight: 700; opacity: 1; }
-.wstep.done { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); opacity: 1; }
-.wstep-line { flex: 1; min-width: 24px; height: 1px; background: var(--line-strong); transition: background 0.3s; margin: 0 4px; }
-.wstep-line.done { background: var(--accent); }
+.wb-dot.active { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); width: 32px; height: 32px; font-size: 13px; font-weight: 700; opacity: 1; }
+.wb-dot.done { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); opacity: 1; }
+.wb-line { flex: 1; min-width: 20px; height: 1px; background: var(--line-strong); transition: background 0.3s; margin: 0 6px; }
+.wb-line.done { background: var(--accent); }
 
 /* ============ FOOTER 2 BUTTONS ============ */
 .wiz-foot-row { display: flex; gap: 10px; width: 100%; }
@@ -656,7 +650,7 @@
 /* ============ DESKTOP DESPLAZAR HINT ============ */
 @media (min-width: 821px) {
   .wiz-scroll-cue {
-    position: fixed; right: 32px; top: 50%; transform: translateY(-50%);
+    position: fixed; right: 32px; top: 65%; transform: translateY(-50%);
     display: flex; flex-direction: column; align-items: center; gap: 10px;
     color: var(--ink-mute); font-family: var(--f-mono); font-size: 10px;
     letter-spacing: 0.12em; text-transform: uppercase; writing-mode: vertical-lr; z-index: 50;
@@ -679,14 +673,14 @@
   animation: flip-scale-down-ver 0.5s linear both;
 }
 @-webkit-keyframes flip-scale-down-ver {
-  0%   { -webkit-transform: scale(1) rotateY(0); transform: scale(1) rotateY(0); }
-  50%  { -webkit-transform: scale(.4) rotateY(-90deg); transform: scale(.4) rotateY(-90deg); }
-  100% { -webkit-transform: scale(1) rotateY(-180deg); transform: scale(1) rotateY(-180deg); }
+  0%   { -webkit-transform: scale(1) rotateY(180deg); transform: scale(1) rotateY(180deg); }
+  50%  { -webkit-transform: scale(.4) rotateY(90deg); transform: scale(.4) rotateY(90deg); }
+  100% { -webkit-transform: scale(1) rotateY(0deg); transform: scale(1) rotateY(0deg); }
 }
 @keyframes flip-scale-down-ver {
-  0%   { transform: scale(1) rotateY(0); }
-  50%  { transform: scale(.4) rotateY(-90deg); }
-  100% { transform: scale(1) rotateY(-180deg); }
+  0%   { transform: scale(1) rotateY(180deg); }
+  50%  { transform: scale(.4) rotateY(90deg); }
+  100% { transform: scale(1) rotateY(0deg); }
 }
 
 /* ============ SCALE-UP-CENTER ============ */
@@ -724,6 +718,25 @@
   .wiz-mic-label { font-size: 13px; }
 }
 
+/* ============ DATE PICKER ============ */
+.wiz-date-picker {
+  display: none; flex-direction: column; gap: 10px; margin-top: 14px;
+  padding: 16px; background: color-mix(in srgb, var(--bg-elev) 60%, transparent);
+  border: 1px solid var(--line-strong); border-radius: 14px;
+}
+.wiz-date-picker.visible { display: flex; }
+.wiz-date-picker label {
+  font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--ink-mute);
+}
+.wiz-date-input, .wiz-time-input {
+  width: 100%; background: color-mix(in srgb, var(--bg-elev) 80%, transparent);
+  border: 1px solid var(--line-strong); border-radius: 10px;
+  color: var(--ink); font-family: var(--f-mono); font-size: 15px;
+  padding: 12px 14px; outline: none; cursor: pointer;
+  transition: border-color 0.2s;
+}
+.wiz-date-input:focus, .wiz-time-input:focus { border-color: var(--accent); }
 /* ============ MISC ============ */
 .wiz-sep-text { font-size: 13px; }
 .wiz-continue-anyway {
@@ -782,23 +795,19 @@
 <!-- Vanta full-page background -->
 <div id="wizVanta"></div>
 
-<!-- Wstep circles (fixed, shared) -->
-<div class="wsteps" id="wsteps">
-  <div class="wstep active" id="ws-dot-0">1</div>
-  <div class="wstep-line" id="wsl-0"></div>
-  <div class="wstep" id="ws-dot-1">2</div>
-  <div class="wstep-line" id="wsl-1"></div>
-  <div class="wstep" id="ws-dot-2">3</div>
-  <div class="wstep-line" id="wsl-2"></div>
-  <div class="wstep" id="ws-dot-3">4</div>
-</div>
-
 <!-- Wizard -->
 <div class="wiz" id="wizContainer">
 
   <!-- ── STEP 0: Problema ── -->
   <div class="wiz-step active" id="ws0">
     <div class="wiz-content">
+      <div class="wsteps-bar">
+        <span class="wb-dot" data-n="0">1</span>
+        <span class="wb-line" data-n="0"></span>
+        <span class="wb-dot" data-n="1">2</span>
+        <span class="wb-line" data-n="1"></span>
+        <span class="wb-dot" data-n="2">3</span>
+      </div>
       <h1 class="wiz-title">Contanos qué<br><span>necesitás</span></h1>
       <p class="wiz-sub">Ingresá el problema, servicio u oficio, con tus palabras</p>
 
@@ -852,6 +861,13 @@
   <!-- ── STEP 1: Zona ── -->
   <div class="wiz-step" id="ws1">
     <div class="wiz-content">
+      <div class="wsteps-bar">
+        <span class="wb-dot" data-n="0">1</span>
+        <span class="wb-line" data-n="0"></span>
+        <span class="wb-dot" data-n="1">2</span>
+        <span class="wb-line" data-n="1"></span>
+        <span class="wb-dot" data-n="2">3</span>
+      </div>
       <h1 class="wiz-title">¿Dónde lo<br><span>necesitás</span>?</h1>
       <p class="wiz-sub">Los mejores prestadores cerca tuyo</p>
 
@@ -891,8 +907,15 @@
   <!-- ── STEP 2: Cuándo (OPCIONAL) ── -->
   <div class="wiz-step" id="ws2">
     <div class="wiz-content">
+      <div class="wsteps-bar">
+        <span class="wb-dot" data-n="0">1</span>
+        <span class="wb-line" data-n="0"></span>
+        <span class="wb-dot" data-n="1">2</span>
+        <span class="wb-line" data-n="1"></span>
+        <span class="wb-dot" data-n="2">3</span>
+      </div>
       <h1 class="wiz-title">¿Para cuándo<br>lo <span>necesitás</span>?</h1>
-      <p class="wiz-sub">Este paso es OPCIONAL</p>
+      <p class="wiz-sub">Este dato es OPCIONAL</p>
 
       <div class="wiz-time-grid">
         <button class="wiz-time-chip" onclick="selectWizTime(this,'urgente')">
@@ -907,6 +930,14 @@
           Elegir fecha
           <em>Fecha y horario</em>
         </button>
+      </div>
+      <div class="wiz-date-picker" id="wizDatePicker">
+        <label>Fecha</label>
+        <input type="date" id="wizDateInput" class="wiz-date-input">
+        <label>Horario (opcional)</label>
+        <input type="time" id="wizTimeInput" class="wiz-time-input">
+      </div>
+      <div class="wiz-time-grid" style="display:none">
       </div>
 
       <p class="wiz-skip-text" onclick="wizNext()">Podés saltar este paso</p>
@@ -1023,16 +1054,16 @@ function goToStep(n) {
 }
 
 function updateWizSteps() {
-  [0,1,2,3].forEach(function(i) {
-    var el = document.getElementById('ws-dot-' + i);
-    if (!el) return;
+  var allDone = wizCurrent >= 3;
+  document.querySelectorAll('.wb-dot').forEach(function(el) {
+    var n = parseInt(el.getAttribute('data-n'));
     el.classList.remove('active','done');
-    if (i < wizCurrent) el.classList.add('done');
-    else if (i === wizCurrent) el.classList.add('active');
+    if (allDone || n < wizCurrent) el.classList.add('done');
+    else if (n === wizCurrent) el.classList.add('active');
   });
-  [0,1,2].forEach(function(i) {
-    var l = document.getElementById('wsl-' + i);
-    if (l) l.classList.toggle('done', i < wizCurrent);
+  document.querySelectorAll('.wb-line').forEach(function(el) {
+    var n = parseInt(el.getAttribute('data-n'));
+    el.classList.toggle('done', allDone || n < wizCurrent);
   });
 }
 
@@ -1110,6 +1141,11 @@ function onWizInput(val) {
   wizState.descripcion = val.trim();
   wizState.oficio = detectOficio(val);
   updateWizCta0();
+  var _errEl = document.getElementById('wiz-err-0');
+  if (_errEl && _errEl.classList.contains('visible')) {
+    _errEl.classList.remove('visible');
+    _errEl.textContent = 'Contanos qué necesitás para continuar';
+  }
   clearTimeout(_wizDescTimer);
   document.getElementById('wizOficioBadge').style.display = 'none';
   document.querySelectorAll('.wiz-chip').forEach(function(c) { c.classList.remove('selected'); });
@@ -1169,6 +1205,8 @@ function selectWizTime(el, key) {
   document.querySelectorAll('.wiz-time-chip').forEach(function(c) { c.classList.remove('selected'); });
   el.classList.add('selected');
   wizState.tiempo = key;
+  var picker = document.getElementById('wizDatePicker');
+  if (picker) picker.classList.toggle('visible', key === 'elegir');
 }
 
 /* ---- OFICIO DETECTION (identical to buscar.html) ---- */
@@ -1200,7 +1238,10 @@ var oficioMap = {
   'carpint':'Carpintero','mueble':'Carpintero','madera':'Carpintero',
   'herrer':'Herrero','reja':'Herrero','porton':'Herrero','portón':'Herrero',
   'techist':'Techista','membrana':'Techista','impermeab':'Techista',
-  'destapac':'Plomero','tapado':'Plomero'
+  'destapac':'Plomero','tapado':'Plomero',
+  'desagote':'Plomero','desago':'Plomero',
+  'mascota':'Cuidado de Mascotas','perro':'Cuidado de Mascotas','gato':'Cuidado de Mascotas',
+  'lavarrop':'Service de Lavarropas','electrodom':'Service de Lavarropas'
 };
 function detectOficio(text) {
   var t = text.toLowerCase();
@@ -1471,10 +1512,11 @@ window.addEventListener('pageshow', function(e) { if (e.persisted) initFromURLPa
     new MutationObserver(function() {
       var p = document.documentElement.getAttribute('data-palette');
       var bg  = p === 'bone' ? 0xEEEAE0 : (p === 'candy' ? 0x0f0e12 : 0x0e0f12);
-      var col = p === 'bone' ? 0x0d6b55 : (p === 'candy' ? 0xd5ff4a : 0x3ce6c5);
-      if (inst) inst.setOptions({ backgroundColor: bg, color: col });
+      var col = p === 'bone' ? 0x063a2a : (p === 'candy' ? 0xd5ff4a : 0x3ce6c5);
+      var dots = (p !== 'bone');
+      if (inst) inst.setOptions({ backgroundColor: bg, color: col, showDots: dots });
     }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-palette'] });
-    (function(){ var _p = document.documentElement.getAttribute('data-palette'); if (_p && _p !== 'midnight') { var _bg = _p === 'bone' ? 0xEEEAE0 : (_p === 'candy' ? 0x0f0e12 : 0x0e0f12); var _col = _p === 'bone' ? 0x0d6b55 : (_p === 'candy' ? 0xd5ff4a : 0x3ce6c5); if (inst) inst.setOptions({ backgroundColor: _bg, color: _col }); } })();
+    (function(){ var _p = document.documentElement.getAttribute('data-palette'); if (_p && _p !== 'midnight') { var _bg = _p === 'bone' ? 0xEEEAE0 : (_p === 'candy' ? 0x0f0e12 : 0x0e0f12); var _col = _p === 'bone' ? 0x063a2a : (_p === 'candy' ? 0xd5ff4a : 0x3ce6c5); var _dots = (_p !== 'bone'); if (inst) inst.setOptions({ backgroundColor: _bg, color: _col, showDots: _dots }); } })();
   }
   initVanta();
 })();
