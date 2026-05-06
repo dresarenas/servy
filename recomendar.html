@@ -194,6 +194,35 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
   .rec-foot { padding:16px 20px calc(20px + env(safe-area-inset-bottom)); }
   .rec-title { font-size:10vw; }
 }
+
+/* ===== VANTA BG ===== */
+#recVanta { position:fixed; inset:0; z-index:0; }
+#recVanta canvas { opacity:0.38 !important; transition:opacity 0.8s; }
+[data-palette="bone"] #recVanta canvas { opacity:1 !important; mix-blend-mode:normal; }
+
+/* ===== TITLE ANIMATIONS ===== */
+.flip-scale-down-ver {
+  -webkit-animation: flip-scale-down-ver .5s cubic-bezier(.455,.030,.515,.955) both;
+  animation: flip-scale-down-ver .5s cubic-bezier(.455,.030,.515,.955) both;
+}
+@-webkit-keyframes flip-scale-down-ver {
+  0%   { transform: scale(1) rotateY(180deg); }
+  50%  { transform: scale(.4) rotateY(90deg); }
+  100% { transform: scale(1) rotateY(0deg); }
+}
+@keyframes flip-scale-down-ver {
+  0%   { transform: scale(1) rotateY(180deg); }
+  50%  { transform: scale(.4) rotateY(90deg); }
+  100% { transform: scale(1) rotateY(0deg); }
+}
+.scale-up-center {
+  -webkit-animation: scale-up-center .4s cubic-bezier(.39,.575,.565,1) both;
+  animation: scale-up-center .4s cubic-bezier(.39,.575,.565,1) both;
+}
+@keyframes scale-up-center {
+  0%   { transform: scale(.5); }
+  100% { transform: scale(1); }
+}
 </style>
 </head>
 <body class="loaded">
@@ -222,6 +251,8 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
 </nav>
 
 <input type="file" id="vcfInput" accept=".vcf,text/vcard" style="display:none">
+
+<div id="recVanta"></div>
 
 <div class="rec-wiz" id="recWiz">
 
@@ -450,17 +481,33 @@ function recGoTo(n) {
   document.querySelectorAll('.rec-step').forEach(function(s, i) {
     s.classList.remove('active', 'past');
     if (i < n) s.classList.add('past');
-    if (i === n) s.classList.add('active');
+    if (i === n) {
+      s.classList.add('active');
+      var title = s.querySelector('.rec-title');
+      if (title) {
+        title.classList.remove('flip-scale-down-ver');
+        void title.offsetWidth;
+        title.classList.add('flip-scale-down-ver');
+      }
+    }
   });
-  document.querySelectorAll('.rec-dot').forEach(function(d, i) {
+  document.querySelectorAll('.rec-dot').forEach(function(d) {
+    var s = parseInt(d.getAttribute('data-s'));
     d.classList.remove('active', 'done');
-    if (i < n)  d.classList.add('done');
-    if (i === n && i < 4) d.classList.add('active');
+    if (s < n)  d.classList.add('done');
+    if (s === n && n < 4) d.classList.add('active');
   });
-  document.querySelectorAll('.rec-dot-line').forEach(function(l, i) {
-    l.classList.toggle('done', i < n);
+  document.querySelectorAll('.rec-dot-line').forEach(function(l) {
+    var li = parseInt(l.getAttribute('data-line'));
+    if (!isNaN(li)) l.classList.toggle('done', li < n);
   });
   recCurrent = n;
+  if (n === 4) {
+    setTimeout(function() {
+      var icon = document.querySelector('.rec-success-icon');
+      if (icon) { icon.classList.remove('scale-up-center'); void icon.offsetWidth; icon.classList.add('scale-up-center'); }
+    }, 100);
+  }
 }
 
 function recNext() {
@@ -611,6 +658,19 @@ function initRecChips(id, maxSel) {
 initRecChips('oficioChips', null);
 initRecChips('zonaChips', 1);
 initRecChips('relacionChips', 1);
+/* ========== INIT DOTS ========== */
+document.querySelectorAll('.rec-dots').forEach(function(bar) {
+  bar.querySelectorAll('.rec-dot-line').forEach(function(l, i) {
+    l.setAttribute('data-line', i);
+  });
+  bar.querySelectorAll('.rec-dot').forEach(function(d) {
+    d.addEventListener('click', function() {
+      var s = parseInt(d.getAttribute('data-s'));
+      if (d.classList.contains('done') && s < recCurrent) recGoTo(s);
+    });
+  });
+});
+
 
 /* ========== STARS ========== */
 var starLbls = ['','Muy malo','Malo','Regular','Muy bueno','Excelente'];
@@ -693,6 +753,34 @@ async function recEnviar() {
   }
   recGoTo(4);
 }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.net.min.js"></script>
+<script>
+(function() {
+  function initRecVanta() {
+    if (typeof VANTA === 'undefined' || !VANTA.NET) { setTimeout(initRecVanta, 100); return; }
+    var _p0 = document.documentElement.getAttribute('data-palette') || 'midnight';
+    var _col0 = _p0==='bone' ? 0x063a2a : (_p0==='candy' ? 0xd5ff4a : 0x3ce6c5);
+    var _bg0  = _p0==='bone' ? 0xEEEAE0 : (_p0==='candy' ? 0x0f0e12 : 0x0e0f12);
+    var inst = VANTA.NET({
+      el: '#recVanta',
+      mouseControls:true, touchControls:true, gyroControls:false,
+      minHeight:200, minWidth:200, scale:1, scaleMobile:1,
+      color:_col0, backgroundColor:_bg0,
+      points:9, maxDistance:22, spacing:18, showDots:(_p0!=='bone')
+    });
+    new MutationObserver(function() {
+      var p = document.documentElement.getAttribute('data-palette');
+      var bg   = p==='bone' ? 0xEEEAE0 : (p==='candy' ? 0x0f0e12 : 0x0e0f12);
+      var col  = p==='bone' ? 0x063a2a : (p==='candy' ? 0xd5ff4a : 0x3ce6c5);
+      var dots = (p !== 'bone');
+      if (inst) { inst.setOptions({backgroundColor:bg, color:col, showDots:dots}); setTimeout(function(){ if(inst) inst.resize(); }, 80); }
+    }).observe(document.documentElement, {attributes:true, attributeFilter:['data-palette']});
+  }
+  initRecVanta();
+})();
 </script>
 <script src="home-v2.js"></script>
 </body>
