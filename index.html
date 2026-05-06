@@ -641,6 +641,10 @@
 <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.net.min.js"></script>
 <script>
+  var _p0=document.documentElement.getAttribute('data-palette')||'midnight';
+  var _col0=_p0==='bone'?0x063a2a:(_p0==='candy'?0xd5ff4a:0x3ce6c5);
+  var _bg0=_p0==='bone'?0xEEEAE0:(_p0==='candy'?0x0f0e12:0x0e0f12);
+  var _dots0=(_p0!=='bone');
   var vantaInst = VANTA.NET({
     el: '#hero-vanta',
     mouseControls: true,
@@ -650,12 +654,12 @@
     minWidth: 200.00,
     scale: 1.00,
     scaleMobile: 1.00,
-    color: 0x3ce6c5,
-    backgroundColor: 0x0e0f12,
+    color: _col0,
+    backgroundColor: _bg0,
     points: 9.00,
     maxDistance: 22.00,
     spacing: 18.00,
-    showDots: true
+    showDots: _dots0
   });
   // Apply current palette on load (in case user is already in bone/candy mode)
   (function(){ var _p = document.documentElement.getAttribute('data-palette'); if (_p && _p !== 'midnight') { var _bg = _p === 'bone' ? 0xEEEAE0 : (_p === 'candy' ? 0x0f0e12 : 0x0e0f12); var _col = _p === 'bone' ? 0x0d6b55 : (_p === 'candy' ? 0xd5ff4a : 0x3ce6c5); if (vantaInst) vantaInst.setOptions({ backgroundColor: _bg, color: _col }); } })();
@@ -663,8 +667,9 @@
   new MutationObserver(function() {
     var p = document.documentElement.getAttribute('data-palette');
     var bg = p === 'bone' ? 0xEEEAE0 : (p === 'candy' ? 0x0f0e12 : 0x0e0f12);
-    var col = p === 'bone' ? 0x0d6b55 : (p === 'candy' ? 0xd5ff4a : 0x3ce6c5);
-    if (vantaInst) vantaInst.setOptions({ backgroundColor: bg, color: col });
+    var col = p === 'bone' ? 0x063a2a : (p === 'candy' ? 0xd5ff4a : 0x3ce6c5);
+    var dots = (p !== 'bone');
+    if (vantaInst) vantaInst.setOptions({ backgroundColor: bg, color: col, showDots: dots });
   }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-palette'] });
 </script>
 </body>

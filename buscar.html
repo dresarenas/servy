@@ -802,11 +802,11 @@
   <div class="wiz-step active" id="ws0">
     <div class="wiz-content">
       <div class="wsteps-bar">
-        <span class="wb-dot" data-n="0">1</span>
+        <span class="wb-dot" data-n="0" onclick="wizGoTo(0)" style="cursor:pointer">1</span>
         <span class="wb-line" data-n="0"></span>
-        <span class="wb-dot" data-n="1">2</span>
+        <span class="wb-dot" data-n="1" onclick="wizGoTo(1)" style="cursor:pointer">2</span>
         <span class="wb-line" data-n="1"></span>
-        <span class="wb-dot" data-n="2">3</span>
+        <span class="wb-dot" data-n="2" onclick="wizGoTo(2)" style="cursor:pointer">3</span>
       </div>
       <h1 class="wiz-title">Contanos qué<br><span>necesitás</span></h1>
       <p class="wiz-sub">Ingresá el problema, servicio u oficio, con tus palabras</p>
@@ -862,11 +862,11 @@
   <div class="wiz-step" id="ws1">
     <div class="wiz-content">
       <div class="wsteps-bar">
-        <span class="wb-dot" data-n="0">1</span>
+        <span class="wb-dot" data-n="0" onclick="wizGoTo(0)" style="cursor:pointer">1</span>
         <span class="wb-line" data-n="0"></span>
-        <span class="wb-dot" data-n="1">2</span>
+        <span class="wb-dot" data-n="1" onclick="wizGoTo(1)" style="cursor:pointer">2</span>
         <span class="wb-line" data-n="1"></span>
-        <span class="wb-dot" data-n="2">3</span>
+        <span class="wb-dot" data-n="2" onclick="wizGoTo(2)" style="cursor:pointer">3</span>
       </div>
       <h1 class="wiz-title">¿Dónde lo<br><span>necesitás</span>?</h1>
       <p class="wiz-sub">Los mejores prestadores cerca tuyo</p>
@@ -900,53 +900,6 @@
       <div class="wiz-foot-row">
         <button class="wiz-btn-back" onclick="wizPrev()">← Volver</button>
         <button class="wiz-cta sig-empty" id="wizCtaBtn1" onclick="wizNext()">Siguiente <span class="btn-arr"></span></button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── STEP 2: Cuándo (OPCIONAL) ── -->
-  <div class="wiz-step" id="ws2">
-    <div class="wiz-content">
-      <div class="wsteps-bar">
-        <span class="wb-dot" data-n="0">1</span>
-        <span class="wb-line" data-n="0"></span>
-        <span class="wb-dot" data-n="1">2</span>
-        <span class="wb-line" data-n="1"></span>
-        <span class="wb-dot" data-n="2">3</span>
-      </div>
-      <h1 class="wiz-title">¿Para cuándo<br>lo <span>necesitás</span>?</h1>
-      <p class="wiz-sub">Este dato es OPCIONAL</p>
-
-      <div class="wiz-time-grid">
-        <button class="wiz-time-chip" onclick="selectWizTime(this,'urgente')">
-          Lo antes posible
-          <em>Hoy · Urgente</em>
-        </button>
-        <button class="wiz-time-chip" onclick="selectWizTime(this,'semana')">
-          Esta semana
-          <em>Flexible</em>
-        </button>
-        <button class="wiz-time-chip" onclick="selectWizTime(this,'elegir')">
-          Elegir fecha
-          <em>Fecha y horario</em>
-        </button>
-      </div>
-      <div class="wiz-date-picker" id="wizDatePicker">
-        <label>Fecha</label>
-        <input type="date" id="wizDateInput" class="wiz-date-input">
-        <label>Horario (opcional)</label>
-        <input type="time" id="wizTimeInput" class="wiz-time-input">
-      </div>
-      <div class="wiz-time-grid" style="display:none">
-      </div>
-
-      <p class="wiz-skip-text" onclick="wizNext()">Podés saltar este paso</p>
-      <div class="wiz-spacer"></div>
-    </div>
-    <div class="wiz-foot">
-      <div class="wiz-foot-row">
-        <button class="wiz-btn-back" onclick="wizPrev()">← Volver</button>
-        <button class="wiz-cta" id="wizCtaBtn2" onclick="wizNext()">Siguiente <span class="btn-arr"></span></button>
       </div>
     </div>
   </div>
@@ -1051,6 +1004,12 @@ function goToStep(n) {
   });
   wizCurrent = n;
   updateWizSteps();
+  if (n === 2) {
+    setTimeout(function() {
+      var icon = document.querySelector('.wiz-success-icon');
+      if (icon) { icon.classList.remove('scale-up-center'); void icon.offsetWidth; icon.classList.add('scale-up-center'); }
+    }, 350);
+  }
 }
 
 function updateWizSteps() {
@@ -1088,7 +1047,7 @@ function wizNext() {
     wizState.oficio = _oficio;
     if (!_oficio) {
       var errEl = document.getElementById('wiz-err-0');
-      errEl.innerHTML = 'No identificamos el tipo de servicio. Intentá con más detalle o <button class="wiz-continue-anyway" onclick="wizContinueAnyway()">Continuar igual →</button>';
+      errEl.textContent = 'No identificamos el servicio. Intentá describir el problema con más detalle.';
       errEl.classList.add('visible');
       return;
     }
@@ -1103,18 +1062,14 @@ function wizNext() {
     }
     document.getElementById('wiz-err-1').classList.remove('visible');
     goToStep(2);
-  } else if (wizCurrent === 2) {
-    goToStep(3);
     wizBuscar();
   }
 }
 
-function wizContinueAnyway() {
-  document.getElementById('wiz-err-0').classList.remove('visible');
-  wizState.oficio = null;
-  goToStep(1);
-  if (!wizMapInited) setTimeout(wizInitMap, 80);
+function wizGoTo(n) {
+  if (n <= wizCurrent) goToStep(n);
 }
+
 
 function wizReset() {
   wizState = { descripcion: null, oficio: null, zonaText: '', tiempo: null, prestadores: [] };
@@ -1243,7 +1198,13 @@ var oficioMap = {
   'mascota':'Cuidado de Mascotas','perro':'Cuidado de Mascotas','gato':'Cuidado de Mascotas',
   'lavarrop':'Service de Lavarropas','electrodom':'Service de Lavarropas'
 };
+function normalizeText(s) {
+  return s.toLowerCase()
+    .replace(/[áà]/g,'a').replace(/[éè]/g,'e').replace(/[íì]/g,'i')
+    .replace(/[óò]/g,'o').replace(/[úùü]/g,'u').replace(/ñ/g,'n');
+}
 function detectOficio(text) {
+  text = normalizeText(text);
   var t = text.toLowerCase();
   for (var kw in oficioMap) { if (t.includes(kw)) return oficioMap[kw]; }
   return null;
@@ -1502,12 +1463,16 @@ window.addEventListener('pageshow', function(e) { if (e.persisted) initFromURLPa
 (function() {
   function initVanta() {
     if (typeof VANTA === 'undefined' || !VANTA.NET) { setTimeout(initVanta, 100); return; }
+    var _p0=document.documentElement.getAttribute('data-palette')||'midnight';
+    var _col0=_p0==='bone'?0x063a2a:(_p0==='candy'?0xd5ff4a:0x3ce6c5);
+    var _bg0=_p0==='bone'?0xEEEAE0:(_p0==='candy'?0x0f0e12:0x0e0f12);
+    var _dots0=(_p0!=='bone');
     var inst = VANTA.NET({
       el: '#wizVanta',
       mouseControls: true, touchControls: true, gyroControls: false,
       minHeight: 200, minWidth: 200, scale: 1, scaleMobile: 1,
-      color: 0x3ce6c5, backgroundColor: 0x0e0f12,
-      points: 9, maxDistance: 22, spacing: 18, showDots: true
+      color: _col0, backgroundColor: _bg0,
+      points: 9, maxDistance: 22, spacing: 18, showDots: _dots0
     });
     new MutationObserver(function() {
       var p = document.documentElement.getAttribute('data-palette');
