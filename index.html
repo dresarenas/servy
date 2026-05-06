@@ -668,7 +668,7 @@
     showDots: _dots0
   });
   // Apply current palette on load (in case user is already in bone/candy mode)
-  (function(){ var _p = document.documentElement.getAttribute('data-palette'); if (_p && _p !== 'midnight') { var _bg = _p === 'bone' ? 0xEEEAE0 : (_p === 'candy' ? 0x0f0e12 : 0x0e0f12); var _col = _p === 'bone' ? 0x0d6b55 : (_p === 'candy' ? 0xd5ff4a : 0x3ce6c5); if (vantaInst) vantaInst.setOptions({ backgroundColor: _bg, color: _col }); } })();
+  (function(){ var _p = document.documentElement.getAttribute('data-palette'); if (_p && _p !== 'midnight') { var _bg = _p === 'bone' ? 0xEEEAE0 : (_p === 'candy' ? 0x0f0e12 : 0x0e0f12); var _col = _p === 'bone' ? 0x063a2a : (_p === 'candy' ? 0xd5ff4a : 0x3ce6c5); var _dots = (_p !== 'bone'); if (vantaInst) vantaInst.setOptions({ backgroundColor: _bg, color: _col, showDots: _dots }); } })();
   // Update Vanta bg when palette changes
   new MutationObserver(function() {
     var p = document.documentElement.getAttribute('data-palette');
