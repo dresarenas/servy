@@ -164,24 +164,30 @@
       <div class="step reveal">
         <div class="step-bg" style="background-image:url('assets/step-buscar.jpg')"></div>
         <div class="step-content">
-          <div class="step-num">(01)</div>
-          <div class="step-title">Buscás</div>
+          <div class="step-head">
+            <div class="step-num">(01)</div>
+            <div class="step-title">Buscás</div>
+          </div>
           <p class="step-desc">Tu ubicación y contanos tu problema. Nada más.</p>
         </div>
       </div>
       <div class="step reveal">
         <div class="step-bg" style="background-image:url('assets/step-comparar.jpg')"></div>
         <div class="step-content">
-          <div class="step-num">(02)</div>
-          <div class="step-title">Comparás</div>
+          <div class="step-head">
+            <div class="step-num">(02)</div>
+            <div class="step-title">Comparás</div>
+          </div>
           <p class="step-desc">Reseñas comprobables de prestadores cerca tuyo.</p>
         </div>
       </div>
       <div class="step reveal">
         <div class="step-bg" style="background-image:url('assets/step-contactar.jpg')"></div>
         <div class="step-content">
-          <div class="step-num">(03)</div>
-          <div class="step-title">Contactás</div>
+          <div class="step-head">
+            <div class="step-num">(03)</div>
+            <div class="step-title">Contactás</div>
+          </div>
           <p class="step-desc">Directamente o a través de SERVY. Sin intermediarios.</p>
         </div>
       </div>
@@ -669,7 +675,10 @@
     var bg = p === 'bone' ? 0xEEEAE0 : (p === 'candy' ? 0x0f0e12 : 0x0e0f12);
     var col = p === 'bone' ? 0x063a2a : (p === 'candy' ? 0xd5ff4a : 0x3ce6c5);
     var dots = (p !== 'bone');
-    if (vantaInst) vantaInst.setOptions({ backgroundColor: bg, color: col, showDots: dots });
+    if (vantaInst) {
+    vantaInst.setOptions({ backgroundColor: bg, color: col, showDots: dots });
+    setTimeout(function(){ if (vantaInst) vantaInst.resize(); }, 80);
+  }
   }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-palette'] });
 </script>
 </body>

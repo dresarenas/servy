@@ -794,7 +794,7 @@ main { position: relative; z-index: 1; }
   font-family: var(--f-display);
   font-weight: 700;
   /* italic-removed */
-  font-size: clamp(36px, 5vw, 64px);
+  font-size: clamp(39px, 5vw, 67px);
   line-height: 1;
   letter-spacing: -0.02em;
   color: var(--accent);
@@ -802,15 +802,15 @@ main { position: relative; z-index: 1; }
 }
 .step-desc {
   font-family: var(--f-sans);
-  font-size: 16px;
+  font-size: 17px;
   line-height: 1.55;
   color: var(--ink-dim);
   max-width: 28ch;
 }
 @media (max-width: 820px) {
-  .step-title { font-size: 22px !important; line-height: 1; margin-bottom: 4px; }
-  .step-desc { font-size: 12px !important; line-height: 1.4; max-width: none; }
-  .step-num { width: 100%; margin-bottom: 2px; }
+  .step-title { font-size: 25px !important; line-height: 1; margin-bottom: 0; }
+  .step-desc { font-size: 17px !important; line-height: 1.4; max-width: none; }
+  .step-num { width: auto; margin-bottom: 0; flex-shrink: 0; }
 }
 
 /* ============ PROVIDERS CAROUSEL ============ */
@@ -1646,6 +1646,13 @@ main { position: relative; z-index: 1; }
   display: flex;
   flex-direction: column;
   height: 100%;
+}
+.step-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: nowrap;
+  margin-bottom: 12px;
 }
 @media (max-width: 820px) {
   .step { min-height: 150px !important; max-height: none !important; }

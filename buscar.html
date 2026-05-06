@@ -251,6 +251,7 @@
 
 /* ============ FOOTER CTA ============ */
 .wiz-foot {
+  overflow: visible;
   padding: 20px 28px 28px;
   display: flex;
   flex-direction: column;
@@ -262,6 +263,8 @@
   padding-bottom: calc(28px + env(safe-area-inset-bottom));
 }
 .wiz-cta {
+  position: relative;
+  z-index: 10;
   width: 100%;
   padding: 18px 24px;
   background: var(--accent);
@@ -692,12 +695,23 @@
   0%   { -webkit-transform: scale(.5); transform: scale(.5); }
   100% { -webkit-transform: scale(1);  transform: scale(1);  }
 }
+@keyframes scale-up-bounce {
+  0%   { transform: scale(0); opacity: 0; }
+  60%  { transform: scale(1.35); opacity: 1; }
+  80%  { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
 @keyframes scale-up-center {
   0%   { transform: scale(.5); }
   100% { transform: scale(1); }
 }
 
 /* ============ SUCCESS ICON RIGHT ============ */
+.wiz-success-icon {
+  font-size: 48px;
+  color: var(--accent);
+  text-shadow: 0 0 24px color-mix(in srgb, var(--accent) 50%, transparent);
+}
 .wiz-success-wrap { position: relative; min-height: 80px; }
 .wiz-success-icon { position: absolute; right: 0; top: 0; }
 
@@ -759,6 +773,16 @@
   .wiz-foot { padding: 16px 20px calc(20px + env(safe-area-inset-bottom)); }
   .wiz-time-grid { grid-template-columns: 1fr; }
 }
+.wiz-wrong-result { margin-top: 8px; }
+.wiz-wrong-result a {
+  font-family: var(--f-mono);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  color: var(--ink-mute);
+  text-decoration: none;
+  cursor: pointer;
+}
+.wiz-wrong-result a:hover { color: var(--accent); }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.net.min.js"></script>
@@ -823,6 +847,11 @@
         </button>
       </div>
 
+      <div class="wiz-oficio-badge" id="wizOficioBadge" style="display:none;">
+        <div class="wiz-oficio-icon">✓</div>
+        <span id="wizOficioText">—</span>
+      </div>
+
       <div class="wiz-mic-area">
         <button class="wiz-mic-circle" id="wizMicBtn" onclick="toggleWizMic()" title="Hablar por voz">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
@@ -838,12 +867,7 @@
         <button class="wiz-chip" onclick="setWizChip(this,'Pintura interior')">Pintura</button>
         <button class="wiz-chip" onclick="setWizChip(this,'Necesito limpieza')">Limpieza</button>
         <button class="wiz-chip" onclick="setWizChip(this,'Jardinero')">Jardinero</button>
-        <button class="wiz-chip" onclick="setWizChip(this,'Problema con el gas')">Gas</button>
-      </div>
-
-      <div class="wiz-oficio-badge" id="wizOficioBadge" style="display:none;">
-        <div class="wiz-oficio-icon">✓</div>
-        <span id="wizOficioText">—</span>
+        <button class="wiz-chip" onclick="setWizChip(this,'Gasista')">Gasista</button>
       </div>
 
       <div class="field-error" id="wiz-err-0">Contanos qué necesitás para continuar</div>
@@ -911,6 +935,7 @@
         <div class="wiz-success-icon scale-up-center">✓</div>
         <h1 class="wiz-title">¡Listo! Encontramos estos<br>prestadores <span>disponibles</span></h1>
         <p class="wiz-results-summary" id="wizResultsSummary"></p>
+        <p class="wiz-wrong-result"><a onclick="wizGoTo(0)">&#8592; Esto no es lo que necesito</a></p>
       </div>
 
       <div class="loading-view" id="wizLoading">
@@ -942,7 +967,10 @@
       <div class="wiz-spacer"></div>
     </div>
     <div class="wiz-foot">
-      <button class="wiz-new-search" onclick="wizReset()">← Nueva búsqueda</button>
+      <div class="wiz-foot-row">
+        <button class="wiz-btn-back" onclick="goToStep(1)">← Volver</button>
+        <button class="wiz-cta" onclick="wizReset()">Nueva búsqueda <span class="btn-arr"></span></button>
+      </div>
     </div>
   </div>
 
@@ -1007,7 +1035,7 @@ function goToStep(n) {
   if (n === 2) {
     setTimeout(function() {
       var icon = document.querySelector('.wiz-success-icon');
-      if (icon) { icon.classList.remove('scale-up-center'); void icon.offsetWidth; icon.classList.add('scale-up-center'); }
+      if (icon) { icon.classList.remove('scale-up-bounce'); void icon.offsetWidth; icon.classList.add('scale-up-bounce'); }
     }, 350);
   }
 }
@@ -1028,7 +1056,7 @@ function updateWizSteps() {
 
 function wizPrev() {
   if (wizCurrent === 0) {
-    window.location.href = 'index.html';
+    window.history.back();
   } else {
     goToStep(wizCurrent - 1);
   }
@@ -1177,7 +1205,7 @@ var oficioMap = {
   'cable':'Electricista','lampara':'Electricista','lámpara':'Electricista',
   'luminaria':'Electricista','tablero':'Electricista','disyuntor':'Electricista',
   'luz':'Electricista','interruptor':'Electricista','toma corriente':'Electricista','no prende':'Electricista',
-  'gas':'Gasista','garrafa':'Gasista','estufa':'Gasista','caldera':'Gasista',
+  'gas':'Gasista','gasist':'Gasista','garrafa':'Gasista','estufa':'Gasista','caldera':'Gasista',
   'cocina':'Gasista','olor a gas':'Gasista','fuga de gas':'Gasista','medidor de gas':'Gasista',
   'pint':'Pintor','pintur':'Pintor','repin':'Pintor','empape':'Pintor',
   'alban':'Albañil','refacc':'Albañil','reforma':'Albañil','grieta':'Albañil',
@@ -1361,8 +1389,8 @@ async function wizBuscar() {
   document.getElementById('wizResultsView').classList.remove('visible');
   var sum = document.getElementById('wizResultsSummary');
   var ofStr = wizState.oficio || 'el servicio';
-  var zoStr = wizState.zonaText ? 'cerca de ' + (wizState.zonaText.length > 28 ? wizState.zonaText.substring(0,28)+'…' : wizState.zonaText) : 'en tu zona';
-  sum.innerHTML = 'Buscamos <strong>' + ofStr + '</strong> ' + zoStr;
+  var zoAddr = wizState.zonaText ? (wizState.zonaText.length > 28 ? wizState.zonaText.substring(0,28)+'…' : wizState.zonaText) : 'tu zona';
+  sum.innerHTML = 'Buscamos <strong>' + ofStr + '</strong> cerca de <strong>' + zoAddr + '</strong>';
   var payload = { descripcion: wizState.descripcion, oficio: wizState.oficio, zona: wizState.zonaText, tiempo: wizState.tiempo };
   var prestadores = [];
   try {
@@ -1479,7 +1507,10 @@ window.addEventListener('pageshow', function(e) { if (e.persisted) initFromURLPa
       var bg  = p === 'bone' ? 0xEEEAE0 : (p === 'candy' ? 0x0f0e12 : 0x0e0f12);
       var col = p === 'bone' ? 0x063a2a : (p === 'candy' ? 0xd5ff4a : 0x3ce6c5);
       var dots = (p !== 'bone');
-      if (inst) inst.setOptions({ backgroundColor: bg, color: col, showDots: dots });
+      if (inst) {
+      inst.setOptions({ backgroundColor: bg, color: col, showDots: dots });
+      setTimeout(function(){ if (inst) inst.resize(); }, 80);
+    }
     }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-palette'] });
     (function(){ var _p = document.documentElement.getAttribute('data-palette'); if (_p && _p !== 'midnight') { var _bg = _p === 'bone' ? 0xEEEAE0 : (_p === 'candy' ? 0x0f0e12 : 0x0e0f12); var _col = _p === 'bone' ? 0x063a2a : (_p === 'candy' ? 0xd5ff4a : 0x3ce6c5); var _dots = (_p !== 'bone'); if (inst) inst.setOptions({ backgroundColor: _bg, color: _col, showDots: _dots }); } })();
   }
