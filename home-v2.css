@@ -1570,9 +1570,33 @@ main { position: relative; z-index: 1; }
   color: var(--ink) !important;
 }
 [data-palette="bone"] .cta-actions .pill.primary {
-  background: var(--accent) !important;
-  border-color: var(--accent) !important;
-  color: var(--accent-ink) !important;
+  background: rgba(15,16,20,0.08) !important;
+  border-color: rgba(15,16,20,0.32) !important;
+  color: var(--ink) !important;
+}
+
+/* ========== WhatsApp button — global (all themes) ========== */
+.pill-wa {
+  border-color: rgba(37,211,102,.45) !important;
+  color: #25d366 !important;
+  background: transparent !important;
+}
+.pill-wa:hover {
+  background: rgba(37,211,102,.08) !important;
+  border-color: rgba(37,211,102,.7) !important;
+  color: #25d366 !important;
+}
+[data-palette="bone"] .wiz-wa-share,
+[data-palette="bone"] .rec-wa-share {
+  border-color: rgba(37,211,102,.5) !important;
+  color: #25d366 !important;
+}
+
+/* ========== Bone palette: tres pasos step-desc stays white ========== */
+[data-palette="bone"] .step-content .step-desc,
+[data-palette="bone"] .step-content .step-title,
+[data-palette="bone"] .step-content .step-num {
+  color: #fff !important;
 }
 
 /* ========== Mobile: ocultar chips de oficios ========== */

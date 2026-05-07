@@ -244,6 +244,26 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
   color:var(--ink-mute); border:1px solid var(--line-strong);
   border-radius:999px; padding:2px 9px; vertical-align:middle; margin-left:4px;
 }
+
+/* ===== SCALE-UP-BOUNCE ===== */
+@keyframes scale-up-bounce {
+  0%   { transform: scale(0); opacity: 0; }
+  60%  { transform: scale(1.35); opacity: 1; }
+  80%  { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+.scale-up-bounce {
+  animation: scale-up-bounce .5s cubic-bezier(.39,.575,.565,1) both;
+}
+/* ===== IMPORT MANUAL LINK ===== */
+.rec-import-manual {
+  display:block; text-align:center; margin-top:10px;
+  font-family:var(--f-mono); font-size:11px; letter-spacing:.06em;
+  color:var(--ink-dim); text-decoration:underline; cursor:pointer;
+}
+/* ===== EYEBROW BADGE ===== */
+.rec-eyebrow { margin-bottom:16px; }
+#recFormFields { width:100%; }
 </style>
 </head>
 <body class="loaded">
@@ -271,57 +291,71 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
   </button>
 </nav>
 
-<input type="file" id="vcfInput" accept=".vcf,text/vcard" style="display:none">
-
 <div id="recVanta"></div>
 
 <div class="rec-wiz" id="recWiz">
 
-  <!-- ── PASO 1: ¿Quién es? ── -->
+  <!-- ── PASO 1: Contacto + Estrellas ── -->
   <div class="rec-step active" id="rs0">
     <div class="rec-content">
       <div class="rec-dots">
         <span class="rec-dot active" data-s="0">1</span>
         <span class="rec-dot-line"></span>
         <span class="rec-dot" data-s="1">2</span>
-        <span class="rec-dot-line"></span>
-        <span class="rec-dot" data-s="2">3</span>
+      </div>
+
+      <div class="hero-eyebrow rec-eyebrow">
+        <span class="sticker"><span class="pulse"></span>⏱ Tarda menos de 20 segundos</span>
       </div>
 
       <h1 class="rec-title">¿A quién querés<br><span>recomendar</span>?</h1>
-      <p class="rec-sub">Importá el contacto directo desde tu agenda.</p>
+      <p class="rec-sub">Completá los datos del prestador.</p>
 
-      <div class="rec-import-box">
+      <div class="rec-import-box" id="importBox">
         <div class="rec-import-tag">Importar contacto</div>
         <div class="rec-import-desc" id="importDesc">Detectando plataforma...</div>
         <button class="rec-btn-import" id="btnImport" onclick="recImportar()">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><line x1="19" y1="8" x2="23" y2="8"/><line x1="21" y1="6" x2="21" y2="10"/></svg>
           <span id="importBtnTxt">Importar desde contactos</span>
         </button>
+        <a class="rec-import-manual" id="linkManual" onclick="_recShowFormFields()" href="javascript:void(0)">O ingresá manualmente</a>
         <div class="rec-import-ok" id="importOk">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           Contacto importado — podés editar los datos abajo
         </div>
       </div>
 
-      <div class="rec-field">
-        <label class="rec-label">Nombre y apellido <span style="color:var(--accent)">*</span></label>
-        <input type="text" class="rec-input" id="recNombre" placeholder="Ej: Mario Rodríguez" autocomplete="name"
-          oninput="this.value=this.value.replace(/[0-9]/g,''); recClearErr('errNombre')">
-        <div class="rec-err" id="errNombre">Ingresá el nombre del prestador</div>
+      <div id="recFormFields">
+        <div class="rec-field">
+          <label class="rec-label">Nombre y apellido <span style="color:var(--accent)">*</span></label>
+          <input type="text" class="rec-input" id="recNombre" placeholder="Ej: Mario Rodríguez" autocomplete="name"
+            oninput="this.value=this.value.replace(/[0-9]/g,''); recClearErr('errNombre')">
+          <div class="rec-err" id="errNombre">Ingresá el nombre del prestador</div>
+        </div>
+
+        <div class="rec-field">
+          <label class="rec-label">WhatsApp <span style="color:var(--accent)">*</span></label>
+          <div class="rec-phone-wrap" id="recPhoneWrap">
+            <span class="rec-phone-prefix">+54 9</span>
+            <input type="tel" class="rec-input" id="recTel" placeholder="351 1234567"
+              inputmode="numeric" autocomplete="tel"
+              oninput="this.value=this.value.replace(/[^0-9 ]/g,''); recClearErr('errTel')">
+          </div>
+          <div class="rec-hint">Sin el 0 ni el 15</div>
+          <div class="rec-err" id="errTel">Ingresá un número de WhatsApp válido</div>
+        </div>
       </div>
 
-      <div class="rec-field">
-        <label class="rec-label">WhatsApp <span style="color:var(--accent)">*</span></label>
-        <div class="rec-phone-wrap" id="recPhoneWrap">
-          <span class="rec-phone-prefix">+54 9</span>
-          <input type="tel" class="rec-input" id="recTel" placeholder="351 1234567"
-            inputmode="numeric" autocomplete="tel"
-            oninput="this.value=this.value.replace(/[^0-9 ]/g,''); recClearErr('errTel')">
-        </div>
-        <div class="rec-hint">Sin el 0 ni el 15</div>
-        <div class="rec-err" id="errTel">Ingresá un número de WhatsApp válido</div>
+      <div class="rec-opt-label" style="margin-top:20px;">¿Cómo calificás su trabajo? <span style="color:var(--accent)">*</span></div>
+      <div class="rec-stars" id="recStarsRow">
+        <span class="rec-star" data-star="1">★</span>
+        <span class="rec-star" data-star="2">★</span>
+        <span class="rec-star" data-star="3">★</span>
+        <span class="rec-star" data-star="4">★</span>
+        <span class="rec-star" data-star="5">★</span>
       </div>
+      <div class="rec-star-label" id="recStarLabel">Tocá para calificar</div>
+      <div class="rec-err" id="errEstrellas" style="margin-bottom:12px;">Seleccioná una puntuación</div>
 
       <div class="rec-spacer"></div>
     </div>
@@ -333,20 +367,19 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
     </div>
   </div>
 
-  <!-- ── PASO 2: ¿Qué servicio? ── -->
+  <!-- ── PASO 2: Más info (opcional) ── -->
   <div class="rec-step" id="rs1">
     <div class="rec-content">
       <div class="rec-dots">
         <span class="rec-dot done" data-s="0" onclick="recGoTo(0)">1</span>
         <span class="rec-dot-line done"></span>
         <span class="rec-dot active" data-s="1">2</span>
-        <span class="rec-dot-line"></span>
-        <span class="rec-dot" data-s="2">3</span>
       </div>
 
-      <h1 class="rec-title">¿Qué servicio<br>ofrece <span id="nombreDisplay1">el prestador</span>?</h1>
-      <p class="rec-sub">Podés seleccionar hasta 5 opciones.</p>
+      <h1 class="rec-title">¿Querés agregar<br><span>más info</span>?</h1>
+      <p class="rec-sub">Tu dato puede ser justo lo que alguien más está buscando <span class="rec-opcional-badge">OPCIONAL</span></p>
 
+      <div class="rec-opt-label" style="margin-top:0;margin-bottom:8px;">¿Qué servicio ofrece <span id="nombreDisplay1">el prestador</span>?</div>
       <div class="rec-chips" id="oficioChips">
         <button class="rec-chip" data-value="plomero">🔧 Plomero</button>
         <button class="rec-chip" data-value="electricista">⚡ Electricista</button>
@@ -365,32 +398,8 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
       <div id="oficioOtroWrap" style="display:none; margin-top:10px;">
         <input type="text" class="rec-input" id="otroOficioInput" placeholder="¿Cuál servicio?">
       </div>
-      <div class="rec-err" id="errOficio" style="margin-top:8px;">Elegí al menos un servicio</div>
 
-      <div class="rec-spacer"></div>
-    </div>
-    <div class="rec-foot">
-      <div class="rec-foot-row">
-        <button class="rec-back" onclick="recPrev()">← Volver</button>
-        <button class="rec-cta" onclick="recNext()">Siguiente <span class="btn-arr"></span></button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── PASO 3: Reseña + Experiencia + Zona ── -->
-  <div class="rec-step" id="rs2">
-    <div class="rec-content">
-      <div class="rec-dots">
-        <span class="rec-dot done" data-s="0" onclick="recGoTo(0)">1</span>
-        <span class="rec-dot-line done"></span>
-        <span class="rec-dot done" data-s="1" onclick="recGoTo(1)">2</span>
-        <span class="rec-dot-line done"></span>
-        <span class="rec-dot active" data-s="2">3</span>
-      </div>
-
-      <h1 class="rec-title">Contanos de tu<br>experiencia con <span id="nombreDisplay2">el prestador</span>...</h1>
-
-      <div class="rec-opt-label" style="margin-top:0;margin-bottom:12px;">Tu experiencia</div>
+      <div class="rec-opt-label" style="margin-top:20px;">Tu experiencia</div>
       <div class="rec-chips" id="expChips">
         <button class="rec-chip" data-value="puntual">Es puntual</button>
         <button class="rec-chip" data-value="prolijo">Trabaja prolijo</button>
@@ -400,17 +409,7 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
         <button class="rec-chip" data-value="resuelve">Resuelve bien</button>
       </div>
 
-      <div class="rec-stars" id="recStarsRow" style="margin-top:20px;">
-        <span class="rec-star" data-star="1">★</span>
-        <span class="rec-star" data-star="2">★</span>
-        <span class="rec-star" data-star="3">★</span>
-        <span class="rec-star" data-star="4">★</span>
-        <span class="rec-star" data-star="5">★</span>
-      </div>
-      <div class="rec-star-label" id="recStarLabel">Tocá para calificar</div>
-      <div class="rec-err" id="errEstrellas" style="margin-bottom:12px;">Seleccioná una puntuación</div>
-
-      <div class="rec-field">
+      <div class="rec-field" style="margin-top:20px;">
         <label class="rec-label rec-resena-label">Tu reseña</label>
         <div class="rec-resena-wrap">
           <textarea class="rec-input" id="recReseña" rows="4" maxlength="280"
@@ -423,7 +422,7 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
         <div style="font-family:var(--f-mono);font-size:11px;color:var(--ink-mute);text-align:right;margin-top:4px;" id="recCharCount">0 / 280</div>
       </div>
 
-      <div class="rec-opt-label">Zona donde trabaja<span class="rec-opcional-badge">OPCIONAL</span></div>
+      <div class="rec-opt-label" style="margin-top:20px;">Zona donde trabaja<span class="rec-opcional-badge">OPCIONAL</span></div>
       <div class="rec-chips" id="zonaChips">
         <button class="rec-chip" data-value="nueva-cordoba">Nueva Córdoba</button>
         <button class="rec-chip" data-value="alta-cordoba">Alta Córdoba</button>
@@ -456,17 +455,17 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
   </div>
 
   <!-- ── GRACIAS ── -->
-  <div class="rec-step" id="rs3">
+  <div class="rec-step" id="rs2">
     <div class="rec-content" style="align-items:center;text-align:center;justify-content:center;padding-top:100px;">
       <div class="rec-success-icon">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
       </div>
-      <h1 class="rec-title" id="recGraciasTitle">¡Gracias por<br>tu <span>recomendación</span>!</h1>
-      <p class="rec-sub" id="recGraciasSub">Nos vamos a contactar con el prestador para pedirle permiso antes de publicar sus datos.</p>
+      <h1 class="rec-title" id="recGraciasTitle">¡Gracias! Tu reseña<br>ayudará a muchas <span>personas</span></h1>
+      <p class="rec-sub" id="recGraciasSub"></p>
 
       <div class="rec-success-actions">
-        <a href="./" class="rec-cta rec-link-btn" style="text-decoration:none;">Volver al inicio <span class="btn-arr"></span></a>
-        <a href="buscar.html" class="rec-back rec-link-btn" style="text-decoration:none;justify-content:center;">Buscar prestador</a>
+        <a href="./" class="rec-cta rec-link-btn" style="text-decoration:none;">Inicio <span class="btn-arr"></span></a>
+        <button class="rec-back rec-link-btn" onclick="recReset()" style="cursor:pointer;border:1px solid var(--line-strong);border-radius:14px;background:transparent;padding:16px 20px;font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-dim);justify-content:center;">Nueva recomendación</button>
         <a href="https://wa.me/?text=Encontr%C3%A1%20prestadores%20verificados%20en%20SERVY%20%F0%9F%94%8D%20https%3A%2F%2Fdresarenas.github.io%2Fservy%2F" target="_blank" rel="noopener" class="rec-wa-share">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
           Compartir SERVY por WhatsApp
@@ -501,25 +500,24 @@ function recGoTo(n) {
     var s = parseInt(d.getAttribute('data-s'));
     d.classList.remove('active', 'done');
     if (s < n)  d.classList.add('done');
-    if (s === n && n < 3) d.classList.add('active');
+    if (s === n && n < 2) d.classList.add('active');
   });
   document.querySelectorAll('.rec-dot-line').forEach(function(l) {
     var li = parseInt(l.getAttribute('data-line'));
     if (!isNaN(li)) l.classList.toggle('done', li < n);
   });
   recCurrent = n;
-  if (n === 3) {
+  if (n === 2) {
     setTimeout(function() {
       var icon = document.querySelector('.rec-success-icon');
-      if (icon) { icon.classList.remove('scale-up-center'); void icon.offsetWidth; icon.classList.add('scale-up-center'); }
+      if (icon) { icon.classList.remove('scale-up-bounce'); void icon.offsetWidth; icon.classList.add('scale-up-bounce'); }
     }, 100);
   }
 }
 
 function recNext() {
   if (recCurrent === 0) recValidStep0();
-  else if (recCurrent === 1) recValidStep1();
-  else if (recCurrent === 2) recEnviar();
+  else if (recCurrent === 1) recEnviar();
 }
 
 function recPrev() {
@@ -540,80 +538,124 @@ function recValidStep0() {
   var ok = true;
   if (!nombre) { recShowErr('errNombre', true); ok = false; } else recShowErr('errNombre', false);
   if (!tel || tel.length < 8) { recShowErr('errTel', true); ok = false; } else recShowErr('errTel', false);
+  if (!recStars) { recShowErr('errEstrellas', true); ok = false; } else recShowErr('errEstrellas', false);
   if (!ok) return;
   document.getElementById('nombreDisplay1').textContent = nombre;
-  document.getElementById('nombreDisplay2').textContent = nombre;
   recGoTo(1);
 }
 
-function recValidStep1() {
-  var selChips = document.querySelectorAll('#oficioChips .rec-chip.sel');
-  if (selChips.length === 0) { recShowErr('errOficio', true); return; }
-  var otroSel = document.querySelector('#oficioChips .rec-chip[data-value="otro"]');
-  if (otroSel && otroSel.classList.contains('sel')) {
-    var otroVal = document.getElementById('otroOficioInput').value.trim();
-    if (!otroVal) { recShowErr('errOficio', true); return; }
+function recReset() {
+  document.getElementById('recNombre').value = '';
+  document.getElementById('recTel').value = '';
+  document.getElementById('recNombre').style.borderColor = '';
+  document.getElementById('recPhoneWrap').style.borderColor = '';
+  recStars = 0; hlStars(0);
+  document.getElementById('recStarLabel').textContent = 'Tocá para calificar';
+  document.querySelectorAll('.rec-chip.sel').forEach(function(ch) { ch.classList.remove('sel'); });
+  var resena = document.getElementById('recReseña');
+  if (resena) { resena.value = ''; resena.style.height = 'auto'; }
+  var otraZona = document.getElementById('otraZonaWrap');
+  if (otraZona) otraZona.style.display = 'none';
+  var otroOficio = document.getElementById('oficioOtroWrap');
+  if (otroOficio) otroOficio.style.display = 'none';
+  var importOk = document.getElementById('importOk');
+  if (importOk) importOk.classList.remove('visible');
+  ['errNombre','errTel','errEstrellas'].forEach(function(id) { recShowErr(id, false); });
+  if (window._recIsMobile) {
+    var ff = document.getElementById('recFormFields');
+    if (ff) ff.style.display = 'none';
   }
-  recShowErr('errOficio', false);
-  recGoTo(2);
+  recGoTo(0);
 }
 
 
 /* ========== CONTACT PICKER ========== */
 (function() {
-  var desc = document.getElementById('importDesc');
-  var btnTxt = document.getElementById('importBtnTxt');
-  if ('contacts' in navigator && 'ContactsManager' in window) {
-    desc.textContent = 'Importá directo desde tu agenda. Igual que cuando elegís un contacto en WhatsApp.';
+  var isAndroid = ('contacts' in navigator && 'ContactsManager' in window);
+  var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  var isMobile = isAndroid || isIOS || /Android|Mobile/.test(navigator.userAgent);
+  window._recIsMobile = isMobile;
+  window._recIsIOS = isIOS;
+  window._recIsAndroid = isAndroid;
+
+  var importBox  = document.getElementById('importBox');
+  var formFields = document.getElementById('recFormFields');
+  var btnImport  = document.getElementById('btnImport');
+  var desc       = document.getElementById('importDesc');
+  var btnTxt     = document.getElementById('importBtnTxt');
+  var linkManual = document.getElementById('linkManual');
+
+  if (!isMobile) {
+    importBox.style.display = 'none';
+    formFields.style.display = '';
+  } else if (isAndroid) {
+    formFields.style.display = 'none';
+    desc.textContent = 'Importá directo desde tu agenda, igual que en WhatsApp.';
     btnTxt.textContent = 'Importar desde contactos';
+    btnImport.style.display = '';
+    if (linkManual) linkManual.style.display = '';
+  } else if (isIOS) {
+    formFields.style.display = 'none';
+    desc.innerHTML = 'Copiá el número en WhatsApp y volvé acá:';
+    btnTxt.textContent = 'Pegar número copiado';
+    btnImport.style.display = '';
+    if (linkManual) linkManual.style.display = '';
   } else {
-    var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    if (isIOS) {
-      desc.textContent = 'Tocá el campo de Teléfono — iOS te muestra la barra de contactos para autocompletar.';
-      document.getElementById('btnImport').style.display = 'none';
-    } else {
-      desc.textContent = 'Completá el nombre y número de WhatsApp del prestador.';
-      document.getElementById('btnImport').style.display = 'none';
-    }
+    formFields.style.display = '';
+    if (btnImport) btnImport.style.display = 'none';
+    if (linkManual) linkManual.style.display = 'none';
   }
 })();
 
 async function recImportar() {
-  if ('contacts' in navigator && 'ContactsManager' in window) {
+  if (window._recIsAndroid) {
     try {
       var contacts = await navigator.contacts.select(['name', 'tel'], { multiple: false });
       if (contacts && contacts.length > 0) {
-        var c = contacts[0];
-        var nombre = (c.name && c.name[0]) ? c.name[0] : '';
+        var ct = contacts[0];
+        var nombre = (ct.name && ct.name[0]) ? ct.name[0] : '';
         var rawTel = '';
-        if (c.tel && c.tel.length > 0) {
-          rawTel = (typeof c.tel[0] === 'object') ? (c.tel[0].value || '') : (c.tel[0] || '');
+        if (ct.tel && ct.tel.length > 0) {
+          rawTel = (typeof ct.tel[0] === 'object') ? (ct.tel[0].value || '') : (ct.tel[0] || '');
         }
-        if (nombre) document.getElementById('recNombre').value = nombre;
-        if (rawTel)  document.getElementById('recTel').value = parseTelArg(rawTel);
-        if (nombre || rawTel) recMostrarImportOk();
+        _recFillImport(nombre, rawTel);
       }
     } catch(e) {}
-  } else {
-    document.getElementById('vcfInput').click();
+  } else if (window._recIsIOS) {
+    try {
+      var text = await navigator.clipboard.readText();
+      var phoneMatch = text.match(/[\d][\d\s\-\.]{7,}/);
+      var rawTel = phoneMatch ? phoneMatch[0] : '';
+      if (rawTel) {
+        _recFillImport('', rawTel);
+      } else {
+        document.getElementById('importDesc').textContent = 'No detectamos un número copiado. Copiá el número en WhatsApp e intentá de nuevo.';
+      }
+    } catch(e) {
+      document.getElementById('importDesc').textContent = 'No se pudo leer el portapapeles. Ingresá el número manualmente.';
+      _recShowFormFields();
+    }
   }
 }
 
-document.getElementById('vcfInput').addEventListener('change', function() {
-  var file = this.files[0];
-  if (!file) return;
-  var self = this;
-  file.text().then(function(text) {
-    var fnMatch  = text.match(/^FN:(.+)$/m);
-    var telMatch = text.match(/^TEL[^:]*:(.+)$/m);
-    var nombre = fnMatch  ? fnMatch[1].trim()  : '';
-    var tel    = telMatch ? telMatch[1].trim() : '';
-    if (nombre) document.getElementById('recNombre').value = nombre;
-    if (tel)    document.getElementById('recTel').value = parseTelArg(tel);
-    if (nombre || tel) recMostrarImportOk();
-    self.value = '';
-  });
-});
+function _recFillImport(nombre, rawTel) {
+  _recShowFormFields();
+  if (nombre) {
+    document.getElementById('recNombre').value = nombre;
+    document.getElementById('recNombre').style.borderColor = 'var(--accent)';
+  }
+  if (rawTel) {
+    document.getElementById('recTel').value = parseTelArg(rawTel);
+    document.getElementById('recPhoneWrap').style.borderColor = 'var(--accent)';
+  }
+  var ok = document.getElementById('importOk');
+  if (ok) ok.classList.add('visible');
+}
+
+function _recShowFormFields() {
+  var ff = document.getElementById('recFormFields');
+  if (ff) ff.style.display = '';
+}
 
 function parseTelArg(raw) {
   var d = (raw || '').replace(/\D/g, '');
@@ -621,12 +663,6 @@ function parseTelArg(raw) {
   if (d.startsWith('54'))  return d.slice(2);
   if (d.startsWith('0'))   return d.slice(1);
   return d;
-}
-
-function recMostrarImportOk() {
-  document.getElementById('importOk').classList.add('visible');
-  document.getElementById('recNombre').style.borderColor = 'var(--accent)';
-  document.getElementById('recPhoneWrap').style.borderColor = 'var(--accent)';
 }
 
 /* ========== CHIPS ========== */
@@ -709,12 +745,6 @@ function recAutoResize(el) {
 
 /* ========== SUBMIT ========== */
 async function recEnviar() {
-  if (!recStars) {
-    recShowErr('errEstrellas', true);
-    var row = document.getElementById('recStarsRow');
-    if (row) row.scrollIntoView({behavior:'smooth', block:'nearest'});
-    return;
-  }
   var btn = document.getElementById('recEnviarBtn');
   if (btn) { btn.disabled = true; btn.textContent = 'Enviando...'; }
 
@@ -773,10 +803,12 @@ async function recEnviar() {
   if (esDuplicado) {
     document.getElementById('recGraciasTitle').innerHTML = '¡Ya estaba<br>en <span>SERVY</span>!';
     document.getElementById('recGraciasSub').textContent = 'Este prestador ya fue recomendado. ¡Sumamos tu reseña!';
+  } else if (recStars >= 3) {
+    document.getElementById('recGraciasSub').textContent = 'Vamos a contactar a ' + (nombre || 'el prestador') + ' para pedirle permiso antes de publicar sus datos.';
   } else {
-    document.getElementById('recGraciasSub').textContent = 'Nos vamos a contactar con ' + (nombre || 'el prestador') + ' para pedirle permiso antes de publicar sus datos.';
+    document.getElementById('recGraciasSub').textContent = '¡Tu aporte es muy valioso para la comunidad!';
   }
-  recGoTo(3);
+  recGoTo(2);
 }
 </script>
 
@@ -794,7 +826,7 @@ async function recEnviar() {
       mouseControls:true, touchControls:true, gyroControls:false,
       minHeight:200, minWidth:200, scale:1, scaleMobile:1,
       color:_col0, backgroundColor:_bg0,
-      points:(_p0==='bone'?12:9), maxDistance:(_p0==='bone'?28:22), spacing:18, showDots:(_p0!=='bone')
+      points:9, maxDistance:22, spacing:18, showDots:(_p0!=='bone')
     });
     new MutationObserver(function() {
       var p = document.documentElement.getAttribute('data-palette');
