@@ -4,293 +4,204 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SERVY — Soy prestador</title>
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-
 <link rel="stylesheet" href="home-v2.css">
 <style>
-/* ============ PAGE: PRESTADOR ============ */
+/* ===== WIZARD STEPS ===== */
+.prest-wiz { position:fixed; inset:0; overflow:hidden; z-index:1; }
+.prest-step {
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  overflow-y:auto; overflow-x:hidden; scrollbar-width:none;
+  transform:translateX(100%);
+  transition:transform .45s cubic-bezier(.4,0,.2,1), opacity .35s;
+  opacity:0; pointer-events:none;
+}
+.prest-step::-webkit-scrollbar { display:none; }
+.prest-step.active { transform:translateX(0); opacity:1; pointer-events:all; }
+.prest-step.past   { transform:translateX(-28%); opacity:0; pointer-events:none; }
 
-.page-hero {
-  padding: 72px 32px 28px;
-  border-bottom: 1px solid var(--line);
-  position: relative;
+/* ===== CONTENT + FOOT ===== */
+.prest-content {
+  flex:1; display:flex; flex-direction:column;
+  padding:80px 28px 0; max-width:600px; width:100%;
+  margin:0 auto; box-sizing:border-box;
 }
-@media (max-width: 820px) { .page-hero { padding: 28px 20px 12px; } }
-@media (max-width: 820px) { .page-subtitle { display: none; } }
+.prest-spacer { flex:1; min-height:24px; }
+.prest-foot {
+  padding:20px 28px calc(28px + env(safe-area-inset-bottom));
+  display:flex; flex-direction:column; gap:10px;
+  max-width:600px; width:100%; margin:0 auto;
+  box-sizing:border-box; position:relative; z-index:2;
+}
+.prest-foot-row { display:flex; gap:10px; width:100%; }
+.prest-foot-row .prest-cta { flex:1; }
 
-.page-eyebrow {
-  font-family: var(--f-mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ink-dim);
-  margin-bottom: 20px;
+/* ===== DOTS BAR ===== */
+.prest-dots { display:flex; align-items:center; gap:0; margin-bottom:24px; }
+.prest-dot {
+  width:28px; height:28px; border-radius:50%;
+  border:2px solid var(--line-strong);
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--f-mono); font-size:11px; font-weight:700;
+  color:var(--ink-mute); opacity:.4; flex-shrink:0; cursor:default;
+  transition:all .3s;
 }
-.page-title {
-  font-family: var(--f-display);
-  font-weight: 800;
-  font-size: clamp(36px, 6vw, 88px);
-  line-height: 0.96;
-  letter-spacing: -0.035em;
-  color: var(--ink);
-  margin-bottom: 20px;
+.prest-dot.active { border-color:var(--accent); color:var(--accent); background:color-mix(in srgb,var(--accent) 10%,transparent); width:32px; height:32px; font-size:13px; opacity:1; }
+.prest-dot.done   { border-color:var(--accent); background:var(--accent); color:var(--accent-ink); opacity:1; cursor:pointer; }
+.prest-dot-line { flex:1; height:2px; background:var(--line-strong); margin:0 6px; transition:background .3s; }
+.prest-dot-line.done { background:var(--accent); }
+
+/* ===== TITLES ===== */
+.prest-title {
+  font-family:var(--f-display); font-weight:800;
+  font-size:clamp(32px,9vw,58px); letter-spacing:-.03em; line-height:1.05;
+  color:var(--ink); margin-bottom:8px;
 }
-.page-title .accent { color: var(--accent); }
-.page-subtitle {
-  font-family: var(--f-sans);
-  font-size: 16px;
-  color: var(--ink-dim);
-  max-width: 44ch;
-  line-height: 1.6;
+.prest-title span { color:var(--accent); }
+.prest-sub { font-family:var(--f-sans); font-size:16px; color:var(--ink-dim); margin-bottom:24px; line-height:1.5; }
+
+/* ===== BUTTONS ===== */
+.prest-cta {
+  position:relative; z-index:10; width:100%; padding:18px 24px;
+  background:var(--accent); color:var(--accent-ink);
+  border:1px solid var(--accent); border-radius:14px;
+  font-family:var(--f-mono); font-size:14px; letter-spacing:.08em;
+  text-transform:uppercase; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  transition:background .25s,opacity .25s,transform .15s;
+}
+.prest-cta:active { transform:scale(.98); opacity:.85; }
+.prest-cta:disabled { opacity:.45; pointer-events:none; }
+.prest-back {
+  padding:16px 20px; background:transparent;
+  border:1px solid var(--line-strong); border-radius:14px;
+  color:var(--ink-dim); font-family:var(--f-mono); font-size:12px;
+  letter-spacing:.08em; text-transform:uppercase; cursor:pointer;
+  display:flex; align-items:center; gap:8px;
+  transition:color .2s,border-color .2s; white-space:nowrap; flex-shrink:0;
+}
+.prest-back:hover { color:var(--ink); border-color:var(--ink-dim); }
+.btn-arr { display:inline-block; width:12px; height:1px; background:currentColor; position:relative; }
+.btn-arr::after { content:''; position:absolute; right:0; top:-3px; width:5px; height:5px; border-top:1px solid currentColor; border-right:1px solid currentColor; transform:rotate(45deg); }
+
+/* ===== FIELDS ===== */
+.prest-field { margin-bottom:18px; }
+.prest-label { display:block; font-family:var(--f-sans); font-size:14px; font-weight:600; color:var(--ink-dim); margin-bottom:8px; }
+.prest-input {
+  width:100%; background:color-mix(in srgb,var(--ink) 5%,var(--bg));
+  border:2px solid var(--line-strong); border-radius:12px;
+  color:var(--ink); font-family:var(--f-display); font-weight:600;
+  font-size:18px; padding:14px 16px; outline:none; box-sizing:border-box;
+  transition:border-color .2s,background .2s;
+}
+.prest-input:focus { border-color:var(--accent); background:color-mix(in srgb,var(--accent) 5%,var(--bg)); }
+.prest-input::placeholder { color:var(--ink-mute); font-weight:400; font-size:16px; }
+textarea.prest-input { font-size:16px; font-weight:400; resize:none; min-height:96px; line-height:1.5; overflow:hidden; }
+.prest-phone-wrap {
+  display:flex; align-items:stretch;
+  background:color-mix(in srgb,var(--ink) 5%,var(--bg));
+  border:2px solid var(--line-strong); border-radius:12px;
+  overflow:hidden; transition:border-color .2s,background .2s;
+}
+.prest-phone-wrap:focus-within { border-color:var(--accent); background:color-mix(in srgb,var(--accent) 5%,var(--bg)); }
+.prest-phone-prefix { padding:14px 0 14px 16px; font-family:var(--f-mono); font-size:16px; color:var(--ink-mute); white-space:nowrap; flex-shrink:0; }
+.prest-phone-wrap .prest-input { border:none; border-radius:0; background:transparent; padding-left:8px; }
+.prest-phone-wrap .prest-input:focus { background:transparent; }
+.prest-hint { font-family:var(--f-mono); font-size:11px; color:var(--ink-mute); letter-spacing:.04em; margin-top:6px; }
+.prest-err { display:none; font-family:var(--f-mono); font-size:11px; color:#F87171; margin-top:6px; letter-spacing:.04em; }
+.prest-err.visible { display:block; }
+
+/* ===== CHIPS ===== */
+.prest-chips { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px; }
+.prest-chip {
+  font-family:var(--f-sans); font-size:14px; font-weight:500;
+  color:var(--ink-dim); padding:10px 18px;
+  border:1.5px solid var(--line-strong); border-radius:999px;
+  background:transparent; cursor:pointer;
+  transition:color .2s,border-color .2s,background .2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.prest-chip:hover { color:var(--ink); border-color:var(--ink-dim); }
+.prest-chip.sel { background:var(--accent); color:var(--accent-ink); border-color:var(--accent); }
+
+/* ===== SECTION LABEL ===== */
+.prest-opt-label {
+  display:flex; align-items:center; gap:12px; margin:20px 0 14px;
+  font-family:var(--f-mono); font-size:10px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--ink-mute);
+}
+.prest-opt-label::after { content:''; flex:1; height:1px; background:var(--line-strong); }
+.prest-opcional-badge {
+  font-family:var(--f-mono); font-size:10px; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase;
+  color:var(--ink-mute); border:1px solid var(--line-strong);
+  border-radius:999px; padding:2px 9px; vertical-align:middle; margin-left:4px;
 }
 
-/* Value props row */
-.props-row {
-  display: flex;
-  gap: 0;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-  margin: 0 32px;
+/* ===== SUCCESS ===== */
+.prest-success-icon {
+  width:72px; height:72px; border-radius:50%;
+  background:color-mix(in srgb,var(--accent) 15%,transparent);
+  border:1px solid var(--accent);
+  display:flex; align-items:center; justify-content:center;
+  margin-bottom:24px; color:var(--accent);
 }
-/* Props-row: desktop normal, mobile carousel */
-.props-dots { display: none; }
-@media (max-width: 820px) {
-  .props-row { margin: 0; position: relative; overflow: hidden; min-height: 86px; border-left: none; border-right: none; }
-  .props-row .prop-item {
-    position: absolute; top: 0; left: 0; width: 100%; padding: 24px 24px;
-    opacity: 0; transform: translateX(16px);
-    transition: opacity 0.5s, transform 0.5s;
-    pointer-events: none; border-right: none !important; border-bottom: none !important;
-  }
-  .props-row .prop-item.active {
-    opacity: 1; transform: translateX(0); pointer-events: auto; position: relative;
-  }
-  .props-dots { display: flex; justify-content: center; gap: 7px; padding: 6px 0 14px; }
-  .props-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--line-strong); transition: background 0.3s; }
-  .props-dot.active { background: var(--accent); }
+.prest-success-actions { display:flex; flex-direction:column; gap:10px; width:100%; margin-top:20px; }
+.prest-wa-share {
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  width:100%; padding:12px; border:1px solid rgba(37,211,102,.35);
+  border-radius:14px; color:#25d366; background:transparent;
+  font-family:var(--f-mono); font-size:12px; letter-spacing:.06em;
+  text-decoration:none; cursor:pointer; transition:background .2s,border-color .2s;
+  box-sizing:border-box;
 }
-.prop-item {
-  flex: 1;
-  padding: 24px 28px;
-  border-right: 1px solid var(--line);
-  font-family: var(--f-mono);
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-mute);
-}
-.prop-item:last-child { border-right: 0; }
-@media (max-width: 820px) { .prop-item { border-right: 0; border-bottom: 1px solid var(--line); }
-  .prop-item:last-child { border-bottom: 0; } }
-.prop-item strong { display: block; color: var(--accent); font-size: 13px; margin-bottom: 4px; }
+.prest-wa-share:hover { background:rgba(37,211,102,.08); border-color:rgba(37,211,102,.6); }
+.prest-link-btn { text-decoration:none; text-align:center; display:flex; align-items:center; justify-content:center; }
 
-/* Steps bar */
-.steps-bar {
-  display: flex;
-  align-items: center;
-  padding: 32px 32px 0;
-  border-bottom: 1px solid var(--line);
-}
-@media (max-width: 820px) { .steps-bar { padding: 24px 20px 0; } }
-.step-item { display: flex; align-items: center; gap: 10px; padding-bottom: 20px; border-bottom: 2px solid transparent; transition: border-color 0.3s; }
-.step-item.active { border-bottom-color: var(--accent); }
-.step-num-badge {
-  width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line-strong);
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--f-mono); font-size: 11px; color: var(--ink-mute);
-  transition: background 0.3s, color 0.3s, border-color 0.3s; flex-shrink: 0;
-}
-.step-item.active .step-num-badge { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
-.step-item.done .step-num-badge { background: color-mix(in srgb, var(--accent) 20%, transparent); color: var(--accent); border-color: var(--accent); }
-.step-name { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-mute); transition: color 0.3s; }
-.step-item.active .step-name { color: var(--ink); }
-.step-connector { flex: 1; height: 1px; background: var(--line); margin: 0 16px; margin-bottom: 20px; }
+/* ===== EYEBROW BADGE ===== */
+.prest-eyebrow { margin-bottom:16px; }
 
-/* Form container */
-.form-container { padding: 40px 32px 80px; max-width: 740px; }
-@media (max-width: 820px) { .form-container { padding: 32px 20px 60px; } }
+/* ===== TEXTAREA WRAP + CHAR COUNT ===== */
+.prest-textarea-wrap { position:relative; }
+.prest-char-count { font-family:var(--f-mono); font-size:11px; color:var(--ink-mute); text-align:right; margin-top:4px; }
 
-/* Form blocks */
-.form-block {
-  margin-bottom: 28px; padding: 28px 32px;
-  border: 1px solid var(--line); transition: border-color 0.3s;
+@media (max-width:600px) {
+  .prest-content { padding:80px 20px 0; }
+  .prest-foot { padding:16px 20px calc(20px + env(safe-area-inset-bottom)); }
+  .prest-title { font-size:10vw; }
 }
-.form-block:focus-within { border-color: var(--line-strong); }
-.form-block-title { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-dim); margin-bottom: 20px; }
-@media (max-width: 820px) { .form-block { padding: 20px; margin-bottom: 16px; } }
 
-/* Fields */
-.field-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 20px; }
-.field-group:last-child { margin-bottom: 0; }
-.field-label { font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-mute); }
-.required { color: var(--accent); }
-.field-input {
-  background: transparent; border: none; border-bottom: 1px solid var(--line-strong);
-  color: var(--ink); font-family: var(--f-display); font-weight: 600; font-size: 18px;
-  padding: 10px 0; outline: none; transition: border-color 0.25s; width: 100%;
-}
-.field-input:focus { border-bottom-color: var(--accent); }
-.field-input::placeholder { color: var(--ink-mute); font-weight: 400; font-size: 16px; }
-textarea.field-input {
-  border: 1px solid var(--line-strong); padding: 12px; resize: vertical;
-  min-height: 96px; font-size: 15px; font-weight: 400; border-radius: 2px;
-}
-textarea.field-input:focus { border-color: var(--accent); }
-.field-hint { font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.06em; color: var(--ink-mute); line-height: 1.5; }
-.char-count { font-family: var(--f-mono); font-size: 10px; color: var(--ink-mute); text-align: right; margin-top: 4px; }
+/* ===== VANTA BG ===== */
+#prestVanta { position:fixed; inset:0; z-index:0; }
+#prestVanta canvas { opacity:0.38 !important; transition:opacity 0.8s; }
+[data-palette="bone"] #prestVanta canvas { opacity:1 !important; mix-blend-mode:normal; }
 
-/* Phone wrapper */
-.phone-wrapper { display: flex; align-items: stretch; border-bottom: 1px solid var(--line-strong); transition: border-color 0.25s; }
-.phone-wrapper:focus-within { border-bottom-color: var(--accent); }
-.phone-prefix { font-family: var(--f-mono); font-size: 14px; color: var(--ink-mute); padding: 10px 10px 10px 0; white-space: nowrap; flex-shrink: 0; }
-.phone-wrapper .field-input { border-bottom: none; }
-
-/* Field error */
-.field-error { display: none; font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.06em; color: #F87171; margin-top: 4px; }
-.field-error.visible { display: flex; align-items: center; gap: 4px; }
-
-/* Chips */
-.chips-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-.chip {
-  font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
-  color: var(--ink-dim); padding: 8px 14px; border: 1px solid var(--line); border-radius: 999px;
-  background: transparent; cursor: pointer; transition: color 0.2s, border-color 0.2s, background 0.2s;
+/* ===== ANIMATIONS ===== */
+.flip-scale-down-ver {
+  animation: flip-scale-down-ver .5s cubic-bezier(.455,.030,.515,.955) both;
 }
-.chip:hover { color: var(--ink); border-color: var(--ink-dim); }
-.chip.selected { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
-.chip.chip-other {
-  border-style: dashed !important;
-  background: color-mix(in srgb, var(--accent) 18%, transparent) !important;
-  border-color: color-mix(in srgb, var(--accent) 60%, transparent) !important;
-  color: var(--accent) !important;
-  font-style: italic;
+@keyframes flip-scale-down-ver {
+  0%   { transform: scale(1) rotateY(180deg); }
+  50%  { transform: scale(.4) rotateY(90deg); }
+  100% { transform: scale(1) rotateY(0deg); }
 }
-.chip.chip-other:hover {
-  background: color-mix(in srgb, var(--accent) 28%, transparent) !important;
+@keyframes scale-up-bounce {
+  0%   { transform: scale(0); opacity: 0; }
+  60%  { transform: scale(1.35); opacity: 1; }
+  80%  { transform: scale(0.9); }
+  100% { transform: scale(1); }
 }
-.other-input-wrap { display: none; margin-top: 10px; }
-.other-input-wrap.visible { display: block; }
-
-/* Zone */
-.zone-mode-btns { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: nowrap; }
-.btn-zone-mode {
-  display: inline-flex; align-items: center; gap: 8px;
-  font-family: var(--f-sans); font-size: 14px; letter-spacing: 0; text-transform: none;
-  color: var(--ink-dim); padding: 12px 20px; border: 1px solid var(--line); border-radius: 999px;
-  background: transparent; cursor: pointer; transition: color 0.2s, border-color 0.2s, background 0.2s;
-}
-.btn-zone-mode:hover { color: var(--ink); border-color: var(--ink-dim); }
-.btn-zone-mode.active { background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); border-color: var(--accent); }
-.map-wrap { border: 1px solid var(--line); height: 200px; margin-bottom: 16px; overflow: hidden; }
-.range-label { display: flex; justify-content: space-between; align-items: center;
-  font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-mute); margin-bottom: 8px; }
-.range-label span:last-child { color: var(--accent); font-size: 13px; }
-input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; }
-
-/* Photo upload */
-.btn-foto-upload {
-  display: inline-flex; align-items: center; gap: 8px;
-  font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--ink-dim); padding: 12px 20px; border: 1px dashed var(--line-strong); border-radius: 2px;
-  background: transparent; cursor: pointer; transition: color 0.25s, border-color 0.25s;
-  margin-top: 10px;
-}
-.btn-foto-upload:hover { color: var(--accent); border-color: var(--accent); }
-.foto-preview-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-.foto-preview-grid img { width: 80px; height: 80px; object-fit: cover; border: 1px solid var(--line); }
-
-/* Action row */
-.btn-row { display: flex; justify-content: space-between; align-items: center; margin-top: 32px; gap: 12px; }
-.btn-back {
-  display: inline-flex; align-items: center; gap: 8px;
-  font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
-  color: var(--ink-dim); background: transparent; border: 1px solid var(--line); border-radius: 999px;
-  padding: 14px 24px; cursor: pointer; transition: color 0.25s, border-color 0.25s;
-}
-.btn-back:hover { color: var(--ink); border-color: var(--ink-dim); }
-.btn-next {
-  display: inline-flex; align-items: center; gap: 10px;
-  font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--accent-ink); background: var(--accent); border: 1px solid var(--accent); border-radius: 999px;
-  padding: 14px 28px; cursor: pointer; transition: background 0.25s, color 0.25s, border-color 0.25s;
-}
-.btn-next:hover { background: var(--ink); border-color: var(--ink); color: var(--bg); }
-.btn-next .arr { display: inline-block; width: 14px; height: 1px; background: currentColor; position: relative; transition: width 0.2s; }
-.btn-next .arr::after { content: ''; position: absolute; right: 0; top: -3px; width: 6px; height: 6px; border-top: 1px solid currentColor; border-right: 1px solid currentColor; transform: rotate(45deg); }
-.btn-next:hover .arr { width: 22px; }
-
-/* Success */
-.success-page { display: none; padding: 80px 32px; text-align: center; }
-.success-page.visible { display: block; }
-.success-icon {
-  width: 64px; height: 64px; border-radius: 50%;
-  background: color-mix(in srgb, var(--accent) 15%, transparent); border: 1px solid var(--accent);
-  display: flex; align-items: center; justify-content: center;
-  margin: 0 auto 32px; font-size: 28px; color: var(--accent);
-}
-.success-title { font-family: var(--f-display); font-weight: 800; font-size: clamp(32px, 5vw, 64px); letter-spacing: -0.03em; color: var(--ink); margin-bottom: 16px; line-height: 1; }
-.success-sub { font-family: var(--f-sans); font-size: 16px; color: var(--ink-dim); max-width: 38ch; margin: 0 auto 12px; line-height: 1.6; }
-.success-badge { font-family: var(--f-mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); padding: 10px 20px; border: 1px solid var(--accent); display: inline-block; margin: 16px auto 40px; }
-.success-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
-
-/* ============ ACCESIBILIDAD / LEGIBILIDAD ============ */
-.form-block-title {
-  font-family: var(--f-sans) !important;
-  font-size: 17px !important;
-  font-weight: 700 !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-  color: var(--ink) !important;
-}
-.field-label {
-  font-family: var(--f-sans) !important;
-  font-size: 14px !important;
-  font-weight: 600 !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-  color: var(--ink-dim) !important;
-}
-.field-input {
-  border: 2px solid var(--line-strong) !important;
-  border-radius: 10px !important;
-  padding: 14px 16px !important;
-  background: color-mix(in srgb, var(--ink) 5%, var(--bg)) !important;
-}
-.field-input:focus {
-  border-color: var(--accent) !important;
-  background: color-mix(in srgb, var(--accent) 5%, var(--bg)) !important;
-}
-textarea.field-input { padding: 14px 16px !important; }
-.phone-wrapper {
-  border: 2px solid var(--line-strong) !important;
-  border-radius: 10px !important;
-  padding: 0 16px !important;
-  background: color-mix(in srgb, var(--ink) 5%, var(--bg)) !important;
-}
-.phone-wrapper:focus-within { border-color: var(--accent) !important; background: color-mix(in srgb, var(--accent) 5%, var(--bg)) !important; }
-.phone-wrapper .field-input { border: none !important; border-radius: 0 !important; padding: 14px 0 !important; background: transparent !important; }
-.chip {
-  font-family: var(--f-sans) !important;
-  font-size: 14px !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-  padding: 10px 18px !important;
-}
-.field-hint { font-size: 13px !important; color: var(--ink-dim) !important; }
+.scale-up-bounce { animation: scale-up-bounce .5s cubic-bezier(.39,.575,.565,1) both; }
 </style>
 </head>
 <body class="loaded">
 
-<div class="brand-watermark" aria-hidden="true">
-  <img src="assets/servy-circle.png?v=2" alt="">
-</div>
 <div class="cursor-dot" aria-hidden="true"></div>
 <div class="cursor-ring" aria-hidden="true"></div>
 
-<!-- Nav -->
 <nav class="nav">
   <a href="./" class="nav-logo">
     <img src="assets/servy-full.png" alt="SERVY">
@@ -311,514 +222,403 @@ textarea.field-input { padding: 14px 16px !important; }
   </button>
 </nav>
 
-<main>
+<div id="prestVanta"></div>
 
-  <!-- Page hero -->
-  <section class="page-hero">
-    <div class="section-glow" aria-hidden="true" style="top:-20%;left:-5%;opacity:0.2;"></div>
-    <div class="page-eyebrow">§ Sumate</div>
-    <h1 class="page-title reveal">
-      Sumate a la<br>comunidad <span class="accent">SERVY.</span>
-    </h1>
-    <p class="page-subtitle reveal">
-      Registrate gratis. Mostramos tu contacto a usuarios que buscan exactamente lo que vos ofrecés.
-    </p>
-  </section>
+<div class="prest-wiz" id="prestWiz">
 
-  <!-- Value props -->
-  <div class="props-row" id="propsCarousel">
-    <div class="prop-item">
-      <strong>Gratis</strong>
-      Sin costo de ingreso ni comisiones
+  <!-- ── PASO 1: Datos de contacto ── -->
+  <div class="prest-step active" id="ps0">
+    <div class="prest-content">
+      <div class="prest-dots">
+        <span class="prest-dot active" data-s="0">1</span>
+        <span class="prest-dot-line"></span>
+        <span class="prest-dot" data-s="1">2</span>
+        <span class="prest-dot-line"></span>
+        <span class="prest-dot" data-s="2">3</span>
+      </div>
+
+      <div class="hero-eyebrow prest-eyebrow">
+        <span class="sticker"><span class="pulse"></span>Gratis · En menos de 1 minuto</span>
+      </div>
+
+      <h1 class="prest-title">Sumate a<br><span>SERVY</span></h1>
+      <p class="prest-sub">Registrate y empezá a recibir clientes de tu zona.</p>
+
+      <div class="prest-field">
+        <label class="prest-label">Nombre y apellido <span style="color:var(--accent)">*</span></label>
+        <input type="text" class="prest-input" id="prestNombre" placeholder="Ej: Juan García"
+          autocomplete="name"
+          oninput="this.value=this.value.replace(/[0-9]/g,''); prestClearErr('errPrestNombre')">
+        <div class="prest-err" id="errPrestNombre">Ingresá tu nombre completo</div>
+      </div>
+
+      <div class="prest-field">
+        <label class="prest-label">WhatsApp <span style="color:var(--accent)">*</span></label>
+        <div class="prest-phone-wrap" id="prestPhoneWrap">
+          <span class="prest-phone-prefix">+54 9</span>
+          <input type="tel" class="prest-input" id="prestTel" placeholder="351 1234567"
+            inputmode="numeric" autocomplete="tel"
+            oninput="this.value=this.value.replace(/[^0-9 ]/g,''); prestClearErr('errPrestTel')">
+        </div>
+        <div class="prest-hint">Sin el 0 ni el 15</div>
+        <div class="prest-err" id="errPrestTel">Ingresá un número de WhatsApp válido</div>
+      </div>
+
+      <div class="prest-field">
+        <label class="prest-label">Email <span style="color:var(--accent)">*</span></label>
+        <input type="email" class="prest-input" id="prestEmail" placeholder="tu@email.com"
+          autocomplete="email" inputmode="email"
+          oninput="prestClearErr('errPrestEmail')">
+        <div class="prest-err" id="errPrestEmail">Ingresá un email válido</div>
+      </div>
+
+      <div class="prest-spacer"></div>
     </div>
-    <div class="prop-item">
-      <strong>Verificado</strong>
-      Tu ficha muestra que sos real
-    </div>
-    <div class="prop-item">
-      <strong>Contacto directo</strong>
-      Los clientes te llaman a vos
+    <div class="prest-foot">
+      <div class="prest-foot-row">
+        <button class="prest-back" onclick="prestPrev()">← Inicio</button>
+        <button class="prest-cta" onclick="prestNext()">Siguiente <span class="btn-arr"></span></button>
+      </div>
     </div>
   </div>
-  <div class="props-dots" aria-hidden="true">
-    <span class="props-dot"></span>
-    <span class="props-dot"></span>
-    <span class="props-dot"></span>
+
+  <!-- ── PASO 2: Oficio ── -->
+  <div class="prest-step" id="ps1">
+    <div class="prest-content">
+      <div class="prest-dots">
+        <span class="prest-dot done" data-s="0" onclick="prestGoTo(0)">1</span>
+        <span class="prest-dot-line done"></span>
+        <span class="prest-dot active" data-s="1">2</span>
+        <span class="prest-dot-line"></span>
+        <span class="prest-dot" data-s="2">3</span>
+      </div>
+
+      <h1 class="prest-title">¿A qué te<br><span>dedicás</span>?</h1>
+      <p class="prest-sub">Elegí uno o más rubros <span style="color:var(--accent)">*</span></p>
+
+      <div class="prest-chips" id="prestOficioChips">
+        <button class="prest-chip" data-value="electricista">⚡ Electricista</button>
+        <button class="prest-chip" data-value="plomero">🔧 Plomero</button>
+        <button class="prest-chip" data-value="gasista">🔥 Gasista</button>
+        <button class="prest-chip" data-value="pintor">🎨 Pintor</button>
+        <button class="prest-chip" data-value="albanil">🧱 Albañil</button>
+        <button class="prest-chip" data-value="cerrajero">🔑 Cerrajero</button>
+        <button class="prest-chip" data-value="aire-acondicionado">❄️ Aire Acondicionado</button>
+        <button class="prest-chip" data-value="jardinero">🌿 Jardinero</button>
+        <button class="prest-chip" data-value="mudanza">📦 Mudanza / Flete</button>
+        <button class="prest-chip" data-value="limpieza">🧹 Limpieza</button>
+        <button class="prest-chip" data-value="carpintero">🪚 Carpintero</button>
+        <button class="prest-chip" data-value="mecanico">🔩 Mecánico</button>
+        <button class="prest-chip" data-value="tecnologia">💻 Tecnología</button>
+        <button class="prest-chip" data-value="otro">✏️ Otro...</button>
+      </div>
+      <div id="prestOtroOficioWrap" style="display:none; margin-top:10px;">
+        <input type="text" class="prest-input" id="prestOtroOficio" placeholder="¿Cuál rubro?">
+      </div>
+      <div class="prest-err" id="errPrestOficio" style="margin-top:8px;">Elegí al menos un rubro</div>
+
+      <div class="prest-spacer"></div>
+    </div>
+    <div class="prest-foot">
+      <div class="prest-foot-row">
+        <button class="prest-back" onclick="prestPrev()">← Volver</button>
+        <button class="prest-cta" onclick="prestNext()">Siguiente <span class="btn-arr"></span></button>
+      </div>
+    </div>
   </div>
 
-  <!-- Steps bar -->
-  <div class="steps-bar" id="stepsBar">
-    <div class="step-item active" id="stepItem1">
-      <div class="step-num-badge">1</div>
-      <span class="step-name">Datos</span>
-    </div>
-    <div class="step-connector"></div>
-    <div class="step-item" id="stepItem2">
-      <div class="step-num-badge">2</div>
-      <span class="step-name">Oficio</span>
-    </div>
-    <div class="step-connector"></div>
-    <div class="step-item" id="stepItem3">
-      <div class="step-num-badge">✓</div>
-      <span class="step-name">Listo</span>
-    </div>
-  </div>
-
-  <div class="form-container" id="formContainer">
-
-    <!-- ======== STEP 1: DATOS ======== -->
-    <div id="step1" class="step-content">
-      <div class="form-block reveal">
-        <div class="form-block-title">Tus datos de contacto</div>
-
-        <div class="field-group">
-          <label class="field-label">Nombre y apellido <span class="required">*</span></label>
-          <input type="text" class="field-input" id="nombre" placeholder="Ej: Juan García"
-            maxlength="80" autocomplete="name" oninput="this.value=this.value.replace(/[0-9]/g,'')">
-          <div class="field-error" id="nombre-error">Ingresá tu nombre</div>
-        </div>
-
-        <div class="field-group">
-          <label class="field-label">WhatsApp <span class="required">*</span></label>
-          <div class="phone-wrapper">
-            <div class="phone-prefix">+54 9</div>
-            <input type="tel" class="field-input" id="telefono" placeholder="351 1234567"
-              maxlength="12" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
-          </div>
-          <div class="field-hint">Sin el 0 ni el 15. Ej: 351 1234567</div>
-          <div class="field-error" id="telefono-error">Ingresá un número válido</div>
-        </div>
-
-        <div class="field-group">
-          <label class="field-label">Email <span class="required">*</span></label>
-          <input type="email" class="field-input" id="email"
-            placeholder="tu@email.com" autocomplete="email">
-          <div class="field-error" id="email-error">Ingresá un email válido</div>
-        </div>
+  <!-- ── PASO 3: Zona + Bio ── -->
+  <div class="prest-step" id="ps2">
+    <div class="prest-content">
+      <div class="prest-dots">
+        <span class="prest-dot done" data-s="0" onclick="prestGoTo(0)">1</span>
+        <span class="prest-dot-line done"></span>
+        <span class="prest-dot done" data-s="1" onclick="prestGoTo(1)">2</span>
+        <span class="prest-dot-line done"></span>
+        <span class="prest-dot active" data-s="2">3</span>
       </div>
 
-      <div class="btn-row">
-        <button class="btn-back" onclick="history.back()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-          Volver
-        </button>
-        <button class="btn-next" onclick="goToStep2()">
-          Continuar
-          <span class="arr"></span>
-        </button>
+      <h1 class="prest-title">¿Dónde<br><span>trabajás</span>?</h1>
+      <p class="prest-sub">Seleccioná tu zona de cobertura <span style="color:var(--accent)">*</span></p>
+
+      <div class="prest-chips" id="prestZonaChips">
+        <button class="prest-chip" data-value="toda-ciudad">📍 Toda la ciudad</button>
+        <button class="prest-chip" data-value="nueva-cordoba">Nueva Córdoba</button>
+        <button class="prest-chip" data-value="alta-cordoba">Alta Córdoba</button>
+        <button class="prest-chip" data-value="centro">Centro</button>
+        <button class="prest-chip" data-value="cerro">Cerro de las Rosas</button>
+        <button class="prest-chip" data-value="arguello">Argüello</button>
+        <button class="prest-chip" data-value="norte">Norte</button>
+        <button class="prest-chip" data-value="sur">Sur</button>
+        <button class="prest-chip" data-value="este">Este</button>
+        <button class="prest-chip" data-value="oeste">Oeste</button>
+        <button class="prest-chip" data-value="villa-carlos-paz">Villa Carlos Paz</button>
+        <button class="prest-chip" data-value="villa-allende">Villa Allende</button>
+        <button class="prest-chip" data-value="otra-zona">+ Otra zona</button>
       </div>
-    </div>
-
-    <!-- ======== STEP 2: OFICIO + ZONA ======== -->
-    <div id="step2" class="step-content" style="display:none;">
-
-      <!-- Categorías -->
-      <div class="form-block reveal">
-        <div class="form-block-title">¿En qué rubro trabajás? <span class="required">*</span></div>
-        <div class="field-hint" style="margin-bottom:14px;">Podés elegir más de uno</div>
-        <div class="chips-grid" id="categoryChips">
-          <button class="chip" data-value="electricidad">⚡ Electricidad</button>
-          <button class="chip" data-value="plomeria">🔧 Plomería</button>
-          <button class="chip" data-value="pintura">🎨 Pintura</button>
-          <button class="chip" data-value="carpinteria">🪚 Carpintería</button>
-          <button class="chip" data-value="cerrajeria">🔑 Cerrajería</button>
-          <button class="chip" data-value="albanileria">🧱 Albañilería</button>
-          <button class="chip" data-value="refrigeracion">❄️ Aire Acondicionado</button>
-          <button class="chip" data-value="gasista">🔥 Gasista</button>
-          <button class="chip" data-value="jardineria">🌿 Jardinería</button>
-          <button class="chip" data-value="limpieza">🧹 Limpieza</button>
-          <button class="chip" data-value="mudanzas">📦 Mudanzas</button>
-          <button class="chip" data-value="tecnologia">💻 Tecnología</button>
-          <button class="chip chip-other" data-value="otra">✏️ Otro rubro...</button>
-        </div>
-        <div class="other-input-wrap" id="otraWrap">
-          <input type="text" class="field-input" id="otraCategoria" placeholder="Describí tu rubro...">
-        </div>
-        <div class="field-error" id="categoria-error" style="margin-top:12px;">Elegí al menos un rubro</div>
+      <div id="prestOtraZonaWrap" style="display:none; margin-top:10px;">
+        <input type="text" class="prest-input" id="prestOtraZona" placeholder="¿Cuál zona o localidad?">
       </div>
+      <div class="prest-err" id="errPrestZona" style="margin-top:8px;">Seleccioná al menos una zona</div>
 
-      <!-- Zona -->
-      <div class="form-block reveal">
-        <div class="form-block-title">¿En qué zona trabajás? <span class="required">*</span></div>
-        <div class="zone-mode-btns">
-          <button class="btn-zone-mode active" id="btnZonaMapa" onclick="setZonaMode('mapa')">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-            Mapa
-          </button>
-          <button class="btn-zone-mode" id="btnZonaBarrio" onclick="setZonaMode('barrio')">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            Por zona
-          </button>
-        </div>
-
-        <!-- Map -->
-        <div id="mapaWrap" style="display:block;">
-          <p style="font-family:var(--f-mono);font-size:11px;letter-spacing:0.06em;color:var(--ink-mute);margin-bottom:10px;">Ingresá la dirección o mové el pin en el mapa</p>
-          <div style="display:flex;gap:8px;margin-bottom:12px;">
-            <input id="inputDireccion" type="text" style="flex:1;background:transparent;border:1px solid var(--line-strong);border-radius:8px;color:var(--ink);font-family:var(--f-mono);font-size:13px;padding:10px 14px;outline:none;transition:border-color 0.2s;" placeholder="Ej: Av. Colón 1234, Nueva Córdoba..." onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--line-strong)'" onkeydown="if(event.key==='Enter'){event.preventDefault();geocodeDireccion();}">
-            <button onclick="geocodeDireccion()" style="padding:10px 16px;background:var(--accent);color:var(--accent-ink);border:none;border-radius:8px;font-family:var(--f-mono);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap;">Ir</button>
-          </div>
-          <div class="map-wrap"><div id="mapaZona" style="height:200px;"></div></div>
-          <div class="range-label">
-            <span>Radio de trabajo</span>
-            <span id="radioLabel">5 km</span>
-          </div>
-          <input type="range" id="radioSlider" min="1" max="25" value="5">
-          <div id="geoStatus" style="display:none; font-family:var(--f-mono); font-size:11px; color:var(--accent); margin-top:8px; letter-spacing:0.06em;"></div>
-        </div>
-
-        <!-- Zona chips -->
-        <div id="barrioWrap" style="display:none;">
-          <div class="field-group">
-            <label class="field-label" style="margin-bottom:8px;">Área</label>
-            <div class="chips-grid" id="zonaChips">
-              <button class="chip" data-value="norte">Norte</button>
-              <button class="chip" data-value="sur">Sur</button>
-              <button class="chip" data-value="este">Este</button>
-              <button class="chip" data-value="oeste">Oeste</button>
-              <button class="chip" data-value="centro">Centro</button>
-              <button class="chip" data-value="toda-ciudad">📍 Toda la ciudad</button>
-            </div>
-          </div>
-          <div class="field-group" style="margin-top:16px;">
-            <label class="field-label" style="margin-bottom:8px;">Localidad <span style="opacity:0.6;">(opcional)</span></label>
-            <div class="chips-grid" id="barrioChips">
-              <button class="chip" data-value="nueva-cordoba">Nueva Córdoba</button>
-              <button class="chip" data-value="alta-cordoba">Alta Córdoba</button>
-              <button class="chip" data-value="gral-paz">General Paz</button>
-              <button class="chip" data-value="guemes">Güemes</button>
-              <button class="chip" data-value="cerro">Cerro de las Rosas</button>
-              <button class="chip" data-value="arguello">Argüello</button>
-              <button class="chip" data-value="villa-carlos-paz">Villa Carlos Paz</button>
-              <button class="chip" data-value="villa-allende">Villa Allende</button>
-              <button class="chip chip-other" data-value="otro-barrio">✏️ Otra localidad</button>
-            </div>
-            <div class="other-input-wrap" id="otroBarrioWrap">
-              <input type="text" class="field-input" id="otroBarrio" placeholder="Escribí la localidad...">
-            </div>
-          </div>
-        </div>
-
-        <div class="field-error" id="zona-error" style="margin-top:12px;">Seleccioná al menos una zona</div>
-      </div>
-
-      <!-- Experiencia -->
-      <div class="form-block reveal">
-        <div class="form-block-title">Tu experiencia <span style="opacity:0.5;">(opcional)</span></div>
-        <div class="field-group">
-          <label class="field-label">Descripción breve</label>
-          <textarea class="field-input" id="descripcion" rows="3" maxlength="280"
+      <div class="prest-opt-label" style="margin-top:24px;">Sobre vos <span class="prest-opcional-badge">OPCIONAL</span></div>
+      <div class="prest-field" style="margin-top:0;">
+        <div class="prest-textarea-wrap">
+          <textarea class="prest-input" id="prestBio" rows="3" maxlength="280"
             placeholder="Ej: 10 años en el rubro, trabajo garantizado, atiendo urgencias..."
-            oninput="updateCharCount()"></textarea>
-          <div class="char-count" id="charCount">0 / 280</div>
+            oninput="prestBioCount(); prestAutoResize(this)"></textarea>
         </div>
-        <div class="field-group" style="margin-top:16px;">
-          <label class="field-label">Fotos de trabajos <span style="opacity:0.5;">(opcional)</span></label>
-          <div class="field-hint">Hasta 5 fotos. Ayudan a generar confianza.</div>
-          <input type="file" id="fotoInput" multiple accept="image/*" style="display:none;" onchange="previewFotos(event)">
-          <button type="button" class="btn-foto-upload" onclick="document.getElementById('fotoInput').click()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            Subir fotos
-          </button>
-          <div class="foto-preview-grid" id="fotoPreviewGrid"></div>
-        </div>
+        <div class="prest-char-count" id="prestBioCount">0 / 280</div>
       </div>
 
-      <div class="btn-row">
-        <button class="btn-back" onclick="goToStep1()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-          Volver
-        </button>
-        <button class="btn-next" onclick="submitForm()">
-          Registrarme
-          <span class="arr"></span>
-        </button>
-      </div>
+      <div class="prest-spacer"></div>
     </div>
-
-  </div><!-- /form-container -->
-
-  <!-- Success -->
-  <div class="success-page" id="successPage">
-    <div class="success-icon">✓</div>
-    <div class="success-title">¡Ya estás<br>en SERVY!</div>
-    <p class="success-sub">
-      Te vamos a contactar por WhatsApp para confirmar tu registro y empezar a recibir clientes.
-    </p>
-    <div class="success-badge" id="successBadge">👷 Nombre</div>
-    <div class="success-actions">
-      <a href="./" class="pill primary" data-magnetic>
-        <span>Volver al inicio</span>
-        <span class="arr"></span>
-      </a>
-      <a href="https://wa.me/?text=Encontr%C3%A1%20prestadores%20verificados%20en%20SERVY%20%F0%9F%94%8D%20https%3A%2F%2Fservy.ar" target="_blank" rel="noopener" class="pill" data-magnetic>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
-        <span>Compartir SERVY</span>
-        <span class="arr"></span>
-      </a>
+    <div class="prest-foot">
+      <div class="prest-foot-row">
+        <button class="prest-back" onclick="prestPrev()">← Volver</button>
+        <button class="prest-cta" id="prestEnviarBtn" onclick="prestEnviar()">Registrarme <span class="btn-arr"></span></button>
+      </div>
     </div>
   </div>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <div>
-      <div class="footer-title">Contacto</div>
-      <div><a href="mailto:hola.servy@gmail.com">hola.servy@gmail.com</a></div>
-      <div><a href="https://www.servy.ar" target="_blank" rel="noopener">www.servy.ar</a></div>
-    </div>
-    <div>
-      <div class="footer-title">Navegación</div>
-      <div><a href="buscar.html">Buscar prestador</a></div>
-      <div><a href="recomendar.html">Recomendar</a></div>
-      <div><a href="prestador.html">Soy prestador</a></div>
-    </div>
-    <div>
-      <img src="assets/servy-full.png?v=2" alt="SERVY" class="footer-logo-img">
-    </div>
-  </footer>
+  <!-- ── GRACIAS ── -->
+  <div class="prest-step" id="ps3">
+    <div class="prest-content" style="align-items:center;text-align:center;justify-content:center;padding-top:100px;">
+      <div class="prest-success-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h1 class="prest-title">¡Ya estás<br>en <span>SERVY</span>!</h1>
+      <p class="prest-sub" id="prestGraciasSub">Te vamos a contactar por WhatsApp para confirmar tu registro y empezar a recibir clientes.</p>
 
-</main>
+      <div class="prest-success-actions">
+        <a href="./" class="prest-cta prest-link-btn" style="text-decoration:none;">Inicio <span class="btn-arr"></span></a>
+        <a href="https://wa.me/?text=Estoy%20en%20SERVY%2C%20el%20directorio%20de%20oficios%20de%20C%C3%B3rdoba%20%F0%9F%94%8D%20https%3A%2F%2Fdresarenas.github.io%2Fservy%2F" target="_blank" rel="noopener" class="prest-wa-share">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+          Compartir SERVY por WhatsApp
+        </a>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /prest-wiz -->
 
 <script>
-const WEBHOOK_REGISTRO = 'https://TU_N8N/webhook/servy-prestador';
-let zonaMode = 'mapa';
-let mapInited = false;
+/* ========== STATE ========== */
+var prestCurrent = 0;
 
-/* ============ STEPS ============ */
-function setStepActive(n) {
-  [1,2,3].forEach(i => {
-    const el = document.getElementById('stepItem' + i);
-    el.classList.remove('active','done');
-    if (i < n) el.classList.add('done');
-    if (i === n) el.classList.add('active');
+/* ========== NAVIGATION ========== */
+function prestGoTo(n) {
+  document.querySelectorAll('.prest-step').forEach(function(s, i) {
+    s.classList.remove('active', 'past');
+    if (i < n) s.classList.add('past');
+    if (i === n) {
+      s.classList.add('active');
+      var title = s.querySelector('.prest-title');
+      if (title) {
+        title.classList.remove('flip-scale-down-ver');
+        void title.offsetWidth;
+        title.classList.add('flip-scale-down-ver');
+      }
+    }
   });
-}
-function scrollToSteps() {
-  window.scrollTo({ top: document.getElementById('stepsBar').offsetTop - 80, behavior: 'smooth' });
+  document.querySelectorAll('.prest-dot').forEach(function(d) {
+    var s = parseInt(d.getAttribute('data-s'));
+    d.classList.remove('active', 'done');
+    if (s < n)  d.classList.add('done');
+    if (s === n && n < 3) d.classList.add('active');
+  });
+  document.querySelectorAll('.prest-dot-line').forEach(function(l) {
+    var li = parseInt(l.getAttribute('data-line'));
+    if (!isNaN(li)) l.classList.toggle('done', li < n);
+  });
+  prestCurrent = n;
+  if (n === 3) {
+    setTimeout(function() {
+      var icon = document.querySelector('.prest-success-icon');
+      if (icon) { icon.classList.remove('scale-up-bounce'); void icon.offsetWidth; icon.classList.add('scale-up-bounce'); }
+    }, 100);
+  }
 }
 
-/* ============ CHIPS ============ */
-function initChips(containerId, maxSelect) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-  container.querySelectorAll('.chip').forEach(chip => {
-    chip.addEventListener('click', (e) => {
-      e.preventDefault();
-      const val = chip.getAttribute('data-value');
-      if (val === 'otra') {
-        chip.classList.toggle('selected');
-        document.getElementById('otraWrap').classList.toggle('visible', chip.classList.contains('selected'));
+function prestNext() {
+  if (prestCurrent === 0) prestValidStep0();
+  else if (prestCurrent === 1) prestValidStep1();
+  else if (prestCurrent === 2) prestEnviar();
+}
+
+function prestPrev() {
+  if (prestCurrent === 0) { window.location.href = './'; return; }
+  prestGoTo(prestCurrent - 1);
+}
+
+function prestShowErr(id, show) {
+  var el = document.getElementById(id);
+  if (el) el.classList.toggle('visible', show);
+}
+function prestClearErr(id) { prestShowErr(id, false); }
+
+/* ========== VALIDATION ========== */
+function prestValidStep0() {
+  var nombre = document.getElementById('prestNombre').value.trim();
+  var tel    = document.getElementById('prestTel').value.replace(/\s/g, '');
+  var email  = document.getElementById('prestEmail').value.trim();
+  var ok = true;
+
+  if (!nombre) { prestShowErr('errPrestNombre', true); ok = false; } else prestShowErr('errPrestNombre', false);
+  if (!tel || tel.length < 8) { prestShowErr('errPrestTel', true); ok = false; } else prestShowErr('errPrestTel', false);
+  if (!email || !email.includes('@') || !email.includes('.')) { prestShowErr('errPrestEmail', true); ok = false; } else prestShowErr('errPrestEmail', false);
+
+  if (!ok) return;
+  prestGoTo(1);
+}
+
+function prestValidStep1() {
+  var sel = document.querySelectorAll('#prestOficioChips .prest-chip.sel');
+  if (sel.length === 0) { prestShowErr('errPrestOficio', true); return; }
+  prestShowErr('errPrestOficio', false);
+  prestGoTo(2);
+}
+
+/* ========== CHIPS ========== */
+function initPrestChips(id, maxSel) {
+  var cont = document.getElementById(id);
+  if (!cont) return;
+  cont.querySelectorAll('.prest-chip').forEach(function(chip) {
+    chip.addEventListener('click', function() {
+      var val = chip.getAttribute('data-value');
+      var isOtro      = (val === 'otro');
+      var isOtraZona  = (val === 'otra-zona');
+      var isTodaCiudad = (val === 'toda-ciudad');
+
+      if (chip.classList.contains('sel')) {
+        chip.classList.remove('sel');
+        if (isOtro)     document.getElementById('prestOtroOficioWrap').style.display = 'none';
+        if (isOtraZona) document.getElementById('prestOtraZonaWrap').style.display = 'none';
         return;
       }
-      if (val === 'otro-barrio') {
-        chip.classList.toggle('selected');
-        document.getElementById('otroBarrioWrap').classList.toggle('visible', chip.classList.contains('selected'));
+
+      if (isTodaCiudad) {
+        cont.querySelectorAll('.prest-chip.sel').forEach(function(c) { c.classList.remove('sel'); });
+        document.getElementById('prestOtraZonaWrap').style.display = 'none';
+        chip.classList.add('sel');
         return;
       }
-      if (chip.classList.contains('selected')) { chip.classList.remove('selected'); return; }
-      if (maxSelect) {
-        const sel = container.querySelectorAll('.chip.selected').length;
-        if (sel >= maxSelect) return;
+
+      if (isOtraZona || !isTodaCiudad) {
+        var todaChip = cont.querySelector('[data-value="toda-ciudad"]');
+        if (todaChip) todaChip.classList.remove('sel');
       }
-      chip.classList.add('selected');
+
+      if (maxSel) {
+        var n = cont.querySelectorAll('.prest-chip.sel').length;
+        if (n >= maxSel) return;
+      }
+      chip.classList.add('sel');
+      if (isOtro)     document.getElementById('prestOtroOficioWrap').style.display = '';
+      if (isOtraZona) document.getElementById('prestOtraZonaWrap').style.display = '';
     });
   });
 }
-initChips('categoryChips', null);
-initChips('zonaChips', 1);
-initChips('barrioChips', null);
+initPrestChips('prestOficioChips', null);
+initPrestChips('prestZonaChips', null);
 
-/* ============ ZONE ============ */
-function setZonaMode(mode) {
-  zonaMode = mode;
-  document.getElementById('btnZonaMapa').classList.toggle('active', mode === 'mapa');
-  document.getElementById('btnZonaBarrio').classList.toggle('active', mode === 'barrio');
-  document.getElementById('mapaWrap').style.display  = mode === 'mapa'   ? '' : 'none';
-  document.getElementById('barrioWrap').style.display = mode === 'barrio' ? '' : 'none';
-  if (mode === 'mapa' && !mapInited) initMap();
-}
-
-let _pMap, _pMarker, _pCircle;
-function initMap() {
-  mapInited = true;
-  const wrap = document.getElementById('mapaZona');
-  wrap.style.height = '280px';
-  function _create() {
-    wrap.style.cssText = 'height:280px;';
-    const center = { lat: -31.4135, lng: -64.1811 };
-    _pMap = new google.maps.Map(wrap, { center, zoom: 13, mapTypeControl: false, streetViewControl: false, fullscreenControl: false, gestureHandling: 'cooperative' });
-    _pMarker = new google.maps.Marker({ position: center, map: _pMap, draggable: true, title: 'Arrastrá para ajustar tu zona' });
-    const initKm = +(document.getElementById('radioSlider').value) || 5;
-    _pCircle = new google.maps.Circle({ map: _pMap, center, radius: initKm * 1000, strokeColor: '#3CE6C5', strokeOpacity: 0.7, strokeWeight: 2, fillColor: '#3CE6C5', fillOpacity: 0.12 });
-    function pick(ll) {
-      if (_pCircle) _pCircle.setCenter({ lat: ll.lat(), lng: ll.lng() });
-      const geocoder = new google.maps.Geocoder();
-      geocoder.geocode({ location: { lat: ll.lat(), lng: ll.lng() } }, (results, status) => {
-        const addr = (status === 'OK' && results[0]) ? results[0].formatted_address : ll.lat().toFixed(4) + ', ' + ll.lng().toFixed(4);
-        const st = document.getElementById('geoStatus');
-        if (st) { st.style.display = ''; st.textContent = '📍 ' + addr; }
-      });
-    }
-    _pMarker.addListener('dragend', e => pick(e.latLng));
-    _pMap.addListener('click', e => { _pMarker.setPosition(e.latLng); pick(e.latLng); });
-    if (navigator.geolocation) navigator.geolocation.getCurrentPosition(pos => {
-      const ll = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
-      _pMap.setCenter(ll); _pMarker.setPosition(ll); pick(ll);
-    }, () => {});
-  }
-  if (window.google && window.google.maps) { _create(); return; }
-  wrap.style.cssText = 'height:280px;display:flex;align-items:center;justify-content:center;background:var(--bg-elev);color:var(--ink-mute);font-family:var(--f-mono);font-size:12px;letter-spacing:0.08em;';
-  wrap.textContent = 'Cargando mapa...';
-  const s = document.createElement('script');
-  s.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyAlyXQU_W6Zi5sn1PhuHIJ1Qqf7aiBsOvc';
-  s.onload = _create;
-  document.head.appendChild(s);
-}
-function geocodeDireccion() {
-  const dir = document.getElementById('inputDireccion').value.trim();
-  if (!dir || !_pMap) return;
-  const geocoder = new google.maps.Geocoder();
-  geocoder.geocode({ address: dir + ', Córdoba, Argentina' }, (results, status) => {
-    if (status === 'OK' && results[0]) {
-      const loc = results[0].geometry.location;
-      _pMap.setCenter(loc); _pMap.setZoom(14);
-      if (_pMarker) _pMarker.setPosition(loc);
-      if (_pCircle) _pCircle.setCenter({ lat: loc.lat(), lng: loc.lng() });
-      const st = document.getElementById('geoStatus');
-      if (st) { st.style.display = ''; st.textContent = '📍 ' + results[0].formatted_address; }
-    } else {
-      const st = document.getElementById('geoStatus');
-      if (st) { st.style.display = ''; st.textContent = 'No se encontró la dirección'; }
-    }
+/* ========== INIT DOT LINES ========== */
+document.querySelectorAll('.prest-dots').forEach(function(bar) {
+  bar.querySelectorAll('.prest-dot-line').forEach(function(l, i) {
+    l.setAttribute('data-line', i);
   });
-}
-
-// initMap se llama lazy al llegar al step 2
-
-document.getElementById('radioSlider').addEventListener('input', function() {
-  document.getElementById('radioLabel').textContent = this.value + ' km';
-  if (_pCircle) _pCircle.setRadius(+this.value * 1000);
+  bar.querySelectorAll('.prest-dot').forEach(function(d) {
+    d.addEventListener('click', function() {
+      var s = parseInt(d.getAttribute('data-s'));
+      if (d.classList.contains('done') && s < prestCurrent) prestGoTo(s);
+    });
+  });
 });
 
-/* ============ VALIDATION: STEP 1 ============ */
-function goToStep2() {
-  let valid = true;
-  const nombre = document.getElementById('nombre').value.trim();
-  if (!nombre) { document.getElementById('nombre-error').classList.add('visible'); valid = false; }
-  else document.getElementById('nombre-error').classList.remove('visible');
-
-  const tel = document.getElementById('telefono').value.trim();
-  if (!tel || tel.length < 8) { document.getElementById('telefono-error').classList.add('visible'); valid = false; }
-  else document.getElementById('telefono-error').classList.remove('visible');
-
-  const email = document.getElementById('email').value.trim();
-  if (!email || !email.includes('@')) { document.getElementById('email-error').classList.add('visible'); valid = false; }
-  else document.getElementById('email-error').classList.remove('visible');
-
-  if (!valid) {
-    const firstErr = document.querySelector('.field-error.visible');
-    if (firstErr) {
-      firstErr.closest('.field-group, .form-block')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      firstErr.closest('.field-group')?.querySelector('input, textarea')?.focus();
-    }
-    return;
-  }
-
-  document.getElementById('step1').style.display = 'none';
-  document.getElementById('step2').style.display = '';
-  setStepActive(2);
-  scrollToSteps();
-  if (zonaMode === 'mapa' && !mapInited) initMap();
+/* ========== BIO ========== */
+function prestBioCount() {
+  var n = document.getElementById('prestBio').value.length;
+  document.getElementById('prestBioCount').textContent = n + ' / 280';
+}
+function prestAutoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
 }
 
-function goToStep1() {
-  document.getElementById('step2').style.display = 'none';
-  document.getElementById('step1').style.display = '';
-  setStepActive(1);
-  scrollToSteps();
-}
+/* ========== SUBMIT ========== */
+async function prestEnviar() {
+  var zonaEls = document.querySelectorAll('#prestZonaChips .prest-chip.sel');
+  if (zonaEls.length === 0) { prestShowErr('errPrestZona', true); return; }
+  prestShowErr('errPrestZona', false);
 
-/* ============ CHAR COUNT ============ */
-function updateCharCount() {
-  const v = document.getElementById('descripcion').value.length;
-  document.getElementById('charCount').textContent = v + ' / 280';
-}
+  var btn = document.getElementById('prestEnviarBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Enviando...'; }
 
-/* ============ FOTO PREVIEW ============ */
-function previewFotos(event) {
-  const files = Array.from(event.target.files).slice(0, 5);
-  const grid = document.getElementById('fotoPreviewGrid');
-  grid.innerHTML = '';
-  files.forEach(file => {
-    const img = document.createElement('img');
-    img.src = URL.createObjectURL(file);
-    grid.appendChild(img);
-  });
-}
+  var nombre  = document.getElementById('prestNombre').value.trim();
+  var telRaw  = document.getElementById('prestTel').value.replace(/\s/g, '');
+  var email   = document.getElementById('prestEmail').value.trim();
 
-/* ============ SUBMIT ============ */
-async function submitForm() {
-  // Validar categoría
-  const cats = [...document.querySelectorAll('#categoryChips .chip.selected')].map(c => c.getAttribute('data-value'));
-  if (cats.length === 0) {
-    document.getElementById('categoria-error').classList.add('visible');
-    document.getElementById('categoria-error').scrollIntoView({ behavior: 'smooth', block: 'center' });
-    return;
-  }
-  document.getElementById('categoria-error').classList.remove('visible');
+  var oficioEls = document.querySelectorAll('#prestOficioChips .prest-chip.sel');
+  var oficios = Array.from(oficioEls).map(function(c) { return c.getAttribute('data-value'); });
+  var otroOficio = document.getElementById('prestOtroOficio').value.trim();
+  var categorias = oficios.map(function(v) { return (v === 'otro' && otroOficio) ? otroOficio : v; }).filter(Boolean).join(', ');
 
-  // Validar zona
-  let zonaOk = false;
-  if (zonaMode === 'mapa') zonaOk = true; // mapa = cualquier ubicación
-  if (zonaMode === 'barrio') {
-    const zonas = [...document.querySelectorAll('#zonaChips .chip.selected')];
-    zonaOk = zonas.length > 0;
-  }
-  if (!zonaOk) {
-    document.getElementById('zona-error').classList.add('visible');
-    document.getElementById('zona-error').scrollIntoView({ behavior: 'smooth', block: 'center' });
-    return;
-  }
-  document.getElementById('zona-error').classList.remove('visible');
+  var zonas = Array.from(zonaEls).map(function(c) { return c.getAttribute('data-value'); });
+  var otraZonaVal = document.getElementById('prestOtraZona').value.trim();
+  var zona = zonas.map(function(v) { return v === 'otra-zona' ? (otraZonaVal || 'otra zona') : v; }).join(', ');
 
-  const nombre = document.getElementById('nombre').value.trim();
-  const payload = {
-    nombre, telefono: document.getElementById('telefono').value.trim(),
-    email: document.getElementById('email').value.trim(),
-    categorias: cats,
-    zona: zonaMode,
-    descripcion: document.getElementById('descripcion').value.trim()
-  };
+  var bio = document.getElementById('prestBio').value.trim();
 
+  var WEBHOOK = 'https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-prestador';
   try {
-    await fetch(WEBHOOK_REGISTRO, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-  } catch(e) { /* webhook no configurado */ }
+    var ctrl = new AbortController();
+    setTimeout(function() { ctrl.abort(); }, 6000);
+    await fetch(WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nombre: nombre,
+        telefono: '+549' + telRaw,
+        email: email,
+        categorias: categorias,
+        zona: zona,
+        descripcion: bio
+      }),
+      signal: ctrl.signal
+    });
+  } catch(e) {}
 
-  document.getElementById('formContainer').style.display = 'none';
-  document.getElementById('stepsBar').style.display = 'none';
-  document.getElementById('successPage').classList.add('visible');
-  document.getElementById('successBadge').textContent = '👷 ' + nombre;
-  setStepActive(3);
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  prestGoTo(3);
 }
-
-/* ============ PROPS CAROUSEL (mobile) ============ */
-(function() {
-  if (!window.matchMedia('(max-width: 820px)').matches) return;
-  const items = document.querySelectorAll('#propsCarousel .prop-item');
-  const dots  = document.querySelectorAll('.props-dot');
-  if (!items.length) return;
-  let cur = 0;
-  items[cur].classList.add('active');
-  dots[cur].classList.add('active');
-  setInterval(() => {
-    items[cur].classList.remove('active'); dots[cur].classList.remove('active');
-    cur = (cur + 1) % items.length;
-    items[cur].classList.add('active'); dots[cur].classList.add('active');
-  }, 3000);
-})();
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.net.min.js"></script>
+<script>
+(function() {
+  function initPrestVanta() {
+    if (typeof VANTA === 'undefined' || !VANTA.NET) { setTimeout(initPrestVanta, 100); return; }
+    var _p0 = document.documentElement.getAttribute('data-palette') || 'midnight';
+    var _col0 = _p0==='bone' ? 0x063a2a : (_p0==='candy' ? 0xd5ff4a : 0x3ce6c5);
+    var _bg0  = _p0==='bone' ? 0xEEEAE0 : (_p0==='candy' ? 0x0f0e12 : 0x0e0f12);
+    var inst = VANTA.NET({
+      el: '#prestVanta',
+      mouseControls:true, touchControls:true, gyroControls:false,
+      minHeight:200, minWidth:200, scale:1, scaleMobile:1,
+      color:_col0, backgroundColor:_bg0,
+      points:9, maxDistance:22, spacing:18, showDots:(_p0!=='bone')
+    });
+    new MutationObserver(function() {
+      var p = document.documentElement.getAttribute('data-palette');
+      var bg   = p==='bone' ? 0xEEEAE0 : (p==='candy' ? 0x0f0e12 : 0x0e0f12);
+      var col  = p==='bone' ? 0x063a2a : (p==='candy' ? 0xd5ff4a : 0x3ce6c5);
+      var dots = (p !== 'bone');
+      if (inst) { inst.setOptions({backgroundColor:bg, color:col, showDots:dots}); setTimeout(function(){ if(inst) inst.resize(); }, 80); }
+    }).observe(document.documentElement, {attributes:true, attributeFilter:['data-palette']});
+  }
+  initPrestVanta();
+})();
+</script>
 <script src="home-v2.js"></script>
 </body>
 </html>
