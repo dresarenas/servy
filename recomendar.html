@@ -159,7 +159,7 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
 .rec-star { font-size:40px; cursor:pointer; color:var(--line-strong); transition:color .15s,transform .15s; user-select:none; line-height:1; }
 .rec-star.lit { color:#F5B731; }
 .rec-star:hover { transform:scale(1.1); }
-.rec-star-label { font-family:var(--f-mono); font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-mute); margin-bottom:16px; }
+.rec-star-label { font-family:var(--f-mono); font-size:16px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-mute); margin-bottom:16px; }
 
 /* ===== SECTION DIVIDER ===== */
 .rec-opt-label {
@@ -223,6 +223,27 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
   0%   { transform: scale(.5); }
   100% { transform: scale(1); }
 }
+
+/* ===== RESENA WRAP + ARROW BUTTON ===== */
+.rec-resena-wrap { position:relative; }
+.rec-resena-wrap .rec-arr-btn {
+  position:absolute; bottom:12px; right:12px;
+  width:36px; height:36px; border-radius:50%;
+  background:var(--accent); color:var(--accent-ink);
+  border:none; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  transition:background .2s, transform .15s; z-index:1;
+}
+.rec-resena-wrap .rec-arr-btn svg { pointer-events:none; }
+.rec-resena-wrap .rec-arr-btn:active { transform:scale(.93); }
+.rec-resena-wrap textarea { padding-bottom:52px !important; resize:none !important; overflow:hidden; min-height:100px; }
+.rec-resena-label { font-size:16px !important; }
+.rec-opcional-badge {
+  font-family:var(--f-mono); font-size:10px; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase;
+  color:var(--ink-mute); border:1px solid var(--line-strong);
+  border-radius:999px; padding:2px 9px; vertical-align:middle; margin-left:4px;
+}
 </style>
 </head>
 <body class="loaded">
@@ -265,8 +286,6 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
         <span class="rec-dot" data-s="1">2</span>
         <span class="rec-dot-line"></span>
         <span class="rec-dot" data-s="2">3</span>
-        <span class="rec-dot-line"></span>
-        <span class="rec-dot" data-s="3">4</span>
       </div>
 
       <h1 class="rec-title">¿A quién querés<br><span>recomendar</span>?</h1>
@@ -287,7 +306,7 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
 
       <div class="rec-field">
         <label class="rec-label">Nombre y apellido <span style="color:var(--accent)">*</span></label>
-        <input type="text" class="rec-input" id="recNombre" placeholder="Ej: Mario Rodríguez"
+        <input type="text" class="rec-input" id="recNombre" placeholder="Ej: Mario Rodríguez" autocomplete="name"
           oninput="this.value=this.value.replace(/[0-9]/g,''); recClearErr('errNombre')">
         <div class="rec-err" id="errNombre">Ingresá el nombre del prestador</div>
       </div>
@@ -323,12 +342,10 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
         <span class="rec-dot active" data-s="1">2</span>
         <span class="rec-dot-line"></span>
         <span class="rec-dot" data-s="2">3</span>
-        <span class="rec-dot-line"></span>
-        <span class="rec-dot" data-s="3">4</span>
       </div>
 
       <h1 class="rec-title">¿Qué servicio<br>ofrece <span id="nombreDisplay1">el prestador</span>?</h1>
-      <p class="rec-sub">Podés seleccionar más de uno.</p>
+      <p class="rec-sub">Podés seleccionar hasta 5 opciones.</p>
 
       <div class="rec-chips" id="oficioChips">
         <button class="rec-chip" data-value="plomero">🔧 Plomero</button>
@@ -360,7 +377,7 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
     </div>
   </div>
 
-  <!-- ── PASO 3: Reseña + Zona ── -->
+  <!-- ── PASO 3: Reseña + Experiencia + Zona ── -->
   <div class="rec-step" id="rs2">
     <div class="rec-content">
       <div class="rec-dots">
@@ -369,13 +386,21 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
         <span class="rec-dot done" data-s="1" onclick="recGoTo(1)">2</span>
         <span class="rec-dot-line done"></span>
         <span class="rec-dot active" data-s="2">3</span>
-        <span class="rec-dot-line"></span>
-        <span class="rec-dot" data-s="3">4</span>
       </div>
 
-      <h1 class="rec-title">¿Qué tan bueno<br>es <span id="nombreDisplay2">el prestador</span>?</h1>
+      <h1 class="rec-title">Contanos de tu<br>experiencia con <span id="nombreDisplay2">el prestador</span>...</h1>
 
-      <div class="rec-stars" id="recStarsRow">
+      <div class="rec-opt-label" style="margin-top:0;margin-bottom:12px;">Tu experiencia</div>
+      <div class="rec-chips" id="expChips">
+        <button class="rec-chip" data-value="puntual">Es puntual</button>
+        <button class="rec-chip" data-value="prolijo">Trabaja prolijo</button>
+        <button class="rec-chip" data-value="buen-precio">Buen precio</button>
+        <button class="rec-chip" data-value="confiable">Muy confiable</button>
+        <button class="rec-chip" data-value="rapido">Rápido</button>
+        <button class="rec-chip" data-value="resuelve">Resuelve bien</button>
+      </div>
+
+      <div class="rec-stars" id="recStarsRow" style="margin-top:20px;">
         <span class="rec-star" data-star="1">★</span>
         <span class="rec-star" data-star="2">★</span>
         <span class="rec-star" data-star="3">★</span>
@@ -386,57 +411,38 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
       <div class="rec-err" id="errEstrellas" style="margin-bottom:12px;">Seleccioná una puntuación</div>
 
       <div class="rec-field">
-        <label class="rec-label">Tu reseña <span style="color:var(--accent)">*</span></label>
-        <textarea class="rec-input" id="recReseña" rows="4" maxlength="280"
-          placeholder="Contá tu experiencia: calidad del trabajo, puntualidad, precio..."
-          oninput="recCharCount(); recClearErr('errReseña')"></textarea>
+        <label class="rec-label rec-resena-label">Tu reseña</label>
+        <div class="rec-resena-wrap">
+          <textarea class="rec-input" id="recReseña" rows="4" maxlength="280"
+            placeholder="Contá tu experiencia: calidad del trabajo, puntualidad, precio..."
+            oninput="recCharCount(); recAutoResize(this)"></textarea>
+          <button class="rec-arr-btn" onclick="recEnviar()" type="button" aria-label="Enviar">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
         <div style="font-family:var(--f-mono);font-size:11px;color:var(--ink-mute);text-align:right;margin-top:4px;" id="recCharCount">0 / 280</div>
-        <div class="rec-err" id="errReseña">Contá tu experiencia para continuar</div>
       </div>
 
-      <div class="rec-opt-label">Zona donde trabaja &nbsp; opcional</div>
+      <div class="rec-opt-label">Zona donde trabaja<span class="rec-opcional-badge">OPCIONAL</span></div>
       <div class="rec-chips" id="zonaChips">
         <button class="rec-chip" data-value="nueva-cordoba">Nueva Córdoba</button>
         <button class="rec-chip" data-value="alta-cordoba">Alta Córdoba</button>
-        <button class="rec-chip" data-value="gral-paz">General Paz</button>
-        <button class="rec-chip" data-value="guemes">Güemes</button>
         <button class="rec-chip" data-value="cerro">Cerro de las Rosas</button>
         <button class="rec-chip" data-value="arguello">Argüello</button>
         <button class="rec-chip" data-value="villa-carlos-paz">Villa Carlos Paz</button>
         <button class="rec-chip" data-value="villa-allende">Villa Allende</button>
         <button class="rec-chip" data-value="toda-ciudad">📍 Toda la ciudad</button>
+        <button class="rec-chip" data-value="otra-zona">+ Otra zona</button>
+      </div>
+      <div id="otraZonaWrap" style="display:none; margin-top:10px;">
+        <input type="text" class="rec-input" id="otraZonaInput" placeholder="¿Cuál zona o localidad?">
       </div>
 
-      <div class="rec-spacer"></div>
-    </div>
-    <div class="rec-foot">
-      <div class="rec-foot-row">
-        <button class="rec-back" onclick="recPrev()">← Volver</button>
-        <button class="rec-cta" onclick="recNext()">Siguiente <span class="btn-arr"></span></button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── PASO 4: ¿Cómo lo conociste? ── -->
-  <div class="rec-step" id="rs3">
-    <div class="rec-content">
-      <div class="rec-dots">
-        <span class="rec-dot done" data-s="0" onclick="recGoTo(0)">1</span>
-        <span class="rec-dot-line done"></span>
-        <span class="rec-dot done" data-s="1" onclick="recGoTo(1)">2</span>
-        <span class="rec-dot-line done"></span>
-        <span class="rec-dot done" data-s="2" onclick="recGoTo(2)">3</span>
-        <span class="rec-dot-line done"></span>
-        <span class="rec-dot active" data-s="3">4</span>
-      </div>
-
-      <h1 class="rec-title">¿Cómo<br>lo <span>conocés</span>?</h1>
-      <p class="rec-sub">Nos ayuda a evaluar la confiabilidad. Podés saltear este paso.</p>
-
+      <div class="rec-opt-label" style="margin-top:24px;">¿Cómo lo conocés?<span class="rec-opcional-badge">OPCIONAL</span></div>
       <div class="rec-chips" id="relacionChips">
         <button class="rec-chip" data-value="recomendaron">Me lo recomendaron</button>
         <button class="rec-chip" data-value="contrate">Lo contraté</button>
-        <button class="rec-chip" data-value="familiar">Es un familiar / amigo</button>
+        <button class="rec-chip" data-value="familiar">Es familiar / amigo</button>
       </div>
 
       <div class="rec-spacer"></div>
@@ -450,13 +456,13 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
   </div>
 
   <!-- ── GRACIAS ── -->
-  <div class="rec-step" id="rs4">
+  <div class="rec-step" id="rs3">
     <div class="rec-content" style="align-items:center;text-align:center;justify-content:center;padding-top:100px;">
       <div class="rec-success-icon">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
       </div>
       <h1 class="rec-title" id="recGraciasTitle">¡Gracias por<br>tu <span>recomendación</span>!</h1>
-      <p class="rec-sub" id="recGraciasSub">Vamos a verificar los datos y te avisamos cuando el prestador esté en el directorio.</p>
+      <p class="rec-sub" id="recGraciasSub">Nos vamos a contactar con el prestador para pedirle permiso antes de publicar sus datos.</p>
 
       <div class="rec-success-actions">
         <a href="./" class="rec-cta rec-link-btn" style="text-decoration:none;">Volver al inicio <span class="btn-arr"></span></a>
@@ -495,14 +501,14 @@ function recGoTo(n) {
     var s = parseInt(d.getAttribute('data-s'));
     d.classList.remove('active', 'done');
     if (s < n)  d.classList.add('done');
-    if (s === n && n < 4) d.classList.add('active');
+    if (s === n && n < 3) d.classList.add('active');
   });
   document.querySelectorAll('.rec-dot-line').forEach(function(l) {
     var li = parseInt(l.getAttribute('data-line'));
     if (!isNaN(li)) l.classList.toggle('done', li < n);
   });
   recCurrent = n;
-  if (n === 4) {
+  if (n === 3) {
     setTimeout(function() {
       var icon = document.querySelector('.rec-success-icon');
       if (icon) { icon.classList.remove('scale-up-center'); void icon.offsetWidth; icon.classList.add('scale-up-center'); }
@@ -513,8 +519,7 @@ function recGoTo(n) {
 function recNext() {
   if (recCurrent === 0) recValidStep0();
   else if (recCurrent === 1) recValidStep1();
-  else if (recCurrent === 2) recValidStep2();
-  else if (recCurrent === 3) recEnviar();
+  else if (recCurrent === 2) recEnviar();
 }
 
 function recPrev() {
@@ -536,9 +541,8 @@ function recValidStep0() {
   if (!nombre) { recShowErr('errNombre', true); ok = false; } else recShowErr('errNombre', false);
   if (!tel || tel.length < 8) { recShowErr('errTel', true); ok = false; } else recShowErr('errTel', false);
   if (!ok) return;
-  var primerNombre = nombre.split(' ')[0];
-  document.getElementById('nombreDisplay1').textContent = primerNombre;
-  document.getElementById('nombreDisplay2').textContent = primerNombre;
+  document.getElementById('nombreDisplay1').textContent = nombre;
+  document.getElementById('nombreDisplay2').textContent = nombre;
   recGoTo(1);
 }
 
@@ -554,14 +558,6 @@ function recValidStep1() {
   recGoTo(2);
 }
 
-function recValidStep2() {
-  var ok = true;
-  if (!recStars) { recShowErr('errEstrellas', true); ok = false; } else recShowErr('errEstrellas', false);
-  var resenya = document.getElementById('recReseña').value.trim();
-  if (!resenya) { recShowErr('errReseña', true); ok = false; } else recShowErr('errReseña', false);
-  if (!ok) return;
-  recGoTo(3);
-}
 
 /* ========== CONTACT PICKER ========== */
 (function() {
@@ -573,11 +569,11 @@ function recValidStep2() {
   } else {
     var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     if (isIOS) {
-      desc.innerHTML = 'En <strong>Contactos</strong> → tocá el contacto → <strong>Compartir</strong> → <strong>Guardar en Archivos</strong>. Luego volvé y adjuntalo acá.';
-      btnTxt.textContent = 'Adjuntar contacto (.vcf)';
+      desc.textContent = 'Tocá el campo de Teléfono — iOS te muestra la barra de contactos para autocompletar.';
+      document.getElementById('btnImport').style.display = 'none';
     } else {
-      desc.textContent = 'Exportá el contacto como vCard (.vcf) desde tu gestor de contactos y adjuntalo.';
-      btnTxt.textContent = 'Adjuntar contacto (.vcf)';
+      desc.textContent = 'Completá el nombre y número de WhatsApp del prestador.';
+      document.getElementById('btnImport').style.display = 'none';
     }
   }
 })();
@@ -655,9 +651,20 @@ function initRecChips(id, maxSel) {
     });
   });
 }
-initRecChips('oficioChips', null);
-initRecChips('zonaChips', 1);
+initRecChips('oficioChips', 5);
+initRecChips('zonaChips', 5);
 initRecChips('relacionChips', 1);
+initRecChips('expChips', 6);
+(function() {
+  document.querySelectorAll('#zonaChips .rec-chip').forEach(function(chip) {
+    if (chip.getAttribute('data-value') === 'otra-zona') {
+      chip.addEventListener('click', function() {
+        var wrap = document.getElementById('otraZonaWrap');
+        if (wrap) wrap.style.display = chip.classList.contains('sel') ? '' : 'none';
+      });
+    }
+  });
+})();
 /* ========== INIT DOTS ========== */
 document.querySelectorAll('.rec-dots').forEach(function(bar) {
   bar.querySelectorAll('.rec-dot-line').forEach(function(l, i) {
@@ -695,12 +702,21 @@ function recCharCount() {
   var n = document.getElementById('recReseña').value.length;
   document.getElementById('recCharCount').textContent = n + ' / 280';
 }
+function recAutoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
 
 /* ========== SUBMIT ========== */
 async function recEnviar() {
+  if (!recStars) {
+    recShowErr('errEstrellas', true);
+    var row = document.getElementById('recStarsRow');
+    if (row) row.scrollIntoView({behavior:'smooth', block:'nearest'});
+    return;
+  }
   var btn = document.getElementById('recEnviarBtn');
-  btn.disabled = true;
-  btn.textContent = 'Enviando...';
+  if (btn) { btn.disabled = true; btn.textContent = 'Enviando...'; }
 
   var nombre = document.getElementById('recNombre').value.trim();
   var telRaw = document.getElementById('recTel').value.replace(/\s/g, '');
@@ -712,8 +728,14 @@ async function recEnviar() {
   var catFinal = oficios.map(function(v) { return (v === 'otro' && otroOficio) ? otroOficio : v; }).filter(Boolean);
   var categoria = catFinal.join(', ');
 
+  var expEls = document.querySelectorAll('#expChips .rec-chip.sel');
+  var experiencia = Array.from(expEls).map(function(c) { return c.getAttribute('data-value'); }).join(', ');
+
   var zonaEls = document.querySelectorAll('#zonaChips .rec-chip.sel');
-  var zona = Array.from(zonaEls).map(function(c) { return c.getAttribute('data-value'); }).join(', ');
+  var zonaArr = Array.from(zonaEls).map(function(c) { return c.getAttribute('data-value'); });
+  var otraZonaEl = document.getElementById('otraZonaInput');
+  var otraZonaVal = otraZonaEl ? otraZonaEl.value.trim() : '';
+  var zona = zonaArr.map(function(v) { return v === 'otra-zona' ? (otraZonaVal || 'otra zona') : v; }).join(', ');
 
   var resenya = document.getElementById('recReseña').value.trim();
   var relChip = document.querySelector('#relacionChips .rec-chip.sel');
@@ -732,6 +754,7 @@ async function recEnviar() {
         telefono_propuesto:      telefono,
         codigo_pais_propuesto:   '54',
         categoria_sugerida:      categoria,
+        experiencia:             experiencia,
         zona_sugerida:           zona,
         estrellas:               recStars,
         comentario:              resenya,
@@ -750,8 +773,10 @@ async function recEnviar() {
   if (esDuplicado) {
     document.getElementById('recGraciasTitle').innerHTML = '¡Ya estaba<br>en <span>SERVY</span>!';
     document.getElementById('recGraciasSub').textContent = 'Este prestador ya fue recomendado. ¡Sumamos tu reseña!';
+  } else {
+    document.getElementById('recGraciasSub').textContent = 'Nos vamos a contactar con ' + (nombre || 'el prestador') + ' para pedirle permiso antes de publicar sus datos.';
   }
-  recGoTo(4);
+  recGoTo(3);
 }
 </script>
 
@@ -769,7 +794,7 @@ async function recEnviar() {
       mouseControls:true, touchControls:true, gyroControls:false,
       minHeight:200, minWidth:200, scale:1, scaleMobile:1,
       color:_col0, backgroundColor:_bg0,
-      points:9, maxDistance:22, spacing:18, showDots:(_p0!=='bone')
+      points:(_p0==='bone'?12:9), maxDistance:(_p0==='bone'?28:22), spacing:18, showDots:(_p0!=='bone')
     });
     new MutationObserver(function() {
       var p = document.documentElement.getAttribute('data-palette');

@@ -502,6 +502,8 @@
 
 <style>
 .btn-mic { background:transparent; border:1px solid rgba(255,255,255,0.12); border-radius:50%; width:52px; height:52px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:rgba(232,239,248,0.55); flex-shrink:0; transition:color 0.2s,border-color 0.2s; }
+[data-palette="bone"] .btn-mic { border-color:rgba(15,16,20,0.22); color:var(--ink-dim); }
+[data-palette="bone"] .btn-mic:hover { border-color:var(--accent); color:var(--accent); }
 .btn-mic:hover { color:#00C9A7; border-color:#00C9A7; }
 .btn-mic.recording { background:rgba(239,68,68,0.15); border-color:#ef4444; color:#ef4444; animation:micPulse 1.2s ease-in-out infinite; }
 .btn-mic.transcribing { border-color:#00C9A7; color:rgba(232,239,248,0.35); cursor:wait; }

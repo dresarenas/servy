@@ -1559,6 +1559,22 @@ main { position: relative; z-index: 1; }
   color: var(--ink-dim);
 }
 
+/* ========== Bone palette: CTA pill buttons ========== */
+[data-palette="bone"] .cta-actions .pill {
+  background: rgba(15,16,20,0.05) !important;
+  border-color: rgba(15,16,20,0.22) !important;
+  color: var(--ink) !important;
+}
+[data-palette="bone"] .cta-actions .pill:hover {
+  background: rgba(15,16,20,0.10) !important;
+  color: var(--ink) !important;
+}
+[data-palette="bone"] .cta-actions .pill.primary {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: var(--accent-ink) !important;
+}
+
 /* ========== Mobile: ocultar chips de oficios ========== */
 @media (max-width: 820px) {
   .search-tags { display: none; }

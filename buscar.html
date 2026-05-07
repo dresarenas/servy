@@ -252,7 +252,7 @@
 /* ============ FOOTER CTA ============ */
 .wiz-foot {
   overflow: visible;
-  padding: 20px 28px 28px;
+  padding: 20px 28px calc(28px + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -260,10 +260,13 @@
   width: 100%;
   margin: 0 auto;
   box-sizing: border-box;
-  padding-bottom: calc(28px + env(safe-area-inset-bottom));
-  position: relative;
-  z-index: 2;
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  background: linear-gradient(to bottom, transparent, var(--bg) 28%);
+  pointer-events: none;
 }
+.wiz-foot > * { pointer-events: all; }
 .wiz-cta {
   position: relative;
   z-index: 10;
@@ -788,15 +791,16 @@
 
 /* ============ WA SHARE STEP 3 ============ */
 .wiz-wa-share {
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  width: 100%; padding: 12px;
-  background: transparent; border: 1px solid rgba(37,211,102,0.35);
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; padding: 16px 24px;
+  background: rgba(37,211,102,0.08); border: 1px solid rgba(37,211,102,0.40);
   border-radius: 14px; color: #25d366;
-  font-family: var(--f-mono); font-size: 12px; letter-spacing: 0.06em;
-  text-decoration: none; cursor: pointer;
+  font-family: var(--f-mono); font-size: 13px; letter-spacing: 0.08em;
+  text-transform: uppercase; text-decoration: none; cursor: pointer;
   transition: background 0.2s, border-color 0.2s;
+  box-sizing: border-box;
 }
-.wiz-wa-share:hover { background: rgba(37,211,102,0.08); border-color: rgba(37,211,102,0.6); }
+.wiz-wa-share:hover { background: rgba(37,211,102,0.14); border-color: rgba(37,211,102,0.65); }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.net.min.js"></script>
@@ -946,7 +950,7 @@
   <div class="wiz-step" id="ws3">
     <div class="wiz-content">
       <div class="wiz-success-wrap">
-        <div class="wiz-success-icon scale-up-center"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="wiz-success-icon scale-up-center"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
         <h1 class="wiz-title">¡Listo! Encontramos estos<br>prestadores <span>disponibles</span></h1>
         <p class="wiz-results-summary" id="wizResultsSummary"></p>
         <p class="wiz-wrong-result"><a onclick="wizGoTo(0)">← Volvamos atrás, esto no es lo que necesito</a></p>
