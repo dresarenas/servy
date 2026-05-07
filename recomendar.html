@@ -302,6 +302,8 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
         <span class="rec-dot active" data-s="0">1</span>
         <span class="rec-dot-line"></span>
         <span class="rec-dot" data-s="1">2</span>
+        <span class="rec-dot-line"></span>
+        <span class="rec-dot" data-s="2">3</span>
       </div>
 
       <div class="hero-eyebrow rec-eyebrow">
@@ -367,19 +369,20 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
     </div>
   </div>
 
-  <!-- ── PASO 2: Más info (opcional) ── -->
+  <!-- ── PASO 2: Oficio (obligatorio) ── -->
   <div class="rec-step" id="rs1">
     <div class="rec-content">
       <div class="rec-dots">
         <span class="rec-dot done" data-s="0" onclick="recGoTo(0)">1</span>
         <span class="rec-dot-line done"></span>
         <span class="rec-dot active" data-s="1">2</span>
+        <span class="rec-dot-line"></span>
+        <span class="rec-dot" data-s="2">3</span>
       </div>
 
-      <h1 class="rec-title">¿Querés agregar<br><span>más info</span>?</h1>
-      <p class="rec-sub">Tu dato puede ser justo lo que alguien más está buscando <span class="rec-opcional-badge">OPCIONAL</span></p>
+      <h1 class="rec-title">¿Qué hace<br><span id="nombreDisplay1">el prestador</span>?</h1>
+      <p class="rec-sub">Seleccioná el rubro <span style="color:var(--accent)">*</span></p>
 
-      <div class="rec-opt-label" style="margin-top:0;margin-bottom:8px;">¿Qué servicio ofrece <span id="nombreDisplay1">el prestador</span>?</div>
       <div class="rec-chips" id="oficioChips">
         <button class="rec-chip" data-value="plomero">🔧 Plomero</button>
         <button class="rec-chip" data-value="electricista">⚡ Electricista</button>
@@ -398,8 +401,33 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
       <div id="oficioOtroWrap" style="display:none; margin-top:10px;">
         <input type="text" class="rec-input" id="otroOficioInput" placeholder="¿Cuál servicio?">
       </div>
+      <div class="rec-err" id="errOficio" style="margin-top:8px;">Seleccioná al menos un rubro</div>
 
-      <div class="rec-opt-label" style="margin-top:20px;">Tu experiencia</div>
+      <div class="rec-spacer"></div>
+    </div>
+    <div class="rec-foot">
+      <div class="rec-foot-row">
+        <button class="rec-back" onclick="recPrev()">← Volver</button>
+        <button class="rec-cta" onclick="recNext()">Siguiente <span class="btn-arr"></span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PASO 3: Más info (opcional) ── -->
+  <div class="rec-step" id="rs2">
+    <div class="rec-content">
+      <div class="rec-dots">
+        <span class="rec-dot done" data-s="0" onclick="recGoTo(0)">1</span>
+        <span class="rec-dot-line done"></span>
+        <span class="rec-dot done" data-s="1" onclick="recGoTo(1)">2</span>
+        <span class="rec-dot-line done"></span>
+        <span class="rec-dot active" data-s="2">3</span>
+      </div>
+
+      <h1 class="rec-title">¿Querés agregar<br><span>más info</span>?</h1>
+      <p class="rec-sub">Tu dato puede ser justo lo que alguien más está buscando <span class="rec-opcional-badge">OPCIONAL</span></p>
+
+      <div class="rec-opt-label" style="margin-top:0;margin-bottom:8px;">Tu experiencia</div>
       <div class="rec-chips" id="expChips">
         <button class="rec-chip" data-value="puntual">Es puntual</button>
         <button class="rec-chip" data-value="prolijo">Trabaja prolijo</button>
@@ -455,12 +483,12 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
   </div>
 
   <!-- ── GRACIAS ── -->
-  <div class="rec-step" id="rs2">
+  <div class="rec-step" id="rs3">
     <div class="rec-content" style="align-items:center;text-align:center;justify-content:center;padding-top:100px;">
       <div class="rec-success-icon">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
       </div>
-      <h1 class="rec-title" id="recGraciasTitle">¡Gracias! Tu reseña<br>ayudará a muchas <span>personas</span></h1>
+      <h1 class="rec-title" id="recGraciasTitle">¡Gracias! Tu reseña<br>ayudará a muchas <span>personas</span><br>en tu comunidad</h1>
       <p class="rec-sub" id="recGraciasSub"></p>
 
       <div class="rec-success-actions">
@@ -500,14 +528,14 @@ function recGoTo(n) {
     var s = parseInt(d.getAttribute('data-s'));
     d.classList.remove('active', 'done');
     if (s < n)  d.classList.add('done');
-    if (s === n && n < 2) d.classList.add('active');
+    if (s === n && n < 3) d.classList.add('active');
   });
   document.querySelectorAll('.rec-dot-line').forEach(function(l) {
     var li = parseInt(l.getAttribute('data-line'));
     if (!isNaN(li)) l.classList.toggle('done', li < n);
   });
   recCurrent = n;
-  if (n === 2) {
+  if (n === 3) {
     setTimeout(function() {
       var icon = document.querySelector('.rec-success-icon');
       if (icon) { icon.classList.remove('scale-up-bounce'); void icon.offsetWidth; icon.classList.add('scale-up-bounce'); }
@@ -517,7 +545,15 @@ function recGoTo(n) {
 
 function recNext() {
   if (recCurrent === 0) recValidStep0();
-  else if (recCurrent === 1) recEnviar();
+  else if (recCurrent === 1) recValidStep1();
+  else if (recCurrent === 2) recEnviar();
+}
+
+function recValidStep1() {
+  var sel = document.querySelectorAll('#oficioChips .rec-chip.sel');
+  if (sel.length === 0) { recShowErr('errOficio', true); return; }
+  recShowErr('errOficio', false);
+  recGoTo(3);
 }
 
 function recPrev() {
