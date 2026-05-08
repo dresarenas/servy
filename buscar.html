@@ -479,19 +479,19 @@
   margin-bottom: 24px;
 }
 .wiz-success-icon {
-  width: 56px; height: 56px;
+  width: 72px; height: 72px;
   border-radius: 50%;
   background: var(--accent);
-  color: var(--accent-ink);
-  font-size: 24px;
   display: flex; align-items: center; justify-content: center;
   margin-bottom: 18px;
-  animation: successPop 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;
 }
-@keyframes successPop {
-  from { transform: scale(0); opacity: 0; }
-  to   { transform: scale(1); opacity: 1; }
+@keyframes scale-up-bounce {
+  0%   { transform: scale(0); opacity: 0; }
+  60%  { transform: scale(1.35); opacity: 1; }
+  80%  { transform: scale(0.9); }
+  100% { transform: scale(1); }
 }
+.scale-up-bounce { animation: scale-up-bounce .5s cubic-bezier(.39,.575,.565,1) both; }
 
 .wiz-results-summary {
   font-family: var(--f-sans);
@@ -946,7 +946,7 @@
   <div class="wiz-step" id="ws3">
     <div class="wiz-content">
       <div class="wiz-success-wrap">
-        <div class="wiz-success-icon scale-up-center"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="wiz-success-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
         <h1 class="wiz-title">¡Listo! Encontramos estos<br>prestadores <span>disponibles</span></h1>
         <p class="wiz-results-summary" id="wizResultsSummary"></p>
         <p class="wiz-wrong-result"><a onclick="wizGoTo(0)">← Volvamos atrás, esto no es lo que necesito</a></p>

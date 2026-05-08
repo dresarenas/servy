@@ -40,7 +40,7 @@
 .rec-foot-row .rec-cta { flex:1; }
 
 /* ===== DOTS BAR ===== */
-.rec-dots { display:flex; align-items:center; gap:0; margin-bottom:24px; }
+.rec-dots { display:flex; align-items:center; gap:0; margin-bottom:24px; margin-top:10px; }
 .rec-dot {
   width:28px; height:28px; border-radius:50%;
   border:2px solid var(--line-strong);
@@ -106,6 +106,7 @@
   text-transform:uppercase; cursor:pointer;
   transition:background .2s,transform .15s;
 }
+.rec-btn-import { opacity:1 !important; }
 .rec-btn-import:hover { background:var(--accent-hover); }
 .rec-btn-import:active { transform:scale(.98); }
 .rec-import-ok {
@@ -172,10 +173,9 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
 /* ===== SUCCESS ===== */
 .rec-success-icon {
   width:72px; height:72px; border-radius:50%;
-  background:color-mix(in srgb,var(--accent) 15%,transparent);
-  border:1px solid var(--accent);
+  background:var(--accent);
   display:flex; align-items:center; justify-content:center;
-  margin-bottom:24px; color:var(--accent);
+  margin-bottom:24px;
 }
 .rec-success-actions { display:flex; flex-direction:column; gap:10px; width:100%; margin-top:20px; }
 .rec-wa-share {
@@ -264,6 +264,7 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
 /* ===== EYEBROW BADGE ===== */
 .rec-eyebrow { margin-bottom:16px; }
 #recFormFields { width:100%; }
+.rec-title-opcional { font-size:0.38em; font-weight:700; color:var(--ink-mute); letter-spacing:.1em; text-transform:uppercase; vertical-align:middle; margin-left:4px; }
 </style>
 </head>
 <body class="loaded">
@@ -321,6 +322,7 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
           <span id="importBtnTxt">Importar desde contactos</span>
         </button>
         <a class="rec-import-manual" id="linkManual" onclick="_recShowFormFields()" href="javascript:void(0)">O ingresá manualmente</a>
+        <div class="rec-import-manual" id="iosHint" style="display:none;margin-top:14px;line-height:1.7;font-size:11px;text-decoration:none;cursor:default;">💡 Cómo copiar el número:<br>WhatsApp → info del contacto → manténé presionado el número → Copiar → volvé acá y tocá el botón</div>
         <div class="rec-import-ok" id="importOk">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           Contacto importado — podés editar los datos abajo
@@ -424,8 +426,8 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
         <span class="rec-dot active" data-s="2">3</span>
       </div>
 
-      <h1 class="rec-title">¿Querés agregar<br><span>más info</span>?</h1>
-      <p class="rec-sub">Tu dato puede ser justo lo que alguien más está buscando <span class="rec-opcional-badge">OPCIONAL</span></p>
+      <h1 class="rec-title">¿Querés agregar<br><span>más info</span>? <small class="rec-title-opcional">OPCIONAL</small></h1>
+      <p class="rec-sub">Tu dato puede ser justo lo que alguien más está buscando.</p>
 
       <div class="rec-opt-label" style="margin-top:0;margin-bottom:8px;">Tu experiencia</div>
       <div class="rec-chips" id="expChips">
@@ -490,15 +492,17 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
       </div>
       <h1 class="rec-title" id="recGraciasTitle">¡Gracias! Tu reseña<br>ayudará a muchas <span>personas</span><br>en tu comunidad</h1>
       <p class="rec-sub" id="recGraciasSub"></p>
-
-      <div class="rec-success-actions">
-        <a href="./" class="rec-cta rec-link-btn" style="text-decoration:none;">Inicio <span class="btn-arr"></span></a>
-        <button class="rec-back rec-link-btn" onclick="recReset()" style="cursor:pointer;border:1px solid var(--line-strong);border-radius:14px;background:transparent;padding:16px 20px;font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-dim);justify-content:center;">Nueva recomendación</button>
-        <a href="https://wa.me/?text=Encontr%C3%A1%20prestadores%20verificados%20en%20SERVY%20%F0%9F%94%8D%20https%3A%2F%2Fdresarenas.github.io%2Fservy%2F" target="_blank" rel="noopener" class="rec-wa-share">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
-          Compartir SERVY por WhatsApp
-        </a>
+      <div class="rec-spacer"></div>
+    </div>
+    <div class="rec-foot">
+      <div class="rec-foot-row">
+        <a href="./" class="rec-back rec-link-btn" style="text-decoration:none;">← Inicio</a>
+        <button class="rec-cta" onclick="recReset()">Nueva recomendación <span class="btn-arr"></span></button>
       </div>
+      <a href="https://wa.me/?text=Encontr%C3%A1%20prestadores%20verificados%20en%20SERVY%20%F0%9F%94%8D%20https%3A%2F%2Fdresarenas.github.io%2Fservy%2F" target="_blank" rel="noopener" class="rec-wa-share">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+        Compartir SERVY por WhatsApp
+      </a>
     </div>
   </div>
 
@@ -597,6 +601,8 @@ function recReset() {
   var importOk = document.getElementById('importOk');
   if (importOk) importOk.classList.remove('visible');
   ['errNombre','errTel','errEstrellas'].forEach(function(id) { recShowErr(id, false); });
+  var envBtn = document.getElementById('recEnviarBtn');
+  if (envBtn) { envBtn.disabled = false; envBtn.textContent = 'Enviar recomendación'; envBtn.appendChild((function(){var s=document.createElement('span');s.className='btn-arr';return s;})());  }
   if (window._recIsMobile) {
     var ff = document.getElementById('recFormFields');
     if (ff) ff.style.display = 'none';
@@ -636,6 +642,8 @@ function recReset() {
     btnTxt.textContent = 'Pegar número copiado';
     btnImport.style.display = '';
     if (linkManual) linkManual.style.display = '';
+    var iosH = document.getElementById('iosHint');
+    if (iosH) iosH.style.display = '';
   } else {
     formFields.style.display = '';
     if (btnImport) btnImport.style.display = 'none';
@@ -714,7 +722,9 @@ function initRecChips(id, maxSel) {
         if (isOtro) document.getElementById('oficioOtroWrap').style.display = 'none';
         return;
       }
-      if (maxSel) {
+      if (maxSel === 1) {
+        cont.querySelectorAll('.rec-chip.sel').forEach(function(c) { c.classList.remove('sel'); });
+      } else if (maxSel) {
         var n = cont.querySelectorAll('.rec-chip.sel').length;
         if (n >= maxSel) return;
       }
