@@ -1037,6 +1037,7 @@ function goToStep(n) {
   var steps = document.querySelectorAll('.wiz-step');
   steps.forEach(function(s, i) {
     s.classList.remove('active', 'past');
+    s.inert = (i !== n);
     if (i < n) s.classList.add('past');
     else if (i === n) {
       s.classList.add('active');
@@ -1502,6 +1503,9 @@ window.addEventListener('DOMContentLoaded', function() {
   initFromURLParams();
 });
 window.addEventListener('pageshow', function(e) { if (e.persisted) initFromURLParams(); });
+
+/* init inert on non-active steps */
+document.querySelectorAll('.wiz-step:not(.active)').forEach(function(s) { s.inert = true; });
 </script>
 
 <script src="home-v2.js"></script>

@@ -517,6 +517,7 @@ var recStars = 0;
 function recGoTo(n) {
   document.querySelectorAll('.rec-step').forEach(function(s, i) {
     s.classList.remove('active', 'past');
+    s.inert = (i !== n);
     if (i < n) s.classList.add('past');
     if (i === n) {
       s.classList.add('active');
@@ -852,10 +853,13 @@ async function recEnviar() {
   } else if (recStars >= 3) {
     document.getElementById('recGraciasSub').textContent = 'Vamos a contactar a ' + (nombre || 'el prestador') + ' para pedirle permiso antes de publicar sus datos.';
   } else {
-    document.getElementById('recGraciasSub').textContent = '¡Tu aporte es muy valioso para la comunidad!';
+    document.getElementById('recGraciasSub').textContent = '¡Tu aporte es muy valioso para otros usuarios!';
   }
   recGoTo(3);
 }
+
+/* init inert on non-active steps */
+document.querySelectorAll('.rec-step:not(.active)').forEach(function(s) { s.inert = true; });
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>

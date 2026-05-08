@@ -410,6 +410,7 @@ var prestCurrent = 0;
 function prestGoTo(n) {
   document.querySelectorAll('.prest-step').forEach(function(s, i) {
     s.classList.remove('active', 'past');
+    s.inert = (i !== n);
     if (i < n) s.classList.add('past');
     if (i === n) {
       s.classList.add('active');
@@ -619,6 +620,7 @@ async function prestEnviar() {
   initPrestVanta();
 })();
 </script>
+<script>document.querySelectorAll('.prest-step:not(.active)').forEach(function(s) { s.inert = true; });</script>
 <script src="home-v2.js"></script>
 </body>
 </html>
