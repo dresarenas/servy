@@ -540,6 +540,7 @@
 .result-card.reveal { animation: cardReveal 0.3s ease forwards; }
 .result-top { display: flex; justify-content: space-between; align-items: start; font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-mute); margin-bottom: 7px; }
 .result-verified { color: var(--accent); }
+.result-super-verified { color: #F5B731; }
 .result-name { font-family: var(--f-display); font-weight: 700; font-size: 18px; letter-spacing: -0.01em; color: var(--ink); line-height: 1.1; }
 .result-name em { display: block; font-size: 0.6em; color: var(--ink-dim); margin-top: 4px; font-style: normal; }
 .result-bottom { display: flex; justify-content: space-between; align-items: end; font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.06em; color: var(--ink-mute); margin-top: 10px; }
@@ -1444,7 +1445,7 @@ function wizRenderResults(prestadores) {
     var stars = '★'.repeat(p.stars) + (p.stars < 5 ? '☆'.repeat(5 - p.stars) : '');
     var card = document.createElement('div'); card.className = 'result-card'; card.style.animationDelay = (idx * 80) + 'ms';
     card.innerHTML = '<button class="btn-heart" title="Guardar favorito">♡</button>'
-      + '<div class="result-top"><span>' + p.num + ' · ' + p.oficio + '</span><span class="result-verified">✓ Verif.</span></div>'
+      + '<div class="result-top"><span>' + p.num + ' · ' + p.oficio + '</span>' + (p.tier === 'super_verificado' ? '<span class="result-super-verified">⭐ Super Verif.</span>' : (p.verificado ? '<span class="result-verified">✓ Verificado</span>' : '')) + '</div>'
       + '<div class="result-name">' + p.nombre + '<em>' + p.zona + '</em></div>'
       + '<div class="result-bottom"><span class="result-stars">' + stars + '</span><span>' + p.reseñas + ' reseñas</span></div>';
     card.querySelector('.btn-heart').addEventListener('click', function(e) { e.stopPropagation(); mostrarToastFav(); });

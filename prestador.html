@@ -40,7 +40,7 @@
 .prest-foot-row .prest-cta { flex:1; }
 
 /* ===== DOTS BAR ===== */
-.prest-dots { display:flex; align-items:center; gap:0; margin-bottom:24px; }
+.prest-dots { display:flex; align-items:center; gap:0; margin-bottom:24px; margin-top:10px; }
 .prest-dot {
   width:28px; height:28px; border-radius:50%;
   border:2px solid var(--line-strong);
@@ -144,10 +144,9 @@ textarea.prest-input { font-size:16px; font-weight:400; resize:none; min-height:
 /* ===== SUCCESS ===== */
 .prest-success-icon {
   width:72px; height:72px; border-radius:50%;
-  background:color-mix(in srgb,var(--accent) 15%,transparent);
-  border:1px solid var(--accent);
+  background:var(--accent);
   display:flex; align-items:center; justify-content:center;
-  margin-bottom:24px; color:var(--accent);
+  margin-bottom:24px;
 }
 .prest-success-actions { display:flex; flex-direction:column; gap:10px; width:100%; margin-top:20px; }
 .prest-wa-share {
@@ -195,6 +194,35 @@ textarea.prest-input { font-size:16px; font-weight:400; resize:none; min-height:
   100% { transform: scale(1); }
 }
 .scale-up-bounce { animation: scale-up-bounce .5s cubic-bezier(.39,.575,.565,1) both; }
+/* ===== MAP ===== */
+.prest-map-container { width:100%; height:200px; border-radius:14px; border:2px solid var(--line-strong); overflow:hidden; background:var(--bg-elev); }
+.prest-radius-row { display:flex; align-items:center; gap:10px; margin-top:10px; margin-bottom:16px; }
+.prest-radius-label { font-family:var(--f-mono); font-size:12px; color:var(--ink-dim); white-space:nowrap; }
+.prest-radius-val { font-family:var(--f-mono); font-size:12px; color:var(--accent); font-weight:700; min-width:52px; text-align:right; }
+input[type=range].prest-slider { -webkit-appearance:none; flex:1; height:4px; background:var(--line-strong); border-radius:2px; outline:none; }
+input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; width:18px; height:18px; border-radius:50%; background:var(--accent); cursor:pointer; }
+
+/* ===== FOTO ===== */
+.prest-foto-wrap { display:flex; align-items:center; gap:16px; }
+.prest-foto-preview { width:60px; height:60px; border-radius:50%; background:var(--bg-elev); border:2px solid var(--line-strong); flex-shrink:0; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+.prest-foto-preview img { width:100%; height:100%; object-fit:cover; }
+.prest-foto-preview svg { opacity:.4; }
+.prest-foto-btn { flex:1; padding:12px 16px; background:transparent; border:1.5px dashed var(--line-strong); border-radius:12px; color:var(--ink-dim); font-family:var(--f-sans); font-size:14px; cursor:pointer; text-align:center; transition:border-color .2s,color .2s; display:block; }
+.prest-foto-btn:hover { border-color:var(--accent); color:var(--ink); }
+
+/* ===== PRECIO ===== */
+.prest-precio-row { display:flex; gap:10px; }
+.prest-precio-row .prest-field { flex:1; margin-bottom:0; }
+
+/* ===== TERMS ===== */
+.prest-terms-box { background:color-mix(in srgb,var(--ink) 4%,transparent); border:1px solid var(--line-strong); border-radius:14px; padding:18px; margin-bottom:20px; }
+.prest-terms-value { font-family:var(--f-sans); font-size:15px; color:var(--ink); margin-bottom:18px; line-height:1.65; }
+.prest-terms-disclaimer { font-family:var(--f-mono); font-size:11px; color:var(--ink-mute); line-height:1.7; letter-spacing:.02em; border-top:1px solid var(--line-strong); padding-top:14px; }
+.prest-check-row { display:flex; align-items:flex-start; gap:12px; cursor:pointer; }
+.prest-check-row input[type=checkbox] { width:20px; height:20px; flex-shrink:0; accent-color:var(--accent); margin-top:1px; cursor:pointer; }
+.prest-check-label { font-family:var(--f-sans); font-size:14px; color:var(--ink-dim); line-height:1.5; cursor:pointer; }
+.prest-title-opcional { font-size:0.38em; font-weight:700; color:var(--ink-mute); letter-spacing:.1em; text-transform:uppercase; vertical-align:middle; margin-left:4px; }
+
 </style>
 </head>
 <body class="loaded">
@@ -235,14 +263,16 @@ textarea.prest-input { font-size:16px; font-weight:400; resize:none; min-height:
         <span class="prest-dot" data-s="1">2</span>
         <span class="prest-dot-line"></span>
         <span class="prest-dot" data-s="2">3</span>
+        <span class="prest-dot-line"></span>
+        <span class="prest-dot" data-s="3">4</span>
       </div>
 
       <div class="hero-eyebrow prest-eyebrow">
         <span class="sticker"><span class="pulse"></span>Gratis · En menos de 1 minuto</span>
       </div>
 
-      <h1 class="prest-title">Sumate a<br><span>SERVY</span></h1>
-      <p class="prest-sub">Registrate y empezá a recibir clientes de tu zona.</p>
+      <h1 class="prest-title">Activá tu<br><span>perfil</span></h1>
+      <p class="prest-sub">En menos de 45 segundos. Completamente gratis.</p>
 
       <div class="prest-field">
         <label class="prest-label">Nombre y apellido <span style="color:var(--accent)">*</span></label>
@@ -264,14 +294,6 @@ textarea.prest-input { font-size:16px; font-weight:400; resize:none; min-height:
         <div class="prest-err" id="errPrestTel">Ingresá un número de WhatsApp válido</div>
       </div>
 
-      <div class="prest-field">
-        <label class="prest-label">Email <span style="color:var(--accent)">*</span></label>
-        <input type="email" class="prest-input" id="prestEmail" placeholder="tu@email.com"
-          autocomplete="email" inputmode="email"
-          oninput="prestClearErr('errPrestEmail')">
-        <div class="prest-err" id="errPrestEmail">Ingresá un email válido</div>
-      </div>
-
       <div class="prest-spacer"></div>
     </div>
     <div class="prest-foot">
@@ -291,6 +313,8 @@ textarea.prest-input { font-size:16px; font-weight:400; resize:none; min-height:
         <span class="prest-dot active" data-s="1">2</span>
         <span class="prest-dot-line"></span>
         <span class="prest-dot" data-s="2">3</span>
+        <span class="prest-dot-line"></span>
+        <span class="prest-dot" data-s="3">4</span>
       </div>
 
       <h1 class="prest-title">¿A qué te<br><span>dedicás</span>?</h1>
@@ -327,7 +351,7 @@ textarea.prest-input { font-size:16px; font-weight:400; resize:none; min-height:
     </div>
   </div>
 
-  <!-- ── PASO 3: Zona + Bio ── -->
+  <!-- ── PASO 3: Zona + Opcionales ── -->
   <div class="prest-step" id="ps2">
     <div class="prest-content">
       <div class="prest-dots">
@@ -336,33 +360,83 @@ textarea.prest-input { font-size:16px; font-weight:400; resize:none; min-height:
         <span class="prest-dot done" data-s="1" onclick="prestGoTo(1)">2</span>
         <span class="prest-dot-line done"></span>
         <span class="prest-dot active" data-s="2">3</span>
+        <span class="prest-dot-line"></span>
+        <span class="prest-dot" data-s="3">4</span>
       </div>
 
       <h1 class="prest-title">¿Dónde<br><span>trabajás</span>?</h1>
-      <p class="prest-sub">Seleccioná tu zona de cobertura <span style="color:var(--accent)">*</span></p>
+      <p class="prest-sub">Zona de cobertura <span style="color:var(--accent)">*</span></p>
 
-      <div class="prest-chips" id="prestZonaChips">
-        <button class="prest-chip" data-value="toda-ciudad">📍 Toda la ciudad</button>
-        <button class="prest-chip" data-value="nueva-cordoba">Nueva Córdoba</button>
-        <button class="prest-chip" data-value="alta-cordoba">Alta Córdoba</button>
-        <button class="prest-chip" data-value="centro">Centro</button>
-        <button class="prest-chip" data-value="cerro">Cerro de las Rosas</button>
-        <button class="prest-chip" data-value="arguello">Argüello</button>
-        <button class="prest-chip" data-value="norte">Norte</button>
-        <button class="prest-chip" data-value="sur">Sur</button>
-        <button class="prest-chip" data-value="este">Este</button>
-        <button class="prest-chip" data-value="oeste">Oeste</button>
-        <button class="prest-chip" data-value="villa-carlos-paz">Villa Carlos Paz</button>
-        <button class="prest-chip" data-value="villa-allende">Villa Allende</button>
-        <button class="prest-chip" data-value="otra-zona">+ Otra zona</button>
+      <!-- MAP (shown when Google Maps loads) -->
+      <div id="prestMapWrap" style="display:none;">
+        <div class="prest-field" style="margin-bottom:10px;">
+          <input type="text" class="prest-input" id="prestDireccion"
+            placeholder="Ej: Nueva Córdoba, Córdoba"
+            autocomplete="off"
+            oninput="prestClearErr('errPrestZona')"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();prestGeocode();}">
+        </div>
+        <div class="prest-map-container" id="prestMap"></div>
+        <div class="prest-radius-row">
+          <span class="prest-radius-label">Radio:</span>
+          <input type="range" class="prest-slider" id="prestRadioSlider" min="1" max="40" value="10" oninput="prestUpdateRadio()">
+          <span class="prest-radius-val" id="prestRadioVal">10 km</span>
+        </div>
+        <input type="hidden" id="prestZonaLat">
+        <input type="hidden" id="prestZonaLng">
+        <input type="hidden" id="prestZonaRadio" value="10">
+        <input type="hidden" id="prestZonaTexto">
       </div>
-      <div id="prestOtraZonaWrap" style="display:none; margin-top:10px;">
-        <input type="text" class="prest-input" id="prestOtraZona" placeholder="¿Cuál zona o localidad?">
-      </div>
-      <div class="prest-err" id="errPrestZona" style="margin-top:8px;">Seleccioná al menos una zona</div>
 
-      <div class="prest-opt-label" style="margin-top:24px;">Sobre vos <span class="prest-opcional-badge">OPCIONAL</span></div>
-      <div class="prest-field" style="margin-top:0;">
+      <!-- CHIPS FALLBACK (shown until Maps loads) -->
+      <div id="prestZonaChipsFallback">
+        <div class="prest-chips" id="prestZonaChips">
+          <button class="prest-chip" data-value="toda-ciudad">📍 Toda la ciudad</button>
+          <button class="prest-chip" data-value="nueva-cordoba">Nueva Córdoba</button>
+          <button class="prest-chip" data-value="alta-cordoba">Alta Córdoba</button>
+          <button class="prest-chip" data-value="centro">Centro</button>
+          <button class="prest-chip" data-value="cerro">Cerro de las Rosas</button>
+          <button class="prest-chip" data-value="arguello">Argüello</button>
+          <button class="prest-chip" data-value="norte">Norte</button>
+          <button class="prest-chip" data-value="sur">Sur</button>
+          <button class="prest-chip" data-value="este">Este</button>
+          <button class="prest-chip" data-value="oeste">Oeste</button>
+          <button class="prest-chip" data-value="villa-carlos-paz">Villa Carlos Paz</button>
+          <button class="prest-chip" data-value="villa-allende">Villa Allende</button>
+          <button class="prest-chip" data-value="otra-zona">+ Otra zona</button>
+        </div>
+        <div id="prestOtraZonaWrap" style="display:none; margin-top:10px;">
+          <input type="text" class="prest-input" id="prestOtraZona" placeholder="¿Cuál zona o localidad?">
+        </div>
+      </div>
+      <div class="prest-err" id="errPrestZona" style="margin-top:8px;">Ingresá o seleccioná tu zona</div>
+
+      <div class="prest-opt-label" style="margin-top:24px;">Más info <small class="prest-title-opcional">OPCIONAL</small></div>
+
+      <!-- FOTO -->
+      <div class="prest-field">
+        <label class="prest-label">Foto de perfil</label>
+        <div class="prest-foto-wrap">
+          <div class="prest-foto-preview" id="prestFotoPreview">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          </div>
+          <label class="prest-foto-btn" for="prestFotoInput">Subir foto</label>
+          <input type="file" id="prestFotoInput" accept="image/*" style="display:none" onchange="prestFotoChange(this)">
+        </div>
+        <div class="prest-hint">Con foto recibís más consultas</div>
+      </div>
+
+      <!-- EMAIL -->
+      <div class="prest-field">
+        <label class="prest-label">Email</label>
+        <input type="email" class="prest-input" id="prestEmail" placeholder="tu@email.com"
+          autocomplete="email" inputmode="email">
+        <div class="prest-hint">Para recibir notificaciones</div>
+      </div>
+
+      <!-- BIO -->
+      <div class="prest-field">
+        <label class="prest-label">Descripción</label>
         <div class="prest-textarea-wrap">
           <textarea class="prest-input" id="prestBio" rows="3" maxlength="280"
             placeholder="Ej: 10 años en el rubro, trabajo garantizado, atiendo urgencias..."
@@ -371,18 +445,73 @@ textarea.prest-input { font-size:16px; font-weight:400; resize:none; min-height:
         <div class="prest-char-count" id="prestBioCount">0 / 280</div>
       </div>
 
+      <!-- PRECIO -->
+      <div class="prest-field">
+        <label class="prest-label">Rango de precio aproximado</label>
+        <div class="prest-precio-row">
+          <div class="prest-field">
+            <input type="number" class="prest-input" id="prestPrecioMin" placeholder="Desde $" min="0" inputmode="numeric">
+          </div>
+          <div class="prest-field">
+            <input type="number" class="prest-input" id="prestPrecioMax" placeholder="Hasta $" min="0" inputmode="numeric">
+          </div>
+        </div>
+        <div class="prest-hint">Por hora o por trabajo — útil para presupuestos</div>
+      </div>
+
       <div class="prest-spacer"></div>
     </div>
     <div class="prest-foot">
       <div class="prest-foot-row">
         <button class="prest-back" onclick="prestPrev()">← Volver</button>
-        <button class="prest-cta" id="prestEnviarBtn" onclick="prestEnviar()">Registrarme <span class="btn-arr"></span></button>
+        <button class="prest-cta" onclick="prestNext()">Siguiente <span class="btn-arr"></span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PASO 4: Activar perfil / Términos ── -->
+  <div class="prest-step" id="ps3">
+    <div class="prest-content">
+      <div class="prest-dots">
+        <span class="prest-dot done" data-s="0" onclick="prestGoTo(0)">1</span>
+        <span class="prest-dot-line done"></span>
+        <span class="prest-dot done" data-s="1" onclick="prestGoTo(1)">2</span>
+        <span class="prest-dot-line done"></span>
+        <span class="prest-dot done" data-s="2" onclick="prestGoTo(2)">3</span>
+        <span class="prest-dot-line done"></span>
+        <span class="prest-dot active" data-s="3">4</span>
+      </div>
+
+      <h1 class="prest-title">Activá tu<br><span>perfil</span></h1>
+      <p class="prest-sub">Un último paso antes de aparecer en las búsquedas.</p>
+
+      <div class="prest-terms-box">
+        <div class="prest-terms-value">
+          SERVY conecta tu perfil con personas que buscan exactamente lo que ofrecés, en tu zona. Los prestadores verificados aparecen primero en los resultados y tienen más posibilidades de recibir consultas.
+        </div>
+        <div class="prest-terms-disclaimer">
+          SERVY es un portal de avisos que facilita el contacto entre partes. No interviene en la contratación, no garantiza los servicios ofrecidos, no interviene en pagos, ni asume responsabilidad por acuerdos entre prestador y cliente.
+        </div>
+      </div>
+
+      <label class="prest-check-row" for="prestTerminosCheck">
+        <input type="checkbox" id="prestTerminosCheck" onchange="prestClearErr('errPrestTerminos')">
+        <span class="prest-check-label">Leí y acepto los términos. Entiendo que SERVY es un portal de avisos y no garantiza contrataciones.</span>
+      </label>
+      <div class="prest-err" id="errPrestTerminos" style="margin-top:8px;">Tenés que aceptar los términos para continuar</div>
+
+      <div class="prest-spacer"></div>
+    </div>
+    <div class="prest-foot">
+      <div class="prest-foot-row">
+        <button class="prest-back" onclick="prestPrev()">← Volver</button>
+        <button class="prest-cta" id="prestEnviarBtn" onclick="prestEnviar()">Activar mi perfil <span class="btn-arr"></span></button>
       </div>
     </div>
   </div>
 
   <!-- ── GRACIAS ── -->
-  <div class="prest-step" id="ps3">
+  <div class="prest-step" id="ps4">
     <div class="prest-content" style="align-items:center;text-align:center;justify-content:center;padding-top:100px;">
       <div class="prest-success-icon">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -426,14 +555,14 @@ function prestGoTo(n) {
     var s = parseInt(d.getAttribute('data-s'));
     d.classList.remove('active', 'done');
     if (s < n)  d.classList.add('done');
-    if (s === n && n < 3) d.classList.add('active');
+    if (s === n && n < 4) d.classList.add('active');
   });
   document.querySelectorAll('.prest-dot-line').forEach(function(l) {
     var li = parseInt(l.getAttribute('data-line'));
     if (!isNaN(li)) l.classList.toggle('done', li < n);
   });
   prestCurrent = n;
-  if (n === 3) {
+  if (n === 4) {
     setTimeout(function() {
       var icon = document.querySelector('.prest-success-icon');
       if (icon) { icon.classList.remove('scale-up-bounce'); void icon.offsetWidth; icon.classList.add('scale-up-bounce'); }
@@ -444,7 +573,8 @@ function prestGoTo(n) {
 function prestNext() {
   if (prestCurrent === 0) prestValidStep0();
   else if (prestCurrent === 1) prestValidStep1();
-  else if (prestCurrent === 2) prestEnviar();
+  else if (prestCurrent === 2) prestValidStep2();
+  else if (prestCurrent === 3) prestEnviar();
 }
 
 function prestPrev() {
@@ -462,12 +592,10 @@ function prestClearErr(id) { prestShowErr(id, false); }
 function prestValidStep0() {
   var nombre = document.getElementById('prestNombre').value.trim();
   var tel    = document.getElementById('prestTel').value.replace(/\s/g, '');
-  var email  = document.getElementById('prestEmail').value.trim();
   var ok = true;
 
   if (!nombre) { prestShowErr('errPrestNombre', true); ok = false; } else prestShowErr('errPrestNombre', false);
   if (!tel || tel.length < 8) { prestShowErr('errPrestTel', true); ok = false; } else prestShowErr('errPrestTel', false);
-  if (!email || !email.includes('@') || !email.includes('.')) { prestShowErr('errPrestEmail', true); ok = false; } else prestShowErr('errPrestEmail', false);
 
   if (!ok) return;
   prestGoTo(1);
@@ -546,29 +674,74 @@ function prestAutoResize(el) {
   el.style.height = el.scrollHeight + 'px';
 }
 
+/* ========== STEP 2 VALIDATION ========== */
+function prestValidStep2() {
+  var mapShown = document.getElementById('prestMapWrap').style.display !== 'none';
+  if (mapShown) {
+    var dir = document.getElementById('prestDireccion').value.trim();
+    var lat = document.getElementById('prestZonaLat').value;
+    if (!dir && !lat) { prestShowErr('errPrestZona', true); return; }
+    if (dir && !lat) document.getElementById('prestZonaTexto').value = dir;
+  } else {
+    var zonaEls = document.querySelectorAll('#prestZonaChips .prest-chip.sel');
+    if (zonaEls.length === 0) { prestShowErr('errPrestZona', true); return; }
+  }
+  prestShowErr('errPrestZona', false);
+  prestGoTo(3);
+}
+
 /* ========== SUBMIT ========== */
 async function prestEnviar() {
-  var zonaEls = document.querySelectorAll('#prestZonaChips .prest-chip.sel');
-  if (zonaEls.length === 0) { prestShowErr('errPrestZona', true); return; }
-  prestShowErr('errPrestZona', false);
+  var terminos = document.getElementById('prestTerminosCheck');
+  if (!terminos || !terminos.checked) { prestShowErr('errPrestTerminos', true); return; }
+  prestShowErr('errPrestTerminos', false);
 
   var btn = document.getElementById('prestEnviarBtn');
-  if (btn) { btn.disabled = true; btn.textContent = 'Enviando...'; }
+  if (btn) { btn.disabled = true; btn.textContent = 'Activando...'; }
 
   var nombre  = document.getElementById('prestNombre').value.trim();
   var telRaw  = document.getElementById('prestTel').value.replace(/\s/g, '');
-  var email   = document.getElementById('prestEmail').value.trim();
+  var emailEl = document.getElementById('prestEmail');
+  var email   = emailEl ? emailEl.value.trim() : '';
 
   var oficioEls = document.querySelectorAll('#prestOficioChips .prest-chip.sel');
-  var oficios = Array.from(oficioEls).map(function(c) { return c.getAttribute('data-value'); });
+  var oficios   = Array.from(oficioEls).map(function(c) { return c.getAttribute('data-value'); });
   var otroOficio = document.getElementById('prestOtroOficio').value.trim();
   var categorias = oficios.map(function(v) { return (v === 'otro' && otroOficio) ? otroOficio : v; }).filter(Boolean).join(', ');
 
-  var zonas = Array.from(zonaEls).map(function(c) { return c.getAttribute('data-value'); });
-  var otraZonaVal = document.getElementById('prestOtraZona').value.trim();
-  var zona = zonas.map(function(v) { return v === 'otra-zona' ? (otraZonaVal || 'otra zona') : v; }).join(', ');
+  var zonaTexto = document.getElementById('prestZonaTexto').value;
+  var zonaLat   = document.getElementById('prestZonaLat').value;
+  var zonaLng   = document.getElementById('prestZonaLng').value;
+  var zonaRadio = document.getElementById('prestZonaRadio').value;
+  if (!zonaTexto) {
+    var zonaEls   = document.querySelectorAll('#prestZonaChips .prest-chip.sel');
+    var zonas     = Array.from(zonaEls).map(function(c) { return c.getAttribute('data-value'); });
+    var otraZonaVal = document.getElementById('prestOtraZona').value.trim();
+    zonaTexto = zonas.map(function(v) { return v === 'otra-zona' ? (otraZonaVal || 'otra zona') : v; }).join(', ');
+  }
 
-  var bio = document.getElementById('prestBio').value.trim();
+  var bio        = document.getElementById('prestBio').value.trim();
+  var precioMin  = parseInt(document.getElementById('prestPrecioMin').value) || null;
+  var precioMax  = parseInt(document.getElementById('prestPrecioMax').value) || null;
+  var fotoBase64 = prestFotoData || null;
+
+  var payload = {
+    nombre:       nombre,
+    telefono:     '+549' + telRaw,
+    email:        email || null,
+    categorias:   categorias,
+    zona_texto:   zonaTexto || null,
+    zona_lat:     zonaLat ? parseFloat(zonaLat) : null,
+    zona_lng:     zonaLng ? parseFloat(zonaLng) : null,
+    zona_radio:   zonaRadio ? parseInt(zonaRadio) : null,
+    descripcion:  bio || null,
+    foto_base64:  fotoBase64,
+    precio_min:   precioMin,
+    precio_max:   precioMax,
+    tier:         'basico',
+    terminos_ok:  true,
+    terminos_ts:  new Date().toISOString()
+  };
 
   var WEBHOOK = 'https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-prestador';
   try {
@@ -577,22 +750,79 @@ async function prestEnviar() {
     await fetch(WEBHOOK, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        nombre: nombre,
-        telefono: '+549' + telRaw,
-        email: email,
-        categorias: categorias,
-        zona: zona,
-        descripcion: bio
-      }),
+      body: JSON.stringify(payload),
       signal: ctrl.signal
     });
   } catch(e) {}
 
-  prestGoTo(3);
+  prestGoTo(4);
+}
+
+/* ========== FOTO ========== */
+var prestFotoData = null;
+function prestFotoChange(input) {
+  var file = input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    prestFotoData = e.target.result;
+    var preview = document.getElementById('prestFotoPreview');
+    if (preview) preview.innerHTML = '<img src="' + e.target.result + '" style="width:100%;height:100%;object-fit:cover;">';
+  };
+  reader.readAsDataURL(file);
+}
+
+/* ========== MAP ========== */
+var prestMap = null, prestMarker = null, prestCircle = null;
+
+function prestInitMap() {
+  var cordoba = { lat: -31.4135, lng: -64.1811 };
+  prestMap = new google.maps.Map(document.getElementById('prestMap'), {
+    center: cordoba, zoom: 12,
+    disableDefaultUI: true, zoomControl: true
+  });
+  prestMarker = new google.maps.Marker({ map: prestMap, position: cordoba, visible: false });
+  prestCircle = new google.maps.Circle({
+    map: prestMap, center: cordoba, radius: 10000, visible: false,
+    fillColor: '#00C9A7', fillOpacity: 0.18,
+    strokeColor: '#00C9A7', strokeWeight: 1.5
+  });
+  document.getElementById('prestZonaChipsFallback').style.display = 'none';
+  document.getElementById('prestMapWrap').style.display = '';
+}
+
+function prestGeocode(cb) {
+  var dir = document.getElementById('prestDireccion').value.trim();
+  if (!dir) { if (cb) cb(); return; }
+  var geocoder = new google.maps.Geocoder();
+  geocoder.geocode({ address: dir + ', Córdoba, Argentina' }, function(results, status) {
+    if (status === 'OK' && results[0]) {
+      var loc = results[0].geometry.location;
+      document.getElementById('prestZonaLat').value = loc.lat();
+      document.getElementById('prestZonaLng').value = loc.lng();
+      document.getElementById('prestZonaTexto').value = results[0].formatted_address;
+      prestMarker.setPosition(loc); prestMarker.setVisible(true);
+      var r = parseInt(document.getElementById('prestRadioSlider').value) * 1000;
+      prestCircle.setCenter(loc); prestCircle.setRadius(r); prestCircle.setVisible(true);
+      prestMap.setCenter(loc); prestMap.fitBounds(prestCircle.getBounds());
+      prestClearErr('errPrestZona');
+    }
+    if (cb) cb();
+  });
+}
+
+function prestUpdateRadio() {
+  var km = document.getElementById('prestRadioSlider').value;
+  document.getElementById('prestRadioVal').textContent = km + ' km';
+  document.getElementById('prestZonaRadio').value = km;
+  if (prestCircle && prestCircle.getVisible()) {
+    prestCircle.setRadius(parseInt(km) * 1000);
+    if (prestMap) prestMap.fitBounds(prestCircle.getBounds());
+  }
 }
 </script>
 
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAlyXQU_W6Zi5sn1PhuHIJ1Qqf7aiBsOvc&callback=prestInitMap" async defer></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.net.min.js"></script>
 <script>
