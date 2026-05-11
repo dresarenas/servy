@@ -1255,7 +1255,7 @@ main { position: relative; z-index: 1; }
 .hero-eyebrow .sticker:hover { transform: rotate(2deg) scale(1.05); }
 .hero-eyebrow .sticker .pulse {
   width: 6px; height: 6px; border-radius: 50%;
-  background: var(--accent-ink);
+  background: #EF4444;
   animation: pulse 1.6s ease-in-out infinite;
 }
 @keyframes pulse {

@@ -117,7 +117,7 @@ textarea.prest-input { font-size:16px; font-weight:400; resize:none; min-height:
 /* ===== CHIPS ===== */
 .prest-chips { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px; }
 .prest-chip {
-  font-family:var(--f-sans); font-size:14px; font-weight:500;
+  font-family:var(--f-sans); font-size:16px; font-weight:500;
   color:var(--ink-dim); padding:10px 18px;
   border:1.5px solid var(--line-strong); border-radius:999px;
   background:transparent; cursor:pointer;
@@ -257,6 +257,18 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
 }
 .prest-section-label::after { content:''; flex:1; height:1px; background:var(--line-strong); }
 
+/* ===== PRIVACY NOTE ===== */
+.prest-privacy-note {
+  display:flex; align-items:flex-start; gap:8px;
+  background:color-mix(in srgb,var(--accent) 6%,var(--bg-elev));
+  border:1px solid color-mix(in srgb,var(--accent) 25%,transparent);
+  border-radius:12px; padding:12px 14px; margin:14px 0;
+  font-family:var(--f-sans); font-size:13px; line-height:1.5;
+  color:var(--ink-dim);
+}
+.prest-privacy-note svg { flex-shrink:0; margin-top:2px; color:var(--accent); }
+.prest-privacy-note span { color:var(--accent); font-weight:600; }
+
 </style>
 </head>
 <body class="loaded">
@@ -326,6 +338,11 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
         <div class="prest-err" id="errPrestTel">Ingresá un número de WhatsApp válido</div>
       </div>
 
+      <div class="prest-privacy-note">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Siempre serás el <span>propietario de tus datos</span>. Podrás modificarlos o borrarlos cuando lo desees.
+      </div>
+
       <div class="prest-spacer"></div>
     </div>
     <div class="prest-foot">
@@ -351,20 +368,20 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
 
       <div class="prest-section-label">Elegí uno o más rubros <span style="color:var(--accent)">*</span></div>
       <div class="prest-chips" id="prestOficioChips">
-        <button class="prest-chip" data-value="electricista">⚡ Electricista</button>
-        <button class="prest-chip" data-value="plomero">🔧 Plomero</button>
-        <button class="prest-chip" data-value="gasista">🔥 Gasista</button>
-        <button class="prest-chip" data-value="pintor">🎨 Pintor</button>
-        <button class="prest-chip" data-value="albanil">🧱 Albañil</button>
-        <button class="prest-chip" data-value="cerrajero">🔑 Cerrajero</button>
-        <button class="prest-chip" data-value="aire-acondicionado">❄️ Aire Acondicionado</button>
-        <button class="prest-chip" data-value="jardinero">🌿 Jardinero</button>
-        <button class="prest-chip" data-value="mudanza">📦 Mudanza / Flete</button>
-        <button class="prest-chip" data-value="limpieza">🧹 Limpieza</button>
-        <button class="prest-chip" data-value="carpintero">🪚 Carpintero</button>
-        <button class="prest-chip" data-value="mecanico">🔩 Mecánico</button>
-        <button class="prest-chip" data-value="tecnologia">💻 Tecnología</button>
-        <button class="prest-chip" data-value="otro">✏️ Otro...</button>
+        <button class="prest-chip" data-value="electricista">Electricista</button>
+        <button class="prest-chip" data-value="plomero">Plomero</button>
+        <button class="prest-chip" data-value="gasista">Gasista</button>
+        <button class="prest-chip" data-value="pintor">Pintor</button>
+        <button class="prest-chip" data-value="albanil">Albañil</button>
+        <button class="prest-chip" data-value="cerrajero">Cerrajero</button>
+        <button class="prest-chip" data-value="aire-acondicionado">Aire Acondicionado</button>
+        <button class="prest-chip" data-value="jardinero">Jardinero</button>
+        <button class="prest-chip" data-value="mudanza">Mudanza / Flete</button>
+        <button class="prest-chip" data-value="limpieza">Limpieza</button>
+        <button class="prest-chip" data-value="carpintero">Carpintero</button>
+        <button class="prest-chip" data-value="mecanico">Mecánico</button>
+        <button class="prest-chip" data-value="tecnologia">Tecnología</button>
+        <button class="prest-chip" data-value="otro">Otro...</button>
       </div>
       <div id="prestOtroOficioWrap" style="display:none; margin-top:10px;">
         <input type="text" class="prest-input" id="prestOtroOficio" placeholder="¿Cuál rubro?">
@@ -443,8 +460,8 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
         <span class="prest-dot active" data-s="2">3</span>
       </div>
 
-      <h1 class="prest-title">¿Querés agregar<br><span>más info</span>? <small class="prest-title-opcional">OPCIONAL</small></h1>
-      <p class="prest-sub">Los perfiles con más datos tienen mayor tasa de respuesta.</p>
+      <h1 class="prest-title">¿Querés agregar<br><span>más info</span>? <small class="prest-title-opcional">(OPCIONAL)</small></h1>
+      <p class="prest-sub">Más datos = más cantidad de propuestas.</p>
 
       <!-- FOTO -->
       <div class="prest-field">
@@ -456,7 +473,6 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
           <label class="prest-foto-btn" for="prestFotoInput">Subir foto</label>
           <input type="file" id="prestFotoInput" accept="image/*" style="display:none" onchange="prestFotoChange(this)">
         </div>
-        <div class="prest-hint">Con foto recibís más consultas</div>
       </div>
 
       <!-- EMAIL -->
@@ -464,7 +480,6 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
         <label class="prest-label">Email</label>
         <input type="email" class="prest-input" id="prestEmail" placeholder="tu@email.com"
           autocomplete="email" inputmode="email">
-        <div class="prest-hint">Para recibir notificaciones</div>
       </div>
 
       <!-- BIO -->
@@ -803,14 +818,16 @@ function prestInitMap() {
     center: cordoba, zoom: 12,
     disableDefaultUI: true, zoomControl: true
   });
-  prestMarker = new google.maps.Marker({ map: prestMap, position: cordoba, visible: false });
+  prestMarker = new google.maps.Marker({ map: prestMap, position: cordoba, visible: true });
   prestCircle = new google.maps.Circle({
-    map: prestMap, center: cordoba, radius: 10000, visible: false,
+    map: prestMap, center: cordoba, radius: 10000, visible: true,
     fillColor: '#00C9A7', fillOpacity: 0.18,
     strokeColor: '#00C9A7', strokeWeight: 1.5
   });
   document.getElementById('prestZonaChipsFallback').style.display = 'none';
   document.getElementById('prestMapWrap').style.display = '';
+  document.getElementById('prestDireccion').value = 'Córdoba, Argentina';
+  document.getElementById('prestZonaTexto').value = 'Córdoba, Argentina';
 }
 
 function prestGeocode(cb) {
@@ -868,6 +885,7 @@ function prestUpdateRadio() {
       var dots = (p !== 'bone');
       if (inst) { inst.setOptions({backgroundColor:bg, color:col, showDots:dots}); setTimeout(function(){ if(inst) inst.resize(); }, 80); }
     }).observe(document.documentElement, {attributes:true, attributeFilter:['data-palette']});
+    (function(){ var _p = document.documentElement.getAttribute('data-palette'); if (_p && _p !== 'midnight') { var _bg = _p==='bone' ? 0xEEEAE0 : (_p==='candy' ? 0x0f0e12 : 0x0e0f12); var _col = _p==='bone' ? 0x063a2a : (_p==='candy' ? 0xd5ff4a : 0x3ce6c5); var _dots = (_p !== 'bone'); if (inst) inst.setOptions({ backgroundColor: _bg, color: _col, showDots: _dots }); } })();
   }
   initPrestVanta();
 })();
