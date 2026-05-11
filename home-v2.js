@@ -180,6 +180,15 @@
     );
   }
 
+  /* ============ NAV ACTIVE PAGE ============ */
+  (function() {
+    var file = window.location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.nav-link[href]').forEach(function(a) {
+      var hfile = (a.getAttribute('href') || '').replace(/^\.\//, '').split('/').pop() || 'index.html';
+      if (hfile === file) a.classList.add('active');
+    });
+  })();
+
   // Click on a search tag fills the input
   document.querySelectorAll('[data-tag]').forEach(tag => {
     tag.addEventListener('click', (e) => {

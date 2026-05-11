@@ -8,6 +8,14 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="home-v2.css">
+<script>
+(function(){
+  try {
+    var t = JSON.parse(localStorage.getItem('servy-v2-tweaks') || '{}');
+    if (t.palette) document.documentElement.setAttribute('data-palette', t.palette);
+  } catch(e) {}
+})();
+</script>
 <style>
 /* ===== WIZARD STEPS ===== */
 .rec-wiz { position:fixed; inset:0; overflow:hidden; z-index:1; }
@@ -578,7 +586,7 @@ function recValidStep0() {
   var tel = document.getElementById('recTel').value.replace(/\s/g, '');
   var ok = true;
   if (!nombre) { recShowErr('errNombre', true); ok = false; } else recShowErr('errNombre', false);
-  if (!tel || tel.length < 8) { recShowErr('errTel', true); ok = false; } else recShowErr('errTel', false);
+  if (!tel || tel.length < 10) { recShowErr('errTel', true); ok = false; } else recShowErr('errTel', false);
   if (!recStars) { recShowErr('errEstrellas', true); ok = false; } else recShowErr('errEstrellas', false);
   if (!ok) return;
   document.getElementById('nombreDisplay1').textContent = nombre;
@@ -822,7 +830,7 @@ async function recEnviar() {
   var esDuplicado = false;
   try {
     var ctrl = new AbortController();
-    setTimeout(function() { ctrl.abort(); }, 6000);
+    setTimeout(function() { ctrl.abort(); }, 12000);
     var res = await fetch(WEBHOOK, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -836,8 +844,8 @@ async function recEnviar() {
         estrellas:               recStars,
         comentario:              resenya,
         relacion:                relacion,
-        quien_recomienda_nombre: '',
-        quien_recomienda_tel:    ''
+        quien_recomienda_nombre: null,
+        quien_recomienda_tel:    null
       }),
       signal: ctrl.signal
     });

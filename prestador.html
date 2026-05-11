@@ -8,6 +8,14 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="home-v2.css">
+<script>
+(function(){
+  try {
+    var t = JSON.parse(localStorage.getItem('servy-v2-tweaks') || '{}');
+    if (t.palette) document.documentElement.setAttribute('data-palette', t.palette);
+  } catch(e) {}
+})();
+</script>
 <style>
 /* ===== WIZARD STEPS ===== */
 .prest-wiz { position:fixed; inset:0; overflow:hidden; z-index:1; }
@@ -590,6 +598,10 @@ function prestGoTo(n) {
     if (!isNaN(li)) l.classList.toggle('done', li < n);
   });
   prestCurrent = n;
+  if (n === 3) {
+    var btn3 = document.getElementById('prestEnviarBtn');
+    if (btn3) { btn3.disabled = false; btn3.textContent = 'Verificar mi perfil'; }
+  }
   if (n === 4) {
     setTimeout(function() {
       var icon = document.querySelector('.prest-success-icon');
@@ -767,14 +779,17 @@ async function prestEnviar() {
   var WEBHOOK = 'https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-prestador';
   try {
     var ctrl = new AbortController();
-    setTimeout(function() { ctrl.abort(); }, 6000);
+    setTimeout(function() { ctrl.abort(); }, 12000);
     await fetch(WEBHOOK, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
       signal: ctrl.signal
     });
-  } catch(e) {}
+  } catch(e) {
+    if (btn) { btn.disabled = false; btn.textContent = 'Verificar mi perfil'; }
+    return;
+  }
 
   prestGoTo(4);
 }
@@ -806,6 +821,7 @@ var prestFotoData = null;
 function prestFotoChange(input) {
   var file = input.files[0];
   if (!file) return;
+  if (file.size > 500000) { alert('La foto no puede superar 500 KB.'); return; }
   var reader = new FileReader();
   reader.onload = function(e) {
     prestFotoData = e.target.result;
