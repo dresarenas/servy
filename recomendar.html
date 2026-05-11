@@ -411,6 +411,7 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
       <div id="oficioOtroWrap" style="display:none; margin-top:10px;">
         <input type="text" class="rec-input" id="otroOficioInput" placeholder="¿Cuál servicio?">
       </div>
+      <div class="rec-err" id="errRecOtroOficio" style="margin-top:6px;">Escribí el nombre del rubro antes de continuar.</div>
       <div class="rec-err" id="errOficio" style="margin-top:8px;">Seleccioná al menos un rubro</div>
 
       <div class="rec-spacer"></div>
@@ -489,6 +490,7 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
         <button class="rec-back" onclick="recPrev()">← Volver</button>
         <button class="rec-cta" id="recEnviarBtn" onclick="recEnviar()">Enviar recomendación <span class="btn-arr"></span></button>
       </div>
+      <div class="rec-err" id="errRecSubmit" style="margin-top:8px;text-align:center;">No pudimos enviar. Verificá tu conexión e intentá nuevamente.</div>
     </div>
   </div>
 
@@ -519,6 +521,7 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
 <script>
 /* ========== STATE ========== */
 var recCurrent = 0;
+var recSubmitRetries = 0;
 var recStars = 0;
 
 /* ========== NAVIGATION ========== */
@@ -566,6 +569,11 @@ function recValidStep1() {
   var sel = document.querySelectorAll('#oficioChips .rec-chip.sel');
   if (sel.length === 0) { recShowErr('errOficio', true); return; }
   recShowErr('errOficio', false);
+  var otroSel = document.querySelector('#oficioChips .rec-chip[data-value="otro"].sel');
+  if (otroSel && !document.getElementById('otroOficioInput').value.trim()) {
+    recShowErr('errRecOtroOficio', true); return;
+  }
+  recShowErr('errRecOtroOficio', false);
   recGoTo(2);
 }
 
@@ -586,7 +594,8 @@ function recValidStep0() {
   var tel = document.getElementById('recTel').value.replace(/\s/g, '');
   var ok = true;
   if (!nombre) { recShowErr('errNombre', true); ok = false; } else recShowErr('errNombre', false);
-  if (!tel || tel.length < 10) { recShowErr('errTel', true); ok = false; } else recShowErr('errTel', false);
+  var telOk = /^\d{10,11}$/.test(tel) && !/^(\d)\1+$/.test(tel);
+  if (!telOk) { recShowErr('errTel', true); ok = false; } else recShowErr('errTel', false);
   if (!recStars) { recShowErr('errEstrellas', true); ok = false; } else recShowErr('errEstrellas', false);
   if (!ok) return;
   document.getElementById('nombreDisplay1').textContent = nombre;
@@ -853,8 +862,19 @@ async function recEnviar() {
       var data = await res.json().catch(function() { return {}; });
       esDuplicado = !!data.duplicado;
     }
-  } catch(e) {}
+  } catch(e) {
+    recSubmitRetries++;
+    if (recSubmitRetries >= 3) {
+      recSubmitRetries = 0;
+    } else {
+      if (btn) { btn.disabled = false; btn.textContent = 'Enviar recomendación'; }
+      recShowErr('errRecSubmit', true);
+      return;
+    }
+  }
 
+  recSubmitRetries = 0;
+  recShowErr('errRecSubmit', false);
   if (esDuplicado) {
     document.getElementById('recGraciasTitle').innerHTML = '¡Ya estaba<br>en <span>SERVY</span>!';
     document.getElementById('recGraciasSub').textContent = 'Este prestador ya fue recomendado. ¡Sumamos tu reseña!';
