@@ -278,16 +278,19 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   transition: opacity 0.25s;
 }
 .nav-link:hover { opacity: 1; }
-.nav-link.active { opacity: 1; color: #fff; font-weight: 700; }
-.nav-link.active::before {
-  content: '';
-  position: absolute;
-  left: 16px; right: 16px; bottom: 6px;
-  height: 2px; background: #fff;
-  border-radius: 1px;
+.nav-link.active {
+  opacity: 1 !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+  text-decoration: underline;
+  text-underline-offset: 5px;
+  text-decoration-thickness: 2px;
+  text-decoration-color: rgba(255,255,255,0.85);
 }
-[data-palette="bone"] .nav-link.active { color: var(--accent); }
-[data-palette="bone"] .nav-link.active::before { background: var(--accent); }
+[data-palette="bone"] .nav-link.active {
+  color: var(--accent) !important;
+  text-decoration-color: var(--accent);
+}
 
 .nav-time {
   font-family: var(--f-mono);
