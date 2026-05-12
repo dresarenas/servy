@@ -967,6 +967,7 @@
       </div>
 
       <div class="results-view" id="wizResultsView">
+        <div id="wizDemoNote" style="display:none;margin-bottom:12px;padding:8px 12px;border-radius:8px;background:rgba(255,200,0,0.12);border:1px solid rgba(255,200,0,0.3);font-family:var(--f-mono);font-size:11px;color:rgba(255,200,80,0.9);text-align:center;letter-spacing:.03em;">No pudimos conectarnos al servidor. Mostrando resultados de ejemplo.</div>
         <div class="results-header-row">
           <span class="results-count-label">Encontrados</span>
           <span class="results-count" id="wizResultsCount">—</span>
@@ -979,7 +980,9 @@
             <input id="wizNoResultsWA" type="tel" placeholder="Tu WhatsApp (ej: 351 123 4567)">
             <button onclick="wizEnviarWA()">Avisar</button>
           </div>
-          <p style="font-family:var(--f-mono);font-size:11px;color:var(--ink-mute);">¿Conocés a alguien? <a href="recomendar.html" style="color:var(--accent);text-decoration:none;">Recomendalo acá</a></p>
+          <a href="recomendar.html" class="wiz-cta" style="display:inline-flex;align-items:center;gap:6px;margin-top:4px;font-size:14px;padding:10px 22px;text-decoration:none;">
+            ¿Conocés a alguien? Recomendalo <span class="btn-arr"></span>
+          </a>
         </div>
       </div>
 
@@ -1035,6 +1038,7 @@ var WEBHOOK_WHISPER    = 'https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-wh
 
 /* ---- STATE ---- */
 var wizState = { descripcion: null, oficio: null, zonaText: '', tiempo: null, prestadores: [] };
+var wizIsDemoData = false;
 var wizCurrent = 0;
 
 /* ---- NAVIGATION ---- */
@@ -1416,11 +1420,11 @@ async function wizBuscar() {
   var zoAddr = wizState.zonaText ? (wizState.zonaText.length > 28 ? wizState.zonaText.substring(0,28)+'…' : wizState.zonaText) : 'tu zona';
   sum.innerHTML = 'Buscamos <strong>' + ofStr + '</strong> cerca de <strong>' + zoAddr + '</strong>';
   var payload = { descripcion: wizState.descripcion, oficio: wizState.oficio, zona: wizState.zonaText, tiempo: wizState.tiempo };
-  var prestadores = [];
+  var prestadores = []; wizIsDemoData = false;
   try {
     var res = await fetch(WEBHOOK_BUSQUEDA, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-    if (res.ok) prestadores = await res.json(); else prestadores = getDemoPrestadores();
-  } catch(e) { prestadores = getDemoPrestadores(); }
+    if (res.ok) prestadores = await res.json(); else { prestadores = getDemoPrestadores(); wizIsDemoData = true; }
+  } catch(e) { prestadores = getDemoPrestadores(); wizIsDemoData = true; }
   wizState.prestadores = prestadores;
   wizRenderResults(prestadores);
 }
@@ -1442,6 +1446,8 @@ function wizRenderResults(prestadores) {
   document.getElementById('wizLoading').classList.remove('visible');
   document.getElementById('wizResultsView').classList.add('visible');
   document.getElementById('wizResultsCount').textContent = prestadores.length;
+  var demoNote = document.getElementById('wizDemoNote');
+  if (demoNote) demoNote.style.display = wizIsDemoData ? '' : 'none';
   var grid = document.getElementById('wizResultsGrid'); grid.innerHTML = '';
   if (prestadores.length === 0) { document.getElementById('wizNoResults').style.display = ''; return; }
   document.getElementById('wizNoResults').style.display = 'none';
