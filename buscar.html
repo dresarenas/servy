@@ -2,6 +2,7 @@
 <html lang="es" data-palette="midnight">
 <head>
 <meta charset="UTF-8">
+  <link rel="icon" href="assets/servy-circle.png" type="image/png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SERVY — Buscar prestador</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1352,7 +1353,7 @@ function wizInitMap() {
   wrap.style.cssText = 'height:180px;display:flex;align-items:center;justify-content:center;background:var(--bg-elev);color:var(--ink-mute);font-family:var(--f-mono);font-size:12px;border-radius:12px;';
   wrap.textContent = 'Cargando mapa...';
   var s = document.createElement('script');
-  s.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyAlyXQU_W6Zi5sn1PhuHIJ1Qqf7aiBsOvc';
+  s.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyAlyXQU_W6Zi5sn1PhuHIJ1Qqf7aiBsOvc&loading=async';
   s.onload = _create; document.head.appendChild(s);
 }
 
