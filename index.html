@@ -4,13 +4,89 @@
 <meta charset="UTF-8">
   <link rel="icon" href="assets/servy-circle.png" type="image/png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SERVY — Encontrá prestadores confiables</title>
+<title>SERVY — Plomeros, Electricistas y Más en Córdoba</title>
+<meta name="description" content="SERVY — Encontrá plomeros, electricistas, gasistas y más en Córdoba. Directorio de prestadores del hogar verificados. Gratis.">
+<link rel="canonical" href="https://servy.ar/">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="SERVY — Plomeros, Electricistas y Más en Córdoba">
+<meta property="og:description" content="El directorio de prestadores del hogar verificados en Córdoba. Encontrá al profesional que necesitás en 3 pasos. Gratis.">
+<meta property="og:image" content="https://servy.ar/assets/servy-og.png">
+<meta property="og:url" content="https://servy.ar/">
+<meta property="og:locale" content="es_AR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="SERVY — Plomeros, Electricistas y Más en Córdoba">
+<meta name="twitter:description" content="El directorio de prestadores del hogar verificados en Córdoba. Gratis.">
+<meta name="twitter:image" content="https://servy.ar/assets/servy-og.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="home-v2.css">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "name": "SERVY",
+      "url": "https://servy.ar",
+      "logo": "https://servy.ar/assets/servy-full.png",
+      "description": "Directorio de prestadores del hogar verificados en Córdoba, Argentina. Plomeros, electricistas, gasistas, pintores y más.",
+      "areaServed": {
+        "@type": "City",
+        "name": "Córdoba",
+        "addressCountry": "AR"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer support",
+        "availableLanguage": "Spanish"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "¿Cómo encontrar un plomero confiable en Córdoba?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "En SERVY podés buscar plomeros verificados en Córdoba por zona y tipo de problema. Todos los prestadores son verificados uno a uno antes de aparecer en el directorio."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Es gratis usar SERVY?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Sí, SERVY es completamente gratuito para quienes buscan prestadores del hogar en Córdoba."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Qué servicios del hogar puedo encontrar en SERVY?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "En SERVY encontrás plomeros, electricistas, gasistas matriculados, pintores, albañiles, carpinteros, jardineros y más prestadores verificados en Córdoba."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Cómo me sumo al directorio SERVY como prestador?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Podés sumarte completando el formulario en servy.ar/prestador.html. El equipo de SERVY verifica tu perfil antes de publicarlo."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
 </head>
 <body>
 
@@ -77,17 +153,17 @@
       </h1>
 
       <!-- VARIANT 2 · EDITORIAL (hidden by default) -->
-      <h1 class="hero-title" data-variant="editorial" style="display:none;">
+      <div class="hero-title" data-variant="editorial" style="display:none;">
         <span class="line"><span style="--d:0.15s">Encontrá</span></span>
         <span class="line"><span style="--d:0.22s"><i class="it">prestadores</i></span></span>
         <span class="line"><span style="--d:0.30s">confiables<span class="accent-dot" aria-hidden="true"></span></span></span>
-      </h1>
+      </div>
 
       <!-- VARIANT 3 · MINIMAL (hidden) -->
-      <h1 class="hero-title" data-variant="minimal" style="display:none; font-size: clamp(40px, 7vw, 120px);">
-        <span class="line"><span style="--d:0.15s">El Google Maps</span></span>
+      <div class="hero-title" data-variant="minimal" style="display:none; font-size: clamp(40px, 7vw, 120px);">
+        <span class="line"><span style="--d:0.15s">El mapa</span></span>
         <span class="line"><span style="--d:0.25s"><i class="it">de los oficios</i><span class="accent-dot" aria-hidden="true"></span></span></span>
-      </h1>
+      </div>
 
       <!-- Search -->
       <form class="search" action="buscar.html" method="get">
