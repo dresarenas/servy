@@ -732,21 +732,20 @@
   var _col0=_p0==='bone'?0x063a2a:(_p0==='candy'?0xd5ff4a:0x3ce6c5);
   var _bg0=_p0==='bone'?0xEEEAE0:(_p0==='candy'?0x0f0e12:0x0e0f12);
   var _dots0=(_p0!=='bone');
-  var _mob = window.innerWidth < 820;
   var vantaInst = VANTA.NET({
     el: '#hero-vanta',
-    mouseControls: !_mob,
+    mouseControls: true,
     touchControls: true,
     gyroControls: false,
     minHeight: 200.00,
     minWidth: 200.00,
     scale: 1.00,
-    scaleMobile: 0.75,
+    scaleMobile: 1.00,
     color: _col0,
     backgroundColor: _bg0,
-    points: _mob ? 4.00 : 9.00,
-    maxDistance: _mob ? 14.00 : 22.00,
-    spacing: _mob ? 22.00 : 18.00,
+    points: 9.00,
+    maxDistance: 22.00,
+    spacing: 18.00,
     showDots: _dots0
   });
   // Apply current palette on load (in case user is already in bone/candy mode)
