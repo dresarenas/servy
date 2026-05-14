@@ -73,7 +73,7 @@
       const loader = document.querySelector('.loader');
       if (loader) loader.classList.add('gone');
       document.body.classList.add('loaded');
-    }, 1400);
+    }, 600);
   });
 
   /* ============ SCROLL REVEALS ============ */
