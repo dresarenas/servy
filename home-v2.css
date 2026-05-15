@@ -1457,7 +1457,7 @@ main { position: relative; z-index: 1; }
 }
 .search-float-pill:hover { background: var(--ink); transform: translateY(-2px); }
 @media (max-width: 820px) {
-  .search-float { bottom: 20px; left: 16px; right: 16px; transform: translateY(90px); width: auto; }
+  .search-float { bottom: 84px; left: 16px; right: 16px; transform: translateY(90px); width: auto; }
   .search-float.visible { transform: translateY(0); }
   .search-float-pill { font-size: 15px; padding: 18px 24px; }
 }

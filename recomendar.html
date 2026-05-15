@@ -278,6 +278,7 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
 .rec-title-opcional { font-size:0.38em; font-weight:700; color:var(--ink-mute); letter-spacing:.1em; text-transform:uppercase; vertical-align:middle; margin-left:4px; }
 /* Mobile: boton WA dentro del wizard */
 #mobileWASection { display: none; }
+#recVolverWALink { display: none; }
 .rec-mobile-btn {
   display: flex; align-items: center; gap: 10px;
   width: 100%; justify-content: center;
@@ -302,12 +303,12 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
   #recWiz.show-form #mobileWASection { display: none !important; }
   #recWiz.show-form .rec-dots { display: flex !important; }
   #recWiz.show-form .rec-sub { display: block !important; }
-  #recWiz.show-form .rec-import-box { display: flex !important; }
   #recWiz.show-form #recFormFields { display: block !important; }
   #recWiz.show-form #recStarsRow { display: flex !important; }
   #recWiz.show-form #recStarLabel { display: block !important; }
   #recWiz.show-form .rec-spacer { display: block !important; }
   #recWiz.show-form .rec-foot { display: block !important; }
+  #recWiz.show-form #recVolverWALink { display: block !important; }
 }
 </style>
 </head>
@@ -388,6 +389,8 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
         </button>
         <a class="rec-mobile-form-link" onclick="recMostrarFormulario()">↓ Prefiero completar el formulario manualmente</a>
       </div>
+
+      <a id="recVolverWALink" class="rec-mobile-form-link" onclick="recVolverWA()" style="margin-bottom:12px;">← Volver a adjuntar por WhatsApp</a>
 
       <div id="recFormFields">
         <div class="rec-field">
@@ -993,6 +996,9 @@ function recAbrirWA() {
 }
 function recMostrarFormulario() {
   document.getElementById('recWiz').classList.add('show-form');
+}
+function recVolverWA() {
+  document.getElementById('recWiz').classList.remove('show-form');
 }
 </script>
 </body>
