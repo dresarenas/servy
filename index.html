@@ -827,7 +827,11 @@
     var col = p === 'bone' ? 0x063a2a : (p === 'candy' ? 0xd5ff4a : 0x3ce6c5);
     var dots = (p !== 'bone');
     var _heroEl = document.getElementById('hero-vanta');
-    if (_heroEl) _heroEl.style.background = p === 'bone' ? '#EEEAE0' : (p === 'candy' ? '#0f0e12' : '#0e0f12');
+    var _targetBg = p === 'bone' ? '#EEEAE0' : (p === 'candy' ? '#0f0e12' : '#0e0f12');
+    if (_heroEl) _heroEl.style.background = _targetBg;
+    document.body.style.transition = 'none';
+    document.body.style.background = _targetBg;
+    document.documentElement.style.background = _targetBg;
     if (vantaInst) { vantaInst.destroy(); }
     vantaInst = VANTA.NET({
       el: '#hero-vanta',
@@ -836,6 +840,7 @@
       color: col, backgroundColor: bg,
       points: 9, maxDistance: 22, spacing: 18, showDots: dots
     });
+    setTimeout(function() { document.body.style.transition = ''; document.body.style.background = ''; document.documentElement.style.background = ''; }, 50);
   }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-palette'] });
 </script>
 </body>
