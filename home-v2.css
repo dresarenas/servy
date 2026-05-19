@@ -1556,7 +1556,7 @@ main { position: relative; z-index: 1; }
 
 /* ========== VANTA: opacity + light theme ========== */
 #hero-vanta canvas {
-  opacity: 0.38 !important;
+  opacity: 1 !important;
 }
 [data-palette="bone"] #hero-vanta canvas { opacity: 1 !important; mix-blend-mode: normal; }
 
