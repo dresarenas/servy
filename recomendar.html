@@ -967,6 +967,7 @@ document.querySelectorAll('.rec-step:not(.active)').forEach(function(s) { s.iner
       color:_col0, backgroundColor:_bg0,
       points:9, maxDistance:22, spacing:18, showDots:(_p0!=='bone')
     });
+    setTimeout(function() { if (inst) inst.resize(); }, 200);
     new MutationObserver(function() {
       var p = document.documentElement.getAttribute('data-palette');
       var bg   = p==='bone' ? 0xEEEAE0 : (p==='candy' ? 0x0f0e12 : 0x0e0f12);
