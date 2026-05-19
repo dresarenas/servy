@@ -826,6 +826,8 @@
     var bg = p === 'bone' ? 0xEEEAE0 : (p === 'candy' ? 0x0f0e12 : 0x0e0f12);
     var col = p === 'bone' ? 0x063a2a : (p === 'candy' ? 0xd5ff4a : 0x3ce6c5);
     var dots = (p !== 'bone');
+    var _heroEl = document.getElementById('hero-vanta');
+    if (_heroEl) _heroEl.style.background = p === 'bone' ? '#EEEAE0' : (p === 'candy' ? '#0f0e12' : '#0e0f12');
     if (vantaInst) { vantaInst.destroy(); }
     vantaInst = VANTA.NET({
       el: '#hero-vanta',
