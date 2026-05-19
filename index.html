@@ -826,9 +826,14 @@
     var bg = p === 'bone' ? 0xEEEAE0 : (p === 'candy' ? 0x0f0e12 : 0x0e0f12);
     var col = p === 'bone' ? 0x063a2a : (p === 'candy' ? 0xd5ff4a : 0x3ce6c5);
     var dots = (p !== 'bone');
-    if (vantaInst) {
-    vantaInst.setOptions({ backgroundColor: bg, color: col, showDots: dots });
-  }
+    if (vantaInst) { vantaInst.destroy(); }
+    vantaInst = VANTA.NET({
+      el: '#hero-vanta',
+      mouseControls: true, touchControls: true, gyroControls: false,
+      minHeight: 200, minWidth: 200, scale: 1, scaleMobile: 1,
+      color: col, backgroundColor: bg,
+      points: 9, maxDistance: 22, spacing: 18, showDots: dots
+    });
   }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-palette'] });
 </script>
 </body>
