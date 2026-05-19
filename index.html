@@ -798,7 +798,7 @@
 <script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.net.min.js"></script>
 <script>
   var _p0=document.documentElement.getAttribute('data-palette')||'midnight';
-  var _col0=_p0==='bone'?0x063a2a:(_p0==='candy'?0xd5ff4a:0x3ce6c5);
+  var _col0=_p0==='bone'?0x3aaf92:(_p0==='candy'?0xd5ff4a:0x3ce6c5);
   var _dots0=(_p0!=='bone');
   var vantaInst = VANTA.NET({
     el: '#hero-vanta',
@@ -820,7 +820,7 @@
   // Update Vanta colors when palette changes
   new MutationObserver(function() {
     var p = document.documentElement.getAttribute('data-palette');
-    var col = p === 'bone' ? 0x063a2a : (p === 'candy' ? 0xd5ff4a : 0x3ce6c5);
+    var col = p === 'bone' ? 0x3aaf92 : (p === 'candy' ? 0xd5ff4a : 0x3ce6c5);
     var dots = (p !== 'bone');
     if (vantaInst) { vantaInst.destroy(); }
     vantaInst = VANTA.NET({
