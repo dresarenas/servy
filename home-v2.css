@@ -73,7 +73,7 @@ body {
   overflow-x: hidden;
   min-height: 100vh;
   cursor: default;
-  transition: background 0.7s var(--ease-out), color 0.7s var(--ease-out);
+  transition: color 0.7s var(--ease-out);
   position: relative;
   overscroll-behavior-y: none;
 }
