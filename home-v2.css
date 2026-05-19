@@ -1554,11 +1554,11 @@ main { position: relative; z-index: 1; }
 .pill[href*="wa.me"] { border-color: #25D366 !important; }
 .pill[href*="wa.me"]:hover { background: rgba(37,211,102,0.08); }
 
-/* ========== VANTA: opacity + light theme ========== */
-#hero-vanta canvas {
+/* ========== VANTA: canvas transparente, bg via CSS ========== */
+#hero-vanta canvas, #wizVanta canvas, #prestVanta canvas, #recVanta canvas {
   opacity: 1 !important;
 }
-[data-palette="bone"] #hero-vanta canvas { opacity: 1 !important; mix-blend-mode: normal; }
+#hero-vanta, #wizVanta, #prestVanta, #recVanta { background: var(--bg); }
 
 /* Hero explicit bg so it matches page in all palettes */
 .hero { background: var(--bg); }

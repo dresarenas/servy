@@ -917,18 +917,16 @@ function prestUpdateRadio() {
     if (typeof VANTA === 'undefined' || !VANTA.NET) { setTimeout(initPrestVanta, 100); return; }
     var _p0 = document.documentElement.getAttribute('data-palette') || 'midnight';
     var _col0 = _p0==='bone' ? 0x063a2a : (_p0==='candy' ? 0xd5ff4a : 0x3ce6c5);
-    var _bg0  = _p0==='bone' ? 0xEEEAE0 : (_p0==='candy' ? 0x0f0e12 : 0x0e0f12);
     var inst = VANTA.NET({
       el: '#prestVanta',
       mouseControls:true, touchControls:true, gyroControls:false,
       minHeight:200, minWidth:200, scale:1, scaleMobile:1,
-      color:_col0, backgroundColor:_bg0,
+      color:_col0, backgroundAlpha:0,
       points:9, maxDistance:22, spacing:18, showDots:(_p0!=='bone')
     });
     setTimeout(function() { if (inst) inst.resize(); }, 200);
     new MutationObserver(function() {
       var p = document.documentElement.getAttribute('data-palette');
-      var bg   = p==='bone' ? 0xEEEAE0 : (p==='candy' ? 0x0f0e12 : 0x0e0f12);
       var col  = p==='bone' ? 0x063a2a : (p==='candy' ? 0xd5ff4a : 0x3ce6c5);
       var dots = (p !== 'bone');
       if (inst) { inst.destroy(); }
@@ -936,11 +934,10 @@ function prestUpdateRadio() {
         el: '#prestVanta',
         mouseControls:true, touchControls:true, gyroControls:false,
         minHeight:200, minWidth:200, scale:1, scaleMobile:1,
-        color:col, backgroundColor:bg,
-        points:9, maxDistance:22, spacing:18, showDots:(bg!==0xEEEAE0)
+        color:col, backgroundAlpha:0,
+        points:9, maxDistance:22, spacing:18, showDots:dots
       });
     }).observe(document.documentElement, {attributes:true, attributeFilter:['data-palette']});
-    (function(){ var _p = document.documentElement.getAttribute('data-palette'); if (_p && _p !== 'midnight') { var _bg = _p==='bone' ? 0xEEEAE0 : (_p==='candy' ? 0x0f0e12 : 0x0e0f12); var _col = _p==='bone' ? 0x063a2a : (_p==='candy' ? 0xd5ff4a : 0x3ce6c5); var _dots = (_p !== 'bone'); if (inst) inst.setOptions({ backgroundColor: _bg, color: _col, showDots: _dots }); } })();
   }
   initPrestVanta();
 })();
