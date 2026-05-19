@@ -1801,3 +1801,18 @@ main { position: relative; z-index: 1; }
   .wiz-foot { padding-bottom: 72px !important; }
   .prest-foot { padding-bottom: 72px !important; }
 }
+
+.footer-legal {
+  width: 100%;
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--ink-mute);
+  padding: 0.75rem 1rem 0.25rem;
+  border-top: 1px solid var(--line);
+  margin-top: 1.5rem;
+}
+.footer-legal a {
+  color: var(--ink-mute);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
