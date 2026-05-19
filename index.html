@@ -828,7 +828,6 @@
     var dots = (p !== 'bone');
     if (vantaInst) {
     vantaInst.setOptions({ backgroundColor: bg, color: col, showDots: dots });
-    setTimeout(function(){ if (vantaInst) vantaInst.resize(); }, 80);
   }
   }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-palette'] });
 </script>

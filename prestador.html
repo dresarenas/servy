@@ -931,7 +931,7 @@ function prestUpdateRadio() {
       var bg   = p==='bone' ? 0xEEEAE0 : (p==='candy' ? 0x0f0e12 : 0x0e0f12);
       var col  = p==='bone' ? 0x063a2a : (p==='candy' ? 0xd5ff4a : 0x3ce6c5);
       var dots = (p !== 'bone');
-      if (inst) { inst.setOptions({backgroundColor:bg, color:col, showDots:dots}); setTimeout(function(){ if(inst) inst.resize(); }, 80); }
+      if (inst) { inst.setOptions({backgroundColor:bg, color:col, showDots:dots}); }
     }).observe(document.documentElement, {attributes:true, attributeFilter:['data-palette']});
     (function(){ var _p = document.documentElement.getAttribute('data-palette'); if (_p && _p !== 'midnight') { var _bg = _p==='bone' ? 0xEEEAE0 : (_p==='candy' ? 0x0f0e12 : 0x0e0f12); var _col = _p==='bone' ? 0x063a2a : (_p==='candy' ? 0xd5ff4a : 0x3ce6c5); var _dots = (_p !== 'bone'); if (inst) inst.setOptions({ backgroundColor: _bg, color: _col, showDots: _dots }); } })();
   }
