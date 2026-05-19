@@ -229,6 +229,7 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
 .prest-terms-box { background:color-mix(in srgb,var(--ink) 4%,transparent); border:1px solid var(--line-strong); border-radius:14px; padding:18px; margin-bottom:20px; }
 .prest-terms-value { font-family:var(--f-sans); font-size:15px; color:var(--ink); margin-bottom:18px; line-height:1.65; }
 .prest-terms-disclaimer { font-family:var(--f-mono); font-size:11px; color:var(--ink-mute); line-height:1.7; letter-spacing:.02em; border-top:1px solid var(--line-strong); padding-top:14px; }
+@media (max-width:600px) { .prest-terms-disclaimer { font-size:13px; } }
 .prest-check-row { display:flex; align-items:flex-start; gap:12px; cursor:pointer; }
 .prest-check-row input[type=checkbox] { width:20px; height:20px; flex-shrink:0; accent-color:var(--accent); margin-top:1px; cursor:pointer; }
 .prest-check-label { font-family:var(--f-sans); font-size:14px; color:var(--ink-dim); line-height:1.5; cursor:pointer; }
@@ -274,7 +275,7 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
   background:color-mix(in srgb,var(--accent) 6%,var(--bg-elev));
   border:1px solid color-mix(in srgb,var(--accent) 25%,transparent);
   border-radius:12px; padding:12px 14px; margin:14px 0;
-  font-family:var(--f-sans); font-size:13px; line-height:1.5;
+  font-family:var(--f-sans); font-size:15px; line-height:1.5;
   color:var(--ink-dim);
 }
 .prest-privacy-note svg { flex-shrink:0; margin-top:2px; color:var(--accent); }
@@ -404,6 +405,7 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
       <div class="prest-err" id="errPrestOficio" style="margin-top:8px;">Elegí al menos un rubro</div>
 
       <div class="prest-section-label" style="margin-top:24px;">Zona de cobertura <span style="color:var(--accent)">*</span></div>
+      <p style="font-family:var(--f-sans);font-size:13px;color:var(--ink-mute);margin:4px 0 12px;line-height:1.5;">¿En qué zonas o barrios de Córdoba desarrollás tu actividad?</p>
 
       <!-- MAP (shown when Google Maps loads) -->
       <div id="prestMapWrap" style="display:none;">
@@ -525,7 +527,7 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
     <div class="prest-content">
 
       <h1 class="prest-title">¡Un último<br><span>paso</span>!</h1>
-      <p class="prest-sub">Una vez que envíes tu info, te vamos a contactar por WhatsApp para verificar tus datos y activar tu perfil en SERVY.</p>
+      <p class="prest-sub">Te vamos a contactar por WhatsApp para verificar tus datos y activar tu perfil en SERVY.</p>
 
       <div class="prest-terms-box">
         <div class="prest-terms-disclaimer" style="border-top:none; padding-top:0;">

@@ -189,6 +189,7 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
   margin-bottom:24px;
 }
 .rec-success-actions { display:flex; flex-direction:column; gap:10px; width:100%; margin-top:20px; }
+.rec-foot .rec-wa-share { margin-top:8px; }
 .rec-wa-share {
   display:flex; align-items:center; justify-content:center; gap:8px;
   width:100%; padding:12px; border:1px solid rgba(37,211,102,.35);
@@ -203,6 +204,8 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
 @media (max-width:600px) {
   .rec-content { padding:96px 20px 0; }
   .rec-foot { padding:16px 20px calc(20px + env(safe-area-inset-bottom)); }
+  #rs3 .rec-foot { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
+  #rs3 .rec-content { padding-top: 60px; }
   .rec-title { font-size:10vw; }
 }
 
@@ -396,8 +399,8 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
 
       <div id="recFormFields">
         <div class="rec-field">
-          <label class="rec-label">Nombre y apellido <span style="color:var(--accent)">*</span></label>
-          <input type="text" class="rec-input" id="recNombre" placeholder="Ej: Mario Rodríguez" autocomplete="name"
+          <label class="rec-label">¿Cómo se llama el prestador? <span style="color:var(--accent)">*</span></label>
+          <input type="text" class="rec-input" id="recNombre" placeholder="Ej: Mario Rodríguez" autocomplete="off"
             oninput="this.value=this.value.replace(/[0-9]/g,''); recClearErr('errNombre')">
           <div class="rec-err" id="errNombre">Ingresá el nombre del prestador</div>
         </div>
@@ -853,7 +856,10 @@ function hlStars(n) {
 }
 function setRecStar(n) {
   recStars = n; hlStars(n);
-  document.getElementById('recStarLabel').textContent = starLbls[n];
+  var lbl = document.getElementById('recStarLabel');
+  lbl.textContent = starLbls[n];
+  var starColors = ['','#ef4444','#f97316','#eab308','#3CE6C5','#3CE6C5'];
+  lbl.style.color = starColors[n] || 'var(--ink-mute)';
   recShowErr('errEstrellas', false);
 }
 

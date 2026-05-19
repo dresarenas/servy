@@ -1115,9 +1115,14 @@ function wizNext() {
     if (!wizMapInited) setTimeout(wizInitMap, 80);
   } else if (wizCurrent === 1) {
     if (!wizState.zonaText) {
-      document.getElementById('wiz-err-1').classList.add('visible');
-      document.getElementById('wizAddr').focus();
-      return;
+      var _typedAddr = document.getElementById('wizAddr') && document.getElementById('wizAddr').value.trim();
+      if (_typedAddr) {
+        setWizZona(_typedAddr);
+      } else {
+        document.getElementById('wiz-err-1').classList.add('visible');
+        document.getElementById('wizAddr').focus();
+        return;
+      }
     }
     document.getElementById('wiz-err-1').classList.remove('visible');
     goToStep(2);
