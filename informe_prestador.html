@@ -1,0 +1,1672 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Módulo Prestador — Diseño Estratégico · SERVY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ─── Variables ─── */
+:root {
+  --bg: #0E0F12;
+  --bg-e: #17181C;
+  --bg-e2: #1E2026;
+  --ink: #F2EEE6;
+  --ink-d: rgba(242,238,230,0.80);
+  --ink-m: rgba(242,238,230,0.50);
+  --line: rgba(242,238,230,0.08);
+  --line-s: rgba(242,238,230,0.18);
+  --accent: #3CE6C5;
+  --accent2: #C6FF3C;
+  --warn: #FF8C42;
+  --ak: #0A0A0A;
+  --ff: "Bricolage Grotesque", sans-serif;
+  --fs: "Geist", sans-serif;
+  --fm: "JetBrains Mono", monospace;
+  --r: 12px;
+  --r2: 8px;
+  --sidebar: 240px;
+}
+
+/* ─── Reset ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--fs);
+  font-size: 15px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Layout ─── */
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ─── Sidebar ─── */
+aside {
+  width: var(--sidebar);
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  background: var(--bg-e);
+  border-right: 1px solid var(--line-s);
+  padding: 28px 0 40px;
+  display: flex;
+  flex-direction: column;
+  scrollbar-width: none;
+}
+aside::-webkit-scrollbar { display: none; }
+
+.sidebar-logo {
+  padding: 0 20px 24px;
+  border-bottom: 1px solid var(--line);
+}
+.sidebar-logo .logo-mark {
+  font-family: var(--ff);
+  font-weight: 800;
+  font-size: 20px;
+  color: var(--accent);
+  letter-spacing: -0.03em;
+}
+.sidebar-logo .logo-sub {
+  font-size: 11px;
+  color: var(--ink-m);
+  font-family: var(--fm);
+  margin-top: 2px;
+}
+
+.sidebar-nav {
+  padding: 16px 0;
+  flex: 1;
+}
+.nav-section {
+  padding: 8px 20px 4px;
+  font-size: 10px;
+  font-family: var(--fm);
+  color: var(--ink-m);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 20px;
+  text-decoration: none;
+  color: var(--ink-d);
+  font-size: 13px;
+  transition: all 0.15s;
+  border-left: 2px solid transparent;
+  line-height: 1.3;
+}
+.nav-link:hover {
+  color: var(--ink);
+  background: rgba(60,230,197,0.06);
+  border-left-color: var(--accent);
+}
+.nav-link .nav-icon { font-size: 14px; flex-shrink: 0; }
+
+.sidebar-badge {
+  margin: 16px 20px 0;
+  padding: 10px 14px;
+  background: rgba(60,230,197,0.08);
+  border: 1px solid rgba(60,230,197,0.2);
+  border-radius: var(--r2);
+  font-size: 11px;
+  color: var(--accent);
+  font-family: var(--fm);
+}
+
+/* ─── Main content ─── */
+main {
+  flex: 1;
+  min-width: 0;
+  padding: 0 40px 80px;
+  max-width: 900px;
+}
+
+/* ─── Page header ─── */
+.page-header {
+  padding: 48px 0 40px;
+  border-bottom: 1px solid var(--line-s);
+  margin-bottom: 56px;
+}
+.page-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: rgba(60,230,197,0.12);
+  border: 1px solid rgba(60,230,197,0.25);
+  border-radius: 100px;
+  font-size: 11px;
+  font-family: var(--fm);
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+.page-title {
+  font-family: var(--ff);
+  font-weight: 800;
+  font-size: clamp(32px, 5vw, 52px);
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  margin-bottom: 16px;
+}
+.page-title span { color: var(--accent); }
+.page-desc {
+  font-size: 16px;
+  color: var(--ink-d);
+  max-width: 600px;
+  line-height: 1.6;
+}
+.page-meta {
+  display: flex;
+  gap: 24px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.meta-label { font-size: 11px; color: var(--ink-m); font-family: var(--fm); }
+.meta-value { font-size: 13px; color: var(--ink-d); font-weight: 500; }
+
+/* ─── Sections ─── */
+section {
+  margin-bottom: 72px;
+  scroll-margin-top: 32px;
+}
+
+.section-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.section-number {
+  font-family: var(--fm);
+  font-size: 11px;
+  color: var(--accent);
+  padding: 4px 10px;
+  border: 1px solid rgba(60,230,197,0.3);
+  border-radius: 100px;
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+.section-title {
+  font-family: var(--ff);
+  font-weight: 800;
+  font-size: clamp(22px, 3vw, 30px);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+.section-title span { color: var(--accent); }
+
+.section-desc {
+  color: var(--ink-d);
+  margin-bottom: 24px;
+  line-height: 1.65;
+}
+
+/* ─── Cards ─── */
+.card {
+  background: var(--bg-e);
+  border: 1px solid var(--line-s);
+  border-radius: var(--r);
+  padding: 24px;
+  margin-bottom: 16px;
+}
+.card-accent {
+  border-color: rgba(60,230,197,0.25);
+  background: rgba(60,230,197,0.04);
+}
+.card-warn {
+  border-color: rgba(255,140,66,0.25);
+  background: rgba(255,140,66,0.04);
+}
+
+.card-title {
+  font-family: var(--ff);
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: -0.02em;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-title .icon { font-size: 18px; }
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.metric-card {
+  background: var(--bg-e2);
+  border: 1px solid var(--line-s);
+  border-radius: var(--r2);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.metric-icon { font-size: 20px; }
+.metric-value {
+  font-family: var(--fm);
+  font-size: 26px;
+  font-weight: 500;
+  color: var(--accent);
+}
+.metric-label { font-size: 12px; color: var(--ink-m); }
+
+/* ─── Tables ─── */
+.table-wrap {
+  overflow-x: auto;
+  border-radius: var(--r);
+  border: 1px solid var(--line-s);
+  margin-bottom: 24px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+thead {
+  background: var(--bg-e2);
+  border-bottom: 1px solid var(--line-s);
+}
+th {
+  text-align: left;
+  padding: 12px 16px;
+  font-family: var(--fm);
+  font-size: 11px;
+  color: var(--ink-m);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+td {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink-d);
+  vertical-align: top;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.02); }
+td:first-child { color: var(--ink); font-weight: 500; }
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-family: var(--fm);
+  font-weight: 500;
+}
+.badge-teal { background: rgba(60,230,197,0.15); color: var(--accent); }
+.badge-lime { background: rgba(198,255,60,0.15); color: var(--accent2); }
+.badge-warn { background: rgba(255,140,66,0.15); color: var(--warn); }
+.badge-mute { background: rgba(242,238,230,0.08); color: var(--ink-m); }
+
+/* ─── Flow diagram ─── */
+.flow {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 24px 0;
+}
+.flow-step {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+.flow-line {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+.flow-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-e2);
+  border: 2px solid var(--line-s);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--fm);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-m);
+  flex-shrink: 0;
+}
+.flow-dot.active {
+  background: rgba(60,230,197,0.15);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.flow-connector {
+  width: 2px;
+  flex: 1;
+  min-height: 28px;
+  background: var(--line-s);
+  margin: 4px 0;
+}
+.flow-connector.active { background: rgba(60,230,197,0.4); }
+.flow-body {
+  flex: 1;
+  padding: 4px 0 28px;
+}
+.flow-title {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.flow-desc { font-size: 13px; color: var(--ink-d); line-height: 1.5; }
+.flow-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.flow-tag {
+  font-size: 11px;
+  font-family: var(--fm);
+  padding: 2px 8px;
+  background: var(--bg-e2);
+  border: 1px solid var(--line-s);
+  border-radius: 4px;
+  color: var(--ink-m);
+}
+
+/* ─── Progress bar ─── */
+.progress-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.progress-label { font-size: 13px; color: var(--ink-d); width: 180px; flex-shrink: 0; }
+.progress-bar-bg {
+  flex: 1;
+  height: 6px;
+  background: var(--bg-e2);
+  border-radius: 100px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 100px;
+  background: var(--accent);
+  transition: width 0.5s;
+}
+.progress-pct { font-family: var(--fm); font-size: 12px; color: var(--accent); width: 36px; text-align: right; }
+
+/* ─── Code blocks ─── */
+.code-block {
+  background: var(--bg-e2);
+  border: 1px solid var(--line-s);
+  border-radius: var(--r2);
+  padding: 20px 24px;
+  font-family: var(--fm);
+  font-size: 12.5px;
+  color: var(--ink-d);
+  overflow-x: auto;
+  line-height: 1.7;
+  margin: 16px 0;
+}
+.code-block .cm { color: var(--ink-m); }
+.code-block .ck { color: #79B8FF; }
+.code-block .cs { color: var(--accent); }
+.code-block .ct { color: var(--accent2); }
+
+/* ─── Callouts ─── */
+.callout {
+  display: flex;
+  gap: 14px;
+  padding: 16px 20px;
+  border-radius: var(--r2);
+  margin: 20px 0;
+  align-items: flex-start;
+}
+.callout-teal { background: rgba(60,230,197,0.08); border: 1px solid rgba(60,230,197,0.2); }
+.callout-warn { background: rgba(255,140,66,0.08); border: 1px solid rgba(255,140,66,0.2); }
+.callout-lime { background: rgba(198,255,60,0.08); border: 1px solid rgba(198,255,60,0.2); }
+.callout-icon { font-size: 18px; flex-shrink: 0; line-height: 1.4; }
+.callout-body { font-size: 13.5px; color: var(--ink-d); line-height: 1.6; }
+.callout-body strong { color: var(--ink); }
+
+/* ─── WA message mockup ─── */
+.wa-bubble {
+  background: #1A2B1F;
+  border: 1px solid #2A4030;
+  border-radius: 0 var(--r) var(--r) var(--r);
+  padding: 14px 18px;
+  font-size: 14px;
+  color: #E8F5E9;
+  line-height: 1.6;
+  max-width: 420px;
+  position: relative;
+  margin: 16px 0 16px 12px;
+}
+.wa-bubble::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -10px;
+  border: 8px solid transparent;
+  border-top-color: #1A2B1F;
+  border-right-color: #1A2B1F;
+}
+.wa-time { font-size: 11px; color: rgba(232,245,233,0.5); text-align: right; margin-top: 6px; }
+.wa-header {
+  font-size: 11px;
+  font-family: var(--fm);
+  color: var(--ink-m);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.wa-dot { width: 8px; height: 8px; border-radius: 50%; background: #25D366; }
+
+/* ─── Dashboard mockup ─── */
+.dash-preview {
+  border: 1px solid var(--line-s);
+  border-radius: var(--r);
+  overflow: hidden;
+  margin: 20px 0;
+}
+.dash-topbar {
+  background: var(--bg-e2);
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--line-s);
+}
+.dash-dot-r, .dash-dot-y, .dash-dot-g {
+  width: 10px; height: 10px; border-radius: 50%;
+}
+.dash-dot-r { background: #FF5F57; }
+.dash-dot-y { background: #FEBC2E; }
+.dash-dot-g { background: #28C840; }
+.dash-url {
+  flex: 1;
+  background: var(--bg);
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-family: var(--fm);
+  font-size: 11px;
+  color: var(--ink-m);
+  margin-left: 12px;
+}
+.dash-body {
+  background: var(--bg-e);
+  padding: 20px;
+}
+.dash-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--line-s);
+  margin-bottom: 20px;
+}
+.dash-tab {
+  padding: 8px 16px;
+  font-size: 13px;
+  color: var(--ink-m);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.dash-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* ─── Score ring ─── */
+.score-display {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+.score-ring {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 4px solid var(--line-s);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  position: relative;
+  flex-shrink: 0;
+}
+.score-ring::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 4px solid transparent;
+  border-top-color: var(--accent);
+  border-right-color: var(--accent);
+  border-bottom-color: rgba(60,230,197,0.3);
+}
+.score-num {
+  font-family: var(--fm);
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--accent);
+}
+.score-label { font-size: 10px; color: var(--ink-m); }
+.score-factors { flex: 1; min-width: 240px; }
+
+/* ─── Levels ─── */
+.level-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+.level-card {
+  background: var(--bg-e);
+  border: 1px solid var(--line-s);
+  border-radius: var(--r2);
+  padding: 16px 18px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.level-icon { font-size: 24px; flex-shrink: 0; line-height: 1; margin-top: 2px; }
+.level-name { font-weight: 600; font-size: 14px; color: var(--ink); margin-bottom: 4px; }
+.level-req { font-size: 12px; color: var(--ink-m); line-height: 1.4; }
+.level-badge { margin-top: 8px; }
+
+/* ─── Roadmap ─── */
+.roadmap {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+}
+.roadmap-phase {
+  background: var(--bg-e);
+  border: 1px solid var(--line-s);
+  border-radius: var(--r);
+  padding: 20px;
+}
+.roadmap-phase.current { border-color: rgba(60,230,197,0.35); }
+.phase-num {
+  font-family: var(--fm);
+  font-size: 11px;
+  color: var(--ink-m);
+  margin-bottom: 6px;
+}
+.phase-name {
+  font-family: var(--ff);
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 12px;
+  color: var(--ink);
+}
+.phase-items { list-style: none; }
+.phase-items li {
+  font-size: 13px;
+  color: var(--ink-d);
+  padding: 3px 0;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.phase-items li::before { content: '›'; color: var(--accent); flex-shrink: 0; }
+.phase-status {
+  margin-top: 12px;
+  font-size: 11px;
+  font-family: var(--fm);
+}
+
+/* ─── Field groups ─── */
+.field-group {
+  margin-bottom: 20px;
+}
+.field-group-title {
+  font-family: var(--fm);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-m);
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+}
+.field-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.field-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: var(--bg-e2);
+  border: 1px solid var(--line-s);
+  border-radius: var(--r2);
+  font-size: 13px;
+  color: var(--ink-d);
+}
+.field-chip.exists { border-color: rgba(60,230,197,0.3); color: var(--accent); }
+.field-chip.new { border-color: rgba(198,255,60,0.3); color: var(--accent2); }
+.field-chip .fi { font-size: 11px; }
+
+/* ─── Viral loop ─── */
+.viral-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 16px 0;
+}
+.viral-box {
+  background: var(--bg-e2);
+  border: 1px solid var(--line-s);
+  border-radius: var(--r2);
+  padding: 12px 16px;
+  font-size: 13px;
+  color: var(--ink-d);
+  text-align: center;
+  flex: 1;
+  min-width: 120px;
+}
+.viral-arrow {
+  font-size: 18px;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.viral-box strong { display: block; font-size: 11px; font-family: var(--fm); color: var(--ink-m); margin-bottom: 4px; }
+
+/* ─── Responsive ─── */
+@media (max-width: 768px) {
+  .layout { flex-direction: column; }
+  aside {
+    width: 100%;
+    height: auto;
+    position: relative;
+    flex-direction: row;
+    padding: 0;
+    overflow-x: auto;
+    overflow-y: visible;
+    border-right: none;
+    border-bottom: 1px solid var(--line-s);
+  }
+  .sidebar-logo { display: none; }
+  .sidebar-badge { display: none; }
+  .sidebar-nav {
+    display: flex;
+    padding: 0;
+    flex-direction: row;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .nav-section { display: none; }
+  .nav-link {
+    padding: 12px 16px;
+    border-left: none;
+    border-bottom: 2px solid transparent;
+    font-size: 12px;
+  }
+  .nav-link:hover { border-bottom-color: var(--accent); }
+  main { padding: 0 20px 60px; }
+  .card-grid { grid-template-columns: 1fr 1fr; }
+  .roadmap { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 480px) {
+  main { padding: 0 16px 60px; }
+  .card-grid, .roadmap, .level-grid { grid-template-columns: 1fr; }
+  .progress-label { width: 120px; font-size: 12px; }
+  .score-display { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- ═══════════════ SIDEBAR ═══════════════ -->
+<aside>
+  <div class="sidebar-logo">
+    <div class="logo-mark">SERVY</div>
+    <div class="logo-sub">Módulo Prestador v2</div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section">Visión</div>
+    <a class="nav-link" href="#resumen"><span class="nav-icon">◈</span> Resumen ejecutivo</a>
+    <a class="nav-link" href="#estado-actual"><span class="nav-icon">◉</span> Estado actual</a>
+    <a class="nav-link" href="#flujo"><span class="nav-icon">⇒</span> Flujo rediseñado</a>
+
+    <div class="nav-section">Sistema</div>
+    <a class="nav-link" href="#niveles"><span class="nav-icon">◆</span> Niveles de confianza</a>
+    <a class="nav-link" href="#datos"><span class="nav-icon">◫</span> Datos del prestador</a>
+    <a class="nav-link" href="#dashboard"><span class="nav-icon">▦</span> Dashboard</a>
+
+    <div class="nav-section">Producto</div>
+    <a class="nav-link" href="#kit-digital"><span class="nav-icon">⬡</span> Kit Digital</a>
+    <a class="nav-link" href="#score"><span class="nav-icon">◎</span> SERVY Score</a>
+    <a class="nav-link" href="#whatsapp"><span class="nav-icon">◷</span> WhatsApp onboarding</a>
+    <a class="nav-link" href="#viral"><span class="nav-icon">↻</span> Loop viral</a>
+
+    <div class="nav-section">Técnico</div>
+    <a class="nav-link" href="#roadmap"><span class="nav-icon">◈</span> Roadmap</a>
+    <a class="nav-link" href="#schema"><span class="nav-icon">{}</span> Schema Supabase</a>
+  </nav>
+
+  <div class="sidebar-badge">
+    📅 Mayo 2026<br>
+    Versión: Draft 1.0
+  </div>
+</aside>
+
+<!-- ═══════════════ MAIN ═══════════════ -->
+<main>
+
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <div class="page-tag">◈ Diseño estratégico</div>
+    <h1 class="page-title">Módulo<br><span>Prestador</span></h1>
+    <p class="page-desc">
+      Transformar el registro inicial en una identidad digital completa: reputación medible, presencia online propia, y canal de recomendación que se autopropaga.
+    </p>
+    <div class="page-meta">
+      <div class="meta-item">
+        <span class="meta-label">Proyecto</span>
+        <span class="meta-value">SERVY — Córdoba, AR</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Alcance</span>
+        <span class="meta-value">Prestador de servicios del hogar</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Estado</span>
+        <span class="meta-value"><span class="badge badge-teal">En diseño</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── 0. RESUMEN EJECUTIVO ─── -->
+  <section id="resumen">
+    <div class="section-header">
+      <span class="section-number">00</span>
+      <h2 class="section-title">Resumen <span>ejecutivo</span></h2>
+    </div>
+
+    <div class="callout callout-teal">
+      <span class="callout-icon">◈</span>
+      <div class="callout-body">
+        <strong>Objetivo real del módulo:</strong> No es captar prestadores. Es crear confianza, validar reputación, generar recomendaciones, retener al prestador y producir efecto de red. El KPI es que el prestador diga: "SERVY me consigue trabajo" — no "SERVY tiene mis datos".
+      </div>
+    </div>
+
+    <div class="card-grid" style="margin: 20px 0;">
+      <div class="metric-card">
+        <div class="metric-icon">◉</div>
+        <div class="metric-value">Hoy</div>
+        <div class="metric-label">Registro en 4 pasos → silencio. Sin retención, sin panel, sin presencia.</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">◈</div>
+        <div class="metric-value">Meta</div>
+        <div class="metric-label">Identidad digital completa: dashboard, perfil público, reputación y loop viral.</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">⬡</div>
+        <div class="metric-value">Ventaja</div>
+        <div class="metric-label">Muchos prestadores no tienen web, Maps ni tarjeta digital. SERVY llena ese vacío.</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">↻</div>
+        <div class="metric-value">Efecto</div>
+        <div class="metric-label">Cada prestador que comparte su perfil trae nuevos clientes y recomendadores.</div>
+      </div>
+    </div>
+
+    <div class="callout callout-lime">
+      <span class="callout-icon">◆</span>
+      <div class="callout-body">
+        <strong>Diferenciador frente a competidores (Habitissimo, Thumbtack, TaskRabbit):</strong> SERVY apuesta a confianza vecinal + WhatsApp + recomendaciones humanas. En LATAM eso pega más que un marketplace anónimo.
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 1. ESTADO ACTUAL ─── -->
+  <section id="estado-actual">
+    <div class="section-header">
+      <span class="section-number">01</span>
+      <h2 class="section-title">Estado <span>actual</span></h2>
+    </div>
+
+    <p class="section-desc">El formulario de registro funciona. Capta micro-compromisos. Pero termina en una pantalla de "te contactamos" sin continuidad real.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Paso</th>
+            <th>Título</th>
+            <th>Datos que se piden</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>Activá tu perfil</td>
+            <td>Nombre completo, WhatsApp</td>
+            <td><span class="badge badge-teal">✓ OK</span></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>¿Qué ofrecés y dónde?</td>
+            <td>Categorías de oficio (14 opciones), zona geográfica, radio</td>
+            <td><span class="badge badge-teal">✓ OK</span></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>Info adicional (opcional)</td>
+            <td>Foto de perfil, email, descripción (280 chars)</td>
+            <td><span class="badge badge-warn">Mejorable</span></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>Términos</td>
+            <td>Aceptación legal</td>
+            <td><span class="badge badge-teal">✓ OK</span></td>
+          </tr>
+          <tr>
+            <td>Post</td>
+            <td>Pantalla de éxito</td>
+            <td>"Te contactamos por WhatsApp" — sin panel, sin perfil, sin seguimiento</td>
+            <td><span class="badge badge-warn">Gap crítico</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout-warn">
+      <span class="callout-icon">⚠</span>
+      <div class="callout-body">
+        <strong>Problema principal:</strong> El prestador siente que "dejó datos y desapareció". No hay loop de retención, no hay incentivo para volver, no hay panel donde ver si está siendo contactado. El registro muere en el paso 4.
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 2. FLUJO REDISEÑADO ─── -->
+  <section id="flujo">
+    <div class="section-header">
+      <span class="section-number">02</span>
+      <h2 class="section-title">Flujo <span>rediseñado</span></h2>
+    </div>
+
+    <p class="section-desc">El registro es solo la puerta de entrada. El valor real empieza después, con un onboarding progresivo que transforma al prestador en un perfil digital activo.</p>
+
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-line">
+          <div class="flow-dot active">1</div>
+          <div class="flow-connector active"></div>
+        </div>
+        <div class="flow-body">
+          <div class="flow-title">Registro rápido (4 pasos actuales)</div>
+          <div class="flow-desc">Nombre, WhatsApp, oficio, zona. Bajo fricción. Objetivo: micro-compromiso. No pedir más de lo necesario en esta etapa.</div>
+          <div class="flow-tags">
+            <span class="flow-tag">Ya existe</span>
+            <span class="flow-tag">prestador.html</span>
+            <span class="flow-tag">n8n: servy-prestador</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-line">
+          <div class="flow-dot active">2</div>
+          <div class="flow-connector active"></div>
+        </div>
+        <div class="flow-body">
+          <div class="flow-title">WhatsApp onboarding automático</div>
+          <div class="flow-desc">Mensaje de bienvenida inmediato vía n8n. Barra de progreso de perfil. Cada mensaje explica el beneficio concreto de completar ese campo.</div>
+          <div class="flow-tags">
+            <span class="flow-tag">n8n workflow nuevo</span>
+            <span class="flow-tag">Secuencia 3 mensajes</span>
+            <span class="flow-tag">24h / 72h delays</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-line">
+          <div class="flow-dot active">3</div>
+          <div class="flow-connector active"></div>
+        </div>
+        <div class="flow-body">
+          <div class="flow-title">Completado progresivo del perfil</div>
+          <div class="flow-desc">Dashboard con barra de completitud. Gamificación suave: cada campo desbloqueado sube el porcentaje y mejora la visibilidad en búsquedas. El prestador avanza a su ritmo.</div>
+          <div class="flow-tags">
+            <span class="flow-tag">Dashboard fase 2</span>
+            <span class="flow-tag">Gamificación</span>
+            <span class="flow-tag">Progreso % visible</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-line">
+          <div class="flow-dot active">4</div>
+          <div class="flow-connector active"></div>
+        </div>
+        <div class="flow-body">
+          <div class="flow-title">Perfil público activo (Kit Digital)</div>
+          <div class="flow-desc">URL pública servy.ar/[slug] con foto, oficio, reseñas, botón WhatsApp. El prestador la comparte con clientes y referidos. Genera reseñas y más visibilidad.</div>
+          <div class="flow-tags">
+            <span class="flow-tag">servy.ar/carlos-plomero-cba</span>
+            <span class="flow-tag">QR imprimible</span>
+            <span class="flow-tag">Compartible</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-line">
+          <div class="flow-dot active">5</div>
+          <div class="flow-connector"></div>
+        </div>
+        <div class="flow-body">
+          <div class="flow-title">Loop de reputación y crecimiento</div>
+          <div class="flow-desc">Clientes dejan reseñas → sube el SERVY Score → mejora el nivel de confianza → mayor visibilidad → más contactos → más reseñas. Loop autosostenible.</div>
+          <div class="flow-tags">
+            <span class="flow-tag">SERVY Score</span>
+            <span class="flow-tag">Niveles de confianza</span>
+            <span class="flow-tag">Efecto red</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 3. NIVELES DE CONFIANZA ─── -->
+  <section id="niveles">
+    <div class="section-header">
+      <span class="section-number">03</span>
+      <h2 class="section-title">Niveles de <span>confianza</span></h2>
+    </div>
+
+    <p class="section-desc">Sistema de badges progresivos con conceptos humanos, no artificiales como "Gold/Platinum". Cada nivel tiene requisitos claros y beneficios concretos de visibilidad.</p>
+
+    <div class="level-grid">
+      <div class="level-card">
+        <div class="level-icon">◌</div>
+        <div>
+          <div class="level-name">Registrado</div>
+          <div class="level-req">Completó el formulario básico. Datos mínimos: nombre, WhatsApp, oficio, zona.</div>
+          <div class="level-badge"><span class="badge badge-mute">Nivel base</span></div>
+        </div>
+      </div>
+      <div class="level-card">
+        <div class="level-icon">✓</div>
+        <div>
+          <div class="level-name">Perfil Completo</div>
+          <div class="level-req">Más del 60% de campos del perfil completados. Foto, descripción, horarios, rubros secundarios.</div>
+          <div class="level-badge"><span class="badge badge-mute">+10% visibilidad</span></div>
+        </div>
+      </div>
+      <div class="level-card" style="border-color: rgba(60,230,197,0.2);">
+        <div class="level-icon">⭐</div>
+        <div>
+          <div class="level-name">Recomendado</div>
+          <div class="level-req">3 o más recomendaciones reales de clientes verificados. Promedio ≥ 4 estrellas.</div>
+          <div class="level-badge"><span class="badge badge-teal">+25% visibilidad</span></div>
+        </div>
+      </div>
+      <div class="level-card" style="border-color: rgba(60,230,197,0.35);">
+        <div class="level-icon">🛡</div>
+        <div>
+          <div class="level-name">Verificado</div>
+          <div class="level-req">DNI validado (frente + dorso) y teléfono WhatsApp confirmado activo.</div>
+          <div class="level-badge"><span class="badge badge-teal">+35% visibilidad</span></div>
+        </div>
+      </div>
+      <div class="level-card" style="border-color: rgba(198,255,60,0.3);">
+        <div class="level-icon">🏆</div>
+        <div>
+          <div class="level-name">Destacado SERVY</div>
+          <div class="level-req">SERVY Score ≥ 75. Mínimo 10 reseñas, promedio ≥ 4.5, verificado, perfil 80%+.</div>
+          <div class="level-badge"><span class="badge badge-lime">Aparece primero</span></div>
+        </div>
+      </div>
+      <div class="level-card" style="border-color: rgba(198,255,60,0.5);">
+        <div class="level-icon">🌟</div>
+        <div>
+          <div class="level-name">Comunidad SERVY</div>
+          <div class="level-req">Activo 12+ meses, 20+ reseñas, score ≥ 85, cero reclamos graves. Insignia especial.</div>
+          <div class="level-badge"><span class="badge badge-lime">Top destacado</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-teal">
+      <span class="callout-icon">◈</span>
+      <div class="callout-body">
+        <strong>Clave psicológica:</strong> El prestador NO siente que "SERVY usa sus datos". Siente que "SERVY me ayuda a conseguir trabajo". Los niveles deben comunicarse siempre como beneficios, nunca como requisitos. "Completá tu foto y llegás a más clientes" — no "te falta la foto".
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 4. DATOS DEL PRESTADOR ─── -->
+  <section id="datos">
+    <div class="section-header">
+      <span class="section-number">04</span>
+      <h2 class="section-title">Datos del <span>prestador</span></h2>
+    </div>
+
+    <p class="section-desc">Todos los campos posibles, organizados por grupos. Los marcados en verde ya existen en el schema de Supabase. Los en amarillo son extensiones necesarias.</p>
+
+    <div class="card" style="margin-bottom: 8px; padding: 12px 16px; display: flex; gap: 16px; flex-wrap: wrap;">
+      <span><span class="badge badge-teal">Verde</span> Ya existe en tabla prestadores</span>
+      <span><span class="badge badge-lime">Amarillo</span> Nuevo campo a agregar</span>
+    </div>
+
+    <div class="field-group">
+      <div class="field-group-title">Identidad</div>
+      <div class="field-list">
+        <span class="field-chip exists">nombre <span class="fi">✓</span></span>
+        <span class="field-chip exists">apellido <span class="fi">✓</span></span>
+        <span class="field-chip exists">foto_perfil_url <span class="fi">✓</span></span>
+        <span class="field-chip exists">whatsapp <span class="fi">✓</span></span>
+        <span class="field-chip exists">email <span class="fi">✓</span></span>
+        <span class="field-chip exists">dni_numero <span class="fi">✓</span></span>
+        <span class="field-chip exists">dni_foto_frente_url <span class="fi">✓</span></span>
+        <span class="field-chip exists">dni_foto_dorso_url <span class="fi">✓</span></span>
+        <span class="field-chip new">selfie_validacion_url <span class="fi">+</span></span>
+        <span class="field-chip new">slug (URL pública) <span class="fi">+</span></span>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-group-title">Profesional</div>
+      <div class="field-list">
+        <span class="field-chip exists">categorias[] <span class="fi">✓</span></span>
+        <span class="field-chip exists">descripcion_detallada <span class="fi">✓</span></span>
+        <span class="field-chip exists">años de experiencia <span class="fi">✓</span></span>
+        <span class="field-chip exists">fotos_trabajo_urls[] <span class="fi">✓</span></span>
+        <span class="field-chip new">subrubros[] <span class="fi">+</span></span>
+        <span class="field-chip new">matricula <span class="fi">+</span></span>
+        <span class="field-chip new">tiene_seguro <span class="fi">+</span></span>
+        <span class="field-chip new">herramientas_especiales <span class="fi">+</span></span>
+        <span class="field-chip new">certificado_antecedentes_url <span class="fi">+</span></span>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-group-title">Operación</div>
+      <div class="field-list">
+        <span class="field-chip exists">lat / lng <span class="fi">✓</span></span>
+        <span class="field-chip exists">radio_km <span class="fi">✓</span></span>
+        <span class="field-chip exists">zona_confirmada <span class="fi">✓</span></span>
+        <span class="field-chip new">horarios (jsonb) <span class="fi">+</span></span>
+        <span class="field-chip new">acepta_urgencias <span class="fi">+</span></span>
+        <span class="field-chip new">emite_factura <span class="fi">+</span></span>
+        <span class="field-chip new">medios_pago[] <span class="fi">+</span></span>
+        <span class="field-chip new">tiempo_respuesta_promedio <span class="fi">+</span></span>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-group-title">Marketing &amp; Redes</div>
+      <div class="field-list">
+        <span class="field-chip new">instagram_url <span class="fi">+</span></span>
+        <span class="field-chip new">facebook_url <span class="fi">+</span></span>
+        <span class="field-chip new">web_propia_url <span class="fi">+</span></span>
+        <span class="field-chip new">portfolio_url <span class="fi">+</span></span>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-group-title">Reputación (tabla separada: reseñas)</div>
+      <div class="field-list">
+        <span class="field-chip new">score (1-5) <span class="fi">+</span></span>
+        <span class="field-chip new">comentario <span class="fi">+</span></span>
+        <span class="field-chip new">nombre_cliente <span class="fi">+</span></span>
+        <span class="field-chip new">verificado (¿cliente real?) <span class="fi">+</span></span>
+        <span class="field-chip new">creado_en <span class="fi">+</span></span>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-group-title">Métricas internas</div>
+      <div class="field-list">
+        <span class="field-chip exists">estado (propuesto/activo) <span class="fi">✓</span></span>
+        <span class="field-chip exists">origen (autoregistro/rec.) <span class="fi">✓</span></span>
+        <span class="field-chip new">vistas_perfil <span class="fi">+</span></span>
+        <span class="field-chip new">clicks_whatsapp <span class="fi">+</span></span>
+        <span class="field-chip new">servy_score (0-100) <span class="fi">+</span></span>
+        <span class="field-chip new">nivel_confianza <span class="fi">+</span></span>
+      </div>
+    </div>
+
+    <div class="callout callout-teal">
+      <span class="callout-icon">◈</span>
+      <div class="callout-body">
+        <strong>Estrategia de pedido progresivo:</strong> No pedir todo en el registro. Paso 1-4 son los básicos (ya implementados). Los campos nuevos se solicitan progresivamente desde el dashboard, con mensajes de WhatsApp que explican el beneficio de cada dato.
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 5. DASHBOARD ─── -->
+  <section id="dashboard">
+    <div class="section-header">
+      <span class="section-number">05</span>
+      <h2 class="section-title"><span>Dashboard</span> del prestador</h2>
+    </div>
+
+    <p class="section-desc">Panel de control privado del prestador. Si no existe, el prestador siente que "dejó datos y desapareció". Si existe, siente que tiene presencia digital propia.</p>
+
+    <!-- Mock del dashboard -->
+    <div class="dash-preview">
+      <div class="dash-topbar">
+        <div class="dash-dot-r"></div>
+        <div class="dash-dot-y"></div>
+        <div class="dash-dot-g"></div>
+        <div class="dash-url">servy.ar/mi-panel · Carlos García · Plomero</div>
+      </div>
+      <div class="dash-body">
+        <div class="dash-tabs">
+          <div class="dash-tab active">◈ Inicio</div>
+          <div class="dash-tab">◫ Mi perfil</div>
+          <div class="dash-tab">⭐ Reputación</div>
+          <div class="dash-tab">⬡ Kit Digital</div>
+        </div>
+
+        <div class="card-grid">
+          <div class="metric-card">
+            <div class="metric-icon">👁</div>
+            <div class="metric-value">247</div>
+            <div class="metric-label">Vistas de perfil (30 días)</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon">💬</div>
+            <div class="metric-value">34</div>
+            <div class="metric-label">Clicks en WhatsApp</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon">⭐</div>
+            <div class="metric-value">4.8</div>
+            <div class="metric-label">Promedio reseñas (12 total)</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon">◎</div>
+            <div class="metric-value">73</div>
+            <div class="metric-label">SERVY Score actual</div>
+          </div>
+        </div>
+
+        <div style="margin-top: 20px;">
+          <div style="font-size: 12px; color: var(--ink-m); font-family: var(--fm); margin-bottom: 10px;">COMPLETITUD DE PERFIL — 68%</div>
+          <div class="progress-item">
+            <div class="progress-label">Datos básicos</div>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:100%"></div></div>
+            <div class="progress-pct">100%</div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label">Foto de perfil</div>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:100%"></div></div>
+            <div class="progress-pct">100%</div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label">DNI validado</div>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:0%"></div></div>
+            <div class="progress-pct" style="color:var(--ink-m)">0%</div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label">Fotos de trabajos</div>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:60%"></div></div>
+            <div class="progress-pct">60%</div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label">Horarios y zonas</div>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:100%"></div></div>
+            <div class="progress-pct">100%</div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label">Redes sociales</div>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:0%"></div></div>
+            <div class="progress-pct" style="color:var(--ink-m)">0%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-wrap" style="margin-top: 24px;">
+      <table>
+        <thead>
+          <tr>
+            <th>Sección</th>
+            <th>Contenido</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>◈ Inicio</td>
+            <td>Métricas 30 días: vistas, clicks WA, recomendaciones, reseñas nuevas, SERVY Score</td>
+            <td>Ver tendencias, comparar períodos</td>
+          </tr>
+          <tr>
+            <td>◫ Mi perfil</td>
+            <td>Editor de todos los campos + barra de completitud + badge de nivel actual</td>
+            <td>Editar foto, descripción, rubros, zonas, horarios, medios de pago</td>
+          </tr>
+          <tr>
+            <td>⭐ Reputación</td>
+            <td>Reseñas individuales, promedio, historial cronológico, insignias obtenidas</td>
+            <td>Responder reseñas, pedir reseña a cliente</td>
+          </tr>
+          <tr>
+            <td>⬡ Kit Digital</td>
+            <td>URL pública personalizada, QR descargable, tarjeta digital imagen, botón compartir WA</td>
+            <td>Copiar link, descargar QR, compartir por WhatsApp</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ─── 6. KIT DIGITAL ─── -->
+  <section id="kit-digital">
+    <div class="section-header">
+      <span class="section-number">06</span>
+      <h2 class="section-title">Kit <span>Digital</span></h2>
+    </div>
+
+    <p class="section-desc">La propuesta más diferenciadora: SERVY como presencia digital del prestador. Muchos no tienen web, Maps ni tarjeta digital. SERVY cubre ese vacío y genera dependencia positiva.</p>
+
+    <div class="card card-accent">
+      <div class="card-title"><span class="icon">⬡</span> Perfil público personalizado</div>
+      <div class="code-block" style="font-size: 14px; padding: 12px 16px;">
+        <span class="cs">servy.ar/carlos-plomero-cba</span><br>
+        <span class="cs">servy.ar/maria-limpieza-nueva-cordoba</span><br>
+        <span class="cs">servy.ar/roberto-electricista-cerro-rosas</span>
+      </div>
+      <p style="font-size: 13px; color: var(--ink-d); line-height: 1.6;">
+        Slug auto-generado desde nombre + oficio + zona. El prestador puede personalizar. URL permanente que el prestador comparte con todos sus clientes actuales y futuros.
+      </p>
+    </div>
+
+    <div style="margin: 20px 0;">
+      <div style="font-size: 13px; color: var(--ink-m); margin-bottom: 12px; font-family: var(--fm);">CONTENIDO DE LA PÁGINA PÚBLICA</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Bloque</th><th>Detalle</th><th>Condición</th></tr></thead>
+          <tbody>
+            <tr><td>Header</td><td>Foto + nombre + oficio + badge de nivel + zonas</td><td>Siempre visible</td></tr>
+            <tr><td>Botón CTA</td><td>"Contactar por WhatsApp" (link directo al chat)</td><td>Siempre visible</td></tr>
+            <tr><td>Reseñas</td><td>Estrellas + promedio + últimas reseñas con texto</td><td>Desde 1 reseña</td></tr>
+            <tr><td>Galería</td><td>Fotos de trabajos realizados (hasta 12)</td><td>Si cargó fotos</td></tr>
+            <tr><td>Sobre mí</td><td>Descripción, años de experiencia, rubros, horarios</td><td>Si completó</td></tr>
+            <tr><td>Verificaciones</td><td>Badges: DNI validado, teléfono activo, seguro</td><td>Según validaciones</td></tr>
+            <tr><td>QR de reseña</td><td>QR que lleva a dejar reseña directamente</td><td>Siempre (para imprimir)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-title"><span class="icon">◲</span> QR imprimible</div>
+        <p style="font-size: 13px; color: var(--ink-d);">El prestador puede generar e imprimir un QR con su URL y el texto "Dejame una reseña en SERVY". Lo pone en tarjetas, en el auto, en el portafolios.</p>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="icon">💬</span> Compartir por WhatsApp</div>
+        <p style="font-size: 13px; color: var(--ink-d);">Botón en el dashboard que genera texto pre-armado: "Mirá mi perfil en SERVY: servy.ar/carlos-plomero-cba ⭐ 4.8 estrellas · Plomero en Nueva Córdoba"</p>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="icon">🖼</span> Tarjeta digital imagen</div>
+        <p style="font-size: 13px; color: var(--ink-d);">Imagen auto-generada con foto, nombre, oficio, estrellas y QR. Lista para usar como estado de WhatsApp o en Instagram Stories.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 7. SERVY SCORE ─── -->
+  <section id="score">
+    <div class="section-header">
+      <span class="section-number">07</span>
+      <h2 class="section-title">SERVY <span>Score</span></h2>
+    </div>
+
+    <p class="section-desc">Puntaje interno de confianza 0-100, transparente para el prestador. Similar al sistema de Uber/Airbnb pero comunicado como "visibilidad" no como "calificación".</p>
+
+    <div class="score-display">
+      <div class="score-ring">
+        <div class="score-num">73</div>
+        <div class="score-label">Score ejemplo</div>
+      </div>
+      <div class="score-factors">
+        <div class="progress-item">
+          <div class="progress-label">Reseñas</div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:72%"></div></div>
+          <div class="progress-pct">25%</div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-label">Completitud perfil</div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:68%"></div></div>
+          <div class="progress-pct">20%</div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-label">Tiempo de respuesta</div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:80%"></div></div>
+          <div class="progress-pct">15%</div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-label">Recomendaciones</div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:60%"></div></div>
+          <div class="progress-pct">15%</div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-label">Validaciones (DNI/tel)</div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:50%"></div></div>
+          <div class="progress-pct">10%</div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-label">Antigüedad</div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:40%"></div></div>
+          <div class="progress-pct">10%</div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-label">Actividad reciente</div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:90%"></div></div>
+          <div class="progress-pct">5%</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-wrap" style="margin-top: 16px;">
+      <table>
+        <thead>
+          <tr><th>Score</th><th>Nivel</th><th>Efecto en búsquedas</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>0 – 29</td><td><span class="badge badge-mute">Registrado</span></td><td>Aparece al final de resultados</td></tr>
+          <tr><td>30 – 49</td><td><span class="badge badge-mute">Perfil Completo</span></td><td>Posición media</td></tr>
+          <tr><td>50 – 64</td><td><span class="badge badge-teal">Recomendado ⭐</span></td><td>Posición alta, badge visible</td></tr>
+          <tr><td>65 – 74</td><td><span class="badge badge-teal">Verificado 🛡</span></td><td>Posición prioritaria</td></tr>
+          <tr><td>75 – 89</td><td><span class="badge badge-lime">Destacado 🏆</span></td><td>Aparece en "Mejor calificados"</td></tr>
+          <tr><td>90 – 100</td><td><span class="badge badge-lime">Comunidad 🌟</span></td><td>Destacado en home y categorías</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout-lime">
+      <span class="callout-icon">◆</span>
+      <div class="callout-body">
+        <strong>Comunicación clave:</strong> Nunca decir "tu score es bajo". Siempre: "Completá tu DNI y subís 15 puntos → más posibilidades de aparecer esta semana". El foco es la acción siguiente, no el juicio.
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 8. WHATSAPP ONBOARDING ─── -->
+  <section id="whatsapp">
+    <div class="section-header">
+      <span class="section-number">08</span>
+      <h2 class="section-title">WhatsApp <span>onboarding</span></h2>
+    </div>
+
+    <p class="section-desc">Secuencia automatizada vía n8n. 3 mensajes en momentos clave. Cada uno tiene un objetivo concreto y explica el beneficio de la acción pedida.</p>
+
+    <!-- Mensaje 1 -->
+    <div style="margin: 24px 0;">
+      <div class="wa-header"><div class="wa-dot"></div> Mensaje 1 — Inmediato al registro</div>
+      <div class="wa-bubble">
+        Hola Carlos 👋 ¡Ya estás pre-registrado en SERVY!<br><br>
+        Somos el directorio de servicios de confianza en Córdoba. En las próximas horas confirmamos tu perfil.<br><br>
+        Mientras tanto, completar más datos <strong>multiplica las posibilidades de que te recomienden</strong>.<br><br>
+        👉 Tu perfil está al <strong>25%</strong> — ¿querés subirlo?<br>
+        servy.ar/mi-panel/carlos-garcia<br><br>
+        <div class="wa-time">✓✓ 14:32</div>
+      </div>
+    </div>
+
+    <!-- Mensaje 2 -->
+    <div style="margin: 24px 0;">
+      <div class="wa-header"><div class="wa-dot"></div> Mensaje 2 — +24 horas (si no subió foto)</div>
+      <div class="wa-bubble">
+        Carlos, un dato: los perfiles con foto reciben <strong>3 veces más contactos</strong> 📸<br><br>
+        Subir tu foto toma 30 segundos y te sube al <strong>35% de perfil completado</strong>.<br><br>
+        👉 Agregá tu foto acá: servy.ar/mi-panel/foto<br><br>
+        <div class="wa-time">✓✓ 10:15</div>
+      </div>
+    </div>
+
+    <!-- Mensaje 3 -->
+    <div style="margin: 24px 0;">
+      <div class="wa-header"><div class="wa-dot"></div> Mensaje 3 — +72 horas (primera reseña)</div>
+      <div class="wa-bubble">
+        Carlos, ¿tenés clientes satisfechos? 🌟<br><br>
+        Mandales este link y pediles que te dejen una reseña en SERVY. Con 3 reseñas conseguís el badge <strong>Recomendado</strong> y aparecés primero en búsquedas.<br><br>
+        👉 Tu link de reseñas: servy.ar/recomendar/carlos-garcia<br><br>
+        Mandáselo por WhatsApp a tus últimos 3 clientes 👆<br><br>
+        <div class="wa-time">✓✓ 09:48</div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Mensaje</th><th>Cuándo</th><th>Objetivo</th><th>Condición de envío</th></tr></thead>
+        <tbody>
+          <tr><td>Bienvenida</td><td>Inmediato</td><td>Confirmar registro + link al panel</td><td>Siempre</td></tr>
+          <tr><td>Foto</td><td>+24h</td><td>Subir completitud + foto</td><td>Si foto_perfil_url es null</td></tr>
+          <tr><td>Primera reseña</td><td>+72h</td><td>Loop viral de reseñas</td><td>Si reseñas = 0</td></tr>
+          <tr><td>DNI (nivel 4)</td><td>+7 días</td><td>Validación y badge Verificado</td><td>Si dni_numero es null</td></tr>
+          <tr><td>Reactivación</td><td>+30 días inactivo</td><td>Recordatorio + métricas de vistas</td><td>Si no hay actividad en panel</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ─── 9. LOOP VIRAL ─── -->
+  <section id="viral">
+    <div class="section-header">
+      <span class="section-number">09</span>
+      <h2 class="section-title">Loop <span>viral</span></h2>
+    </div>
+
+    <p class="section-desc">El prestador como canal de adquisición. Cada prestador activo puede traer nuevos clientes y nuevos recomendadores sin intervención de SERVY.</p>
+
+    <div class="viral-row">
+      <div class="viral-box"><strong>Prestador</strong>Comparte su perfil</div>
+      <div class="viral-arrow">→</div>
+      <div class="viral-box"><strong>Cliente</strong>Ve el perfil público</div>
+      <div class="viral-arrow">→</div>
+      <div class="viral-box"><strong>Contacto</strong>Por WhatsApp</div>
+      <div class="viral-arrow">→</div>
+      <div class="viral-box"><strong>Reseña</strong>En SERVY</div>
+      <div class="viral-arrow">→</div>
+      <div class="viral-box"><strong>Score</strong>Sube → más visibilidad</div>
+    </div>
+
+    <div class="viral-row" style="margin-top: 8px;">
+      <div class="viral-box"><strong>Cliente</strong>Recomienda a un amigo</div>
+      <div class="viral-arrow">→</div>
+      <div class="viral-box"><strong>Nuevo usuario</strong>Busca en SERVY</div>
+      <div class="viral-arrow">→</div>
+      <div class="viral-box"><strong>SERVY</strong>Crece orgánicamente</div>
+    </div>
+
+    <div class="card-grid" style="margin-top: 24px;">
+      <div class="card">
+        <div class="card-title"><span class="icon">◲</span> Link de reseñas</div>
+        <div class="code-block" style="font-size: 12px; padding: 10px 14px;">servy.ar/recomendar/carlos-garcia</div>
+        <p style="font-size: 13px; color: var(--ink-d);">Landing minimalista: foto del prestador, nombre, oficio + formulario de reseña (nombre, estrellas, comentario). Un clic = reseña publicada.</p>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="icon">◲</span> QR "Dejame una reseña"</div>
+        <p style="font-size: 13px; color: var(--ink-d);">Generado automáticamente. El prestador lo descarga, lo imprime y lo pega donde quiera: tarjeta personal, auto, materiales de trabajo.</p>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="icon">💬</span> Compartir en WhatsApp</div>
+        <p style="font-size: 13px; color: var(--ink-d);">Un botón genera texto pre-armado con link al perfil, estrellas y oficio. El prestador lo manda a clientes en segundos.</p>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="icon">🖼</span> Stories de Instagram</div>
+        <p style="font-size: 13px; color: var(--ink-d);">Tarjeta digital imagen auto-generada con branding SERVY. Lista para subir a IG, WhatsApp Status o Facebook. El prestador hace marketing sin esfuerzo.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 10. ROADMAP ─── -->
+  <section id="roadmap">
+    <div class="section-header">
+      <span class="section-number">10</span>
+      <h2 class="section-title"><span>Roadmap</span> técnico</h2>
+    </div>
+
+    <p class="section-desc">Fases ordenadas por impacto y complejidad. Fase 1 existe parcialmente. La secuencia maximiza valor entregado en cada sprint sin deuda técnica.</p>
+
+    <div class="roadmap">
+      <div class="roadmap-phase current">
+        <div class="phase-num">FASE 1</div>
+        <div class="phase-name">Base</div>
+        <ul class="phase-items">
+          <li>Registro básico (4 pasos)</li>
+          <li>Webhook n8n prestador</li>
+          <li>WhatsApp bienvenida</li>
+          <li>Tabla prestadores Supabase</li>
+        </ul>
+        <div class="phase-status"><span class="badge badge-teal">Parcialmente existe</span></div>
+      </div>
+
+      <div class="roadmap-phase">
+        <div class="phase-num">FASE 2</div>
+        <div class="phase-name">Presencia</div>
+        <ul class="phase-items">
+          <li>Dashboard básico</li>
+          <li>Perfil público (slug)</li>
+          <li>Barra de completitud</li>
+          <li>Primeras reseñas</li>
+          <li>WhatsApp onboarding secuencia</li>
+        </ul>
+        <div class="phase-status"><span class="badge badge-warn">Siguiente sprint</span></div>
+      </div>
+
+      <div class="roadmap-phase">
+        <div class="phase-num">FASE 3</div>
+        <div class="phase-name">Reputación</div>
+        <ul class="phase-items">
+          <li>SERVY Score calculado</li>
+          <li>Badges e insignias</li>
+          <li>QR imprimible</li>
+          <li>Tarjeta digital imagen</li>
+          <li>Validación DNI</li>
+        </ul>
+        <div class="phase-status"><span class="badge badge-mute">Sprint 3</span></div>
+      </div>
+
+      <div class="roadmap-phase">
+        <div class="phase-num">FASE 4</div>
+        <div class="phase-name">Crecimiento</div>
+        <ul class="phase-items">
+          <li>Analytics avanzados</li>
+          <li>Mini CRM: agenda</li>
+          <li>Presupuestos</li>
+          <li>Seguimiento de clientes</li>
+          <li>Ranking público</li>
+        </ul>
+        <div class="phase-status"><span class="badge badge-mute">Futuro</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 11. SCHEMA SUPABASE ─── -->
+  <section id="schema">
+    <div class="section-header">
+      <span class="section-number">11</span>
+      <h2 class="section-title">Schema <span>Supabase</span></h2>
+    </div>
+
+    <p class="section-desc">Extensiones sobre la tabla <code style="font-family:var(--fm);font-size:12px;background:var(--bg-e2);padding:2px 6px;border-radius:4px;">prestadores</code> existente. Ejecutar en Supabase SQL Editor después de correr la migración base.</p>
+
+    <div class="code-block">
+<span class="cm">-- ─── Extensión tabla prestadores ───</span>
+<span class="ck">ALTER TABLE</span> <span class="cs">prestadores</span> <span class="ck">ADD COLUMN IF NOT EXISTS</span>
+
+  <span class="cm">-- Identidad extendida</span>
+  selfie_validacion_url    <span class="ct">text</span>,
+  slug                     <span class="ct">text</span> <span class="ck">UNIQUE</span>,
+
+  <span class="cm">-- Profesional</span>
+  subrubros                <span class="ct">text[]</span>,
+  matricula                <span class="ct">text</span>,
+  tiene_seguro             <span class="ct">bool</span> <span class="ck">DEFAULT</span> <span class="cs">false</span>,
+  herramientas_especiales  <span class="ct">text</span>,
+
+  <span class="cm">-- Operación</span>
+  horarios                 <span class="ct">jsonb</span>,   <span class="cm">-- {"lun":"8-18","sab":"8-13"}</span>
+  acepta_urgencias         <span class="ct">bool</span> <span class="ck">DEFAULT</span> <span class="cs">false</span>,
+  emite_factura            <span class="ct">bool</span> <span class="ck">DEFAULT</span> <span class="cs">false</span>,
+  medios_pago              <span class="ct">text[]</span>,  <span class="cm">-- ["efectivo","transferencia","mercadopago"]</span>
+  tiempo_respuesta_horas   <span class="ct">int</span>,      <span class="cm">-- promedio calculado</span>
+
+  <span class="cm">-- Marketing</span>
+  instagram_url            <span class="ct">text</span>,
+  facebook_url             <span class="ct">text</span>,
+  web_propia_url           <span class="ct">text</span>,
+  portfolio_url            <span class="ct">text</span>,
+
+  <span class="cm">-- Métricas (calculadas por n8n o edge functions)</span>
+  vistas_perfil            <span class="ct">int</span> <span class="ck">DEFAULT</span> <span class="cs">0</span>,
+  clicks_whatsapp          <span class="ct">int</span> <span class="ck">DEFAULT</span> <span class="cs">0</span>,
+  servy_score              <span class="ct">int</span> <span class="ck">DEFAULT</span> <span class="cs">0</span>,
+  nivel_confianza          <span class="ct">text</span> <span class="ck">DEFAULT</span> <span class="cs">'registrado'</span>;
+
+<span class="cm">-- ─── Tabla reseñas ───</span>
+<span class="ck">CREATE TABLE IF NOT EXISTS</span> <span class="cs">resenas</span> (
+  id               <span class="ct">uuid</span> <span class="ck">PRIMARY KEY DEFAULT</span> gen_random_uuid(),
+  prestador_id     <span class="ct">uuid</span> <span class="ck">REFERENCES</span> prestadores(id) <span class="ck">ON DELETE CASCADE</span>,
+  score            <span class="ct">int</span> <span class="ck">CHECK</span>(score <span class="ck">BETWEEN</span> <span class="cs">1 AND 5</span>),
+  comentario       <span class="ct">text</span>,
+  nombre_cliente   <span class="ct">text</span>,
+  tel_cliente      <span class="ct">text</span>,
+  verificado       <span class="ct">bool</span> <span class="ck">DEFAULT</span> <span class="cs">false</span>,
+  creado_en        <span class="ct">timestamptz</span> <span class="ck">DEFAULT</span> now()
+);
+
+<span class="cm">-- Índice para slug (lookup por URL pública)</span>
+<span class="ck">CREATE INDEX IF NOT EXISTS</span> idx_prestadores_slug
+  <span class="ck">ON</span> <span class="cs">prestadores</span>(slug)
+  <span class="ck">WHERE</span> slug <span class="ck">IS NOT NULL</span>;
+
+<span class="cm">-- Índice para score (ordenar búsquedas)</span>
+<span class="ck">CREATE INDEX IF NOT EXISTS</span> idx_prestadores_score
+  <span class="ck">ON</span> <span class="cs">prestadores</span>(servy_score <span class="ck">DESC</span>)
+  <span class="ck">WHERE</span> estado = <span class="cs">'activo'</span>;
+    </div>
+
+    <div class="callout callout-warn">
+      <span class="callout-icon">⚠</span>
+      <div class="callout-body">
+        <strong>Recordatorio:</strong> La migración base (<code style="font-family:var(--fm);font-size:11px;">supabase_migration_v1.sql</code>) que hace DROP + CREATE de la tabla <code style="font-family:var(--fm);font-size:11px;">prestadores</code> todavía está pendiente de ejecutar. Correr esa primero antes de aplicar estas extensiones. También actualizar los webhooks n8n <code style="font-family:var(--fm);font-size:11px;">servy-prestador</code> y <code style="font-family:var(--fm);font-size:11px;">servy-propuesta</code> para el nuevo schema.
+      </div>
+    </div>
+  </section>
+
+</main>
+</div>
+</body>
+</html>

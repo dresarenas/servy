@@ -607,6 +607,8 @@
 .btn-whatsapp:hover { background: #1ebe5d; }
 .btn-presupuesto { display: inline-flex; align-items: center; justify-content: center; gap: 10px; background: transparent; color: var(--ink); border: 1px solid var(--line-strong); border-radius: 999px; font-family: var(--f-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; padding: 16px 24px; cursor: pointer; width: 100%; transition: background 0.25s, color 0.25s, border-color 0.25s; }
 .btn-presupuesto:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.btn-ver-perfil { display: block; text-align: center; padding: 10px; font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.08em; color: var(--accent); text-decoration: none; border-radius: 999px; border: 1px solid rgba(60,230,197,0.25); background: rgba(60,230,197,0.06); transition: background 0.2s; }
+.btn-ver-perfil:hover { background: rgba(60,230,197,0.12); }
 .fav-toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--bg-elev); border: 1px solid var(--line-strong); font-family: var(--f-mono); font-size: 12px; letter-spacing: 0.06em; color: var(--ink-dim); padding: 12px 24px; border-radius: 8px; opacity: 0; transition: opacity 0.3s, transform 0.3s; z-index: 600; white-space: nowrap; pointer-events: none; }
 .fav-toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
 
@@ -1029,6 +1031,7 @@
           Contactar por WhatsApp
         </button>
         <button class="btn-presupuesto" onclick="solicitarPresupuesto()">Solicitar presupuesto vía SERVY</button>
+        <a class="btn-ver-perfil" href="servy-demo-perfil.html" target="_blank">Ver perfil completo →</a>
       </div>
     </div>
   </div>
