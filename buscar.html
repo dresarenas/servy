@@ -1329,39 +1329,43 @@ async function toggleWizMic() {
 /* ---- MAP ---- */
 var wizMapInited = false, _wizMap, _wizMarker, _wizCircle;
 
-function wizInitMap() {
-  if (wizMapInited) return; wizMapInited = true;
+function _wizCreateMap() {
   var wrap = document.getElementById('wizMapContainer');
-  function _create() {
-    wrap.style.height = '180px';
-    var center = { lat: -31.4135, lng: -64.1811 };
-    _wizMap = new google.maps.Map(wrap, {
-      center: center, zoom: 13,
-      mapTypeControl: false, streetViewControl: false,
-      fullscreenControl: false, gestureHandling: 'cooperative'
+  if (!wrap) return;
+  wrap.style.height = '180px';
+  var center = { lat: -31.4135, lng: -64.1811 };
+  _wizMap = new google.maps.Map(wrap, {
+    center: center, zoom: 13,
+    disableDefaultUI: true, zoomControl: true,
+    gestureHandling: 'cooperative'
+  });
+  _wizMarker = new google.maps.Marker({ position: center, map: _wizMap, visible: true });
+  _wizCircle = new google.maps.Circle({
+    map: _wizMap, center: center, radius: 3000, visible: true,
+    strokeColor: '#3CE6C5', strokeOpacity: 0.7, strokeWeight: 2,
+    fillColor: '#3CE6C5', fillOpacity: 0.12
+  });
+  function pick(ll) {
+    if (_wizCircle) _wizCircle.setCenter({ lat: ll.lat(), lng: ll.lng() });
+    new google.maps.Geocoder().geocode({ location: { lat: ll.lat(), lng: ll.lng() } }, function(results, status) {
+      var addr = (status === 'OK' && results[0]) ? results[0].formatted_address : ll.lat().toFixed(4) + ', ' + ll.lng().toFixed(4);
+      setWizZona(addr);
     });
-    _wizMarker = new google.maps.Marker({ position: center, map: _wizMap, draggable: true });
-    _wizCircle = new google.maps.Circle({
-      map: _wizMap, center: center, radius: 3000,
-      strokeColor: '#3CE6C5', strokeOpacity: 0.7, strokeWeight: 2,
-      fillColor: '#3CE6C5', fillOpacity: 0.12
-    });
-    function pick(ll) {
-      if (_wizCircle) _wizCircle.setCenter({ lat: ll.lat(), lng: ll.lng() });
-      new google.maps.Geocoder().geocode({ location: { lat: ll.lat(), lng: ll.lng() } }, function(results, status) {
-        var addr = (status === 'OK' && results[0]) ? results[0].formatted_address : ll.lat().toFixed(4) + ', ' + ll.lng().toFixed(4);
-        setWizZona(addr);
-      });
-    }
-    _wizMarker.addListener('dragend', function(e) { pick(e.latLng); });
-    _wizMap.addListener('click', function(e) { _wizMarker.setPosition(e.latLng); pick(e.latLng); });
   }
-  if (window.google && window.google.maps) { _create(); return; }
-  wrap.style.cssText = 'height:180px;display:flex;align-items:center;justify-content:center;background:var(--bg-elev);color:var(--ink-mute);font-family:var(--f-mono);font-size:12px;border-radius:12px;';
-  wrap.textContent = 'Cargando mapa...';
-  var s = document.createElement('script');
-  s.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyAlyXQU_W6Zi5sn1PhuHIJ1Qqf7aiBsOvc&loading=async';
-  s.onload = _create; document.head.appendChild(s);
+  _wizMarker.addListener('dragend', function(e) { pick(e.latLng); });
+  _wizMap.addListener('click', function(e) { _wizMarker.setPosition(e.latLng); pick(e.latLng); });
+  wizMapInited = true;
+}
+
+function wizInitMap() {
+  if (wizMapInited) return;
+  if (window.google && window.google.maps) { _wizCreateMap(); return; }
+  if (!document.getElementById('_wizMapsScript')) {
+    var s = document.createElement('script');
+    s.id = '_wizMapsScript';
+    s.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyAlyXQU_W6Zi5sn1PhuHIJ1Qqf7aiBsOvc&callback=_wizCreateMap&loading=async';
+    document.head.appendChild(s);
+  }
 }
 
 function wizGeocode() {
