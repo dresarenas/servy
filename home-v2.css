@@ -1347,23 +1347,108 @@ main { position: relative; z-index: 1; }
 [data-palette="bone"] .theme-toggle::after {
   transform: translateX(26px);
 }
-/* Nav login — solo visible en menú hamburguesa mobile */
-.nav-login { display: none; }
+/* Nav login */
+.nav-login {
+  display: inline-flex !important;
+  align-items: center; gap: 6px;
+  padding: 7px 14px;
+  background: rgba(60, 230, 197, 0.08);
+  border: 1px solid rgba(60, 230, 197, 0.3);
+  border-radius: 100px;
+  color: var(--accent) !important;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  text-decoration: none;
+}
+.nav-login:hover { background: rgba(60, 230, 197, 0.15); border-color: var(--accent); }
 @media (max-width: 820px) {
+  .nav-login { display: none !important; }
   .nav-links.open .nav-login {
     display: flex !important;
     align-items: center; gap: 8px;
     margin-top: 4px;
-    background: rgba(60, 230, 197, 0.06);
-    border: 1px solid var(--accent);
     border-radius: 8px;
-    color: var(--accent) !important;
-    opacity: 0.55 !important;
-    cursor: not-allowed;
-    pointer-events: none;
     font-size: 14px;
+    padding: 10px 14px;
   }
 }
+
+/* Login modal */
+.servy-login-overlay {
+  display: none; position: fixed; inset: 0; z-index: 9000;
+  background: rgba(0,0,0,.72); backdrop-filter: blur(10px);
+  align-items: center; justify-content: center;
+}
+.servy-login-overlay.open { display: flex; }
+.servy-login-box {
+  background: var(--bg-elev, #17181C);
+  border: 1px solid rgba(60,230,197,.2);
+  border-radius: 20px;
+  padding: 36px 28px 28px;
+  width: 90%; max-width: 380px;
+  position: relative;
+}
+.servy-login-close {
+  position: absolute; top: 16px; right: 16px;
+  width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(242,238,230,.08); border: none;
+  color: rgba(242,238,230,.6); font-size: 16px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.servy-login-logo {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-weight: 800; font-size: 28px; letter-spacing: -.04em;
+  color: #3CE6C5; text-align: center; margin-bottom: 4px;
+}
+.servy-login-sub {
+  text-align: center; font-size: 13px;
+  color: rgba(242,238,230,.55); margin-bottom: 24px;
+}
+.servy-login-demo-badge {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(198,255,60,.08); border: 1px solid rgba(198,255,60,.2);
+  border-radius: 10px; padding: 10px 14px; margin-bottom: 20px;
+  font-size: 12px; color: rgba(198,255,60,.9);
+  font-family: "JetBrains Mono", monospace;
+}
+.servy-login-field {
+  width: 100%; padding: 13px 14px;
+  background: rgba(242,238,230,.05);
+  border: 1px solid rgba(242,238,230,.14);
+  border-radius: 10px; color: #F2EEE6;
+  font-size: 14px; font-family: "Geist", sans-serif;
+  outline: none; margin-bottom: 10px; box-sizing: border-box;
+}
+.servy-login-field:focus { border-color: rgba(60,230,197,.5); }
+.servy-login-btn {
+  width: 100%; padding: 15px;
+  background: #3CE6C5; color: #0A0A0A;
+  border: none; border-radius: 12px;
+  font-size: 15px; font-weight: 700;
+  font-family: "Geist", sans-serif;
+  cursor: pointer; margin-top: 4px;
+  transition: background .15s;
+}
+.servy-login-btn:hover { background: #2dc9ab; }
+.servy-login-free {
+  display: block; text-align: center;
+  margin-top: 12px; font-size: 12px;
+  color: rgba(242,238,230,.4); cursor: pointer;
+  background: none; border: none; width: 100%;
+  font-family: "Geist", sans-serif;
+  text-decoration: underline; text-underline-offset: 3px;
+}
+[data-palette="bone"] .servy-login-box {
+  background: #E2DDD0;
+  border-color: rgba(19,122,99,.3);
+}
+[data-palette="bone"] .servy-login-field {
+  background: rgba(15,16,20,.05);
+  border-color: rgba(15,16,20,.15);
+  color: #0F1014;
+}
+[data-palette="bone"] .servy-login-logo { color: #137A63; }
 /* Steps carousel mobile */
 @media (max-width: 820px) {
   .steps {

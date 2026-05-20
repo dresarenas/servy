@@ -297,7 +297,7 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
     <a href="buscar.html" class="nav-link" data-magnetic>Buscar</a>
     <a href="recomendar.html" class="nav-link" data-magnetic>Recomendar</a>
     <a href="prestador.html" class="nav-link" data-magnetic>Prestador</a>
-    <a href="#" class="nav-link nav-login" aria-disabled="true" onclick="return false;" title="Próximamente">
+    <a href="#" class="nav-link nav-login" onclick="servyOpenLogin(event)">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       Ingresar
     </a>
@@ -865,7 +865,7 @@ function prestGeolocate() {
     prestCircle.setCenter(loc); prestCircle.setRadius(r); prestCircle.setVisible(true);
     prestMap.setCenter(loc); prestMap.fitBounds(prestCircle.getBounds());
     new google.maps.Geocoder().geocode({ location: { lat:lat, lng:lng } }, function(res, st) {
-      var texto = (st==='OK' && res[0]) ? res[0].formatted_address : lat.toFixed(4)+', '+lng.toFixed(4);
+      var texto = (st==='OK' && res && res.length) ? prestBestAddress(res) : lat.toFixed(5)+', '+lng.toFixed(5);
       document.getElementById('prestZonaTexto').value = texto;
       document.getElementById('prestDireccion').value = texto;
       prestClearErr('errPrestZona');
@@ -892,17 +892,58 @@ function prestFotoChange(input) {
 /* ========== MAP ========== */
 var prestMap = null, prestMarker = null, prestCircle = null;
 
+function prestBestAddress(results) {
+  var preferred = (results || []).filter(function(r) {
+    return r.types && r.types.some(function(t) {
+      return ['street_address', 'premise', 'route', 'establishment'].indexOf(t) >= 0;
+    });
+  });
+  if (preferred.length) return preferred[0].formatted_address;
+  var noPluscode = (results || []).filter(function(r) {
+    return !(r.types && r.types.indexOf('plus_code') >= 0);
+  });
+  if (noPluscode.length) return noPluscode[0].formatted_address;
+  return results && results[0] ? results[0].formatted_address : '';
+}
+
+function prestUpdatePinPosition(pos) {
+  var lat = pos.lat(), lng = pos.lng();
+  document.getElementById('prestZonaLat').value = lat;
+  document.getElementById('prestZonaLng').value = lng;
+  prestMarker.setPosition(pos); prestMarker.setVisible(true);
+  var r = parseInt(document.getElementById('prestRadioSlider').value) * 1000;
+  prestCircle.setCenter(pos); prestCircle.setRadius(r); prestCircle.setVisible(true);
+  prestMap.panTo(pos);
+  new google.maps.Geocoder().geocode({ location: { lat: lat, lng: lng } }, function(res, st) {
+    var texto = (st === 'OK' && res && res.length) ? prestBestAddress(res) : lat.toFixed(5) + ', ' + lng.toFixed(5);
+    document.getElementById('prestZonaTexto').value = texto;
+    document.getElementById('prestDireccion').value = texto;
+    prestClearErr('errPrestZona');
+  });
+}
+
 function prestInitMap() {
   var cordoba = { lat: -31.4135, lng: -64.1811 };
   prestMap = new google.maps.Map(document.getElementById('prestMap'), {
-    center: cordoba, zoom: 12,
+    center: cordoba, zoom: 13,
     disableDefaultUI: true, zoomControl: true
   });
-  prestMarker = new google.maps.Marker({ map: prestMap, position: cordoba, visible: true });
+  prestMarker = new google.maps.Marker({
+    map: prestMap, position: cordoba, visible: true,
+    draggable: true,
+    cursor: 'grab',
+    title: 'Arrastrá el pin para ajustar tu ubicación'
+  });
   prestCircle = new google.maps.Circle({
     map: prestMap, center: cordoba, radius: 10000, visible: true,
     fillColor: '#00C9A7', fillOpacity: 0.18,
     strokeColor: '#00C9A7', strokeWeight: 1.5
+  });
+  google.maps.event.addListener(prestMarker, 'dragend', function() {
+    prestUpdatePinPosition(prestMarker.getPosition());
+  });
+  google.maps.event.addListener(prestMap, 'click', function(e) {
+    prestUpdatePinPosition(e.latLng);
   });
   document.getElementById('prestZonaChipsFallback').style.display = 'none';
   document.getElementById('prestMapWrap').style.display = '';

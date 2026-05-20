@@ -297,3 +297,39 @@
   }).join('');
   document.body.appendChild(nav);
 })();
+
+/* ============ LOGIN MODAL ============ */
+(function () {
+  var overlay = document.createElement('div');
+  overlay.className = 'servy-login-overlay';
+  overlay.id = 'servyLoginOverlay';
+  overlay.innerHTML = [
+    '<div class="servy-login-box">',
+    '  <button class="servy-login-close" onclick="servyCloseLogin()">✕</button>',
+    '  <div class="servy-login-logo">SERVY</div>',
+    '  <div class="servy-login-sub">Accedé a tu panel de prestador</div>',
+    '  <div class="servy-login-demo-badge">',
+    '    ◈ Modo demo — credenciales precargadas',
+    '  </div>',
+    '  <input class="servy-login-field" id="servyLoginEmail" type="email" value="demo@servy.ar" placeholder="Email">',
+    '  <input class="servy-login-field" id="servyLoginPass" type="password" value="demo123" placeholder="Contraseña">',
+    '  <button class="servy-login-btn" onclick="servyDoLogin()">Ingresar al panel →</button>',
+    '  <button class="servy-login-free" onclick="servyDoLogin()">Continuar sin cuenta</button>',
+    '</div>'
+  ].join('');
+  overlay.addEventListener('click', function (e) { if (e.target === overlay) servyCloseLogin(); });
+  document.body.appendChild(overlay);
+})();
+
+window.servyOpenLogin = function (e) {
+  if (e) e.preventDefault();
+  document.getElementById('servyLoginOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+};
+window.servyCloseLogin = function () {
+  document.getElementById('servyLoginOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+};
+window.servyDoLogin = function () {
+  window.location.href = 'servy-demo-panel.html';
+};
