@@ -988,7 +988,7 @@
         </div>
         <div class="results-grid" id="wizResultsGrid"></div>
         <div class="no-results" id="wizNoResults" style="display:none;">
-          <div class="no-results-title">Todavía no tenemos prestadores en tu zona</div>
+          <div class="no-results-title" id="wizNoResultsTitle">Todavía no tenemos prestadores en tu zona</div>
           <p class="no-results-sub">Dejanos tu WhatsApp y te avisamos cuando sumemos prestadores cerca tuyo.</p>
           <div class="no-results-wa">
             <input id="wizNoResultsWA" type="tel" placeholder="Tu WhatsApp (ej: 351 123 4567)">
@@ -1050,6 +1050,7 @@
 <script>
 var WEBHOOK_BUSQUEDA   = 'https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-busqueda';
 var WEBHOOK_WHISPER    = 'https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-whisper';
+var WEBHOOK_CLASIFICAR = 'https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-clasificar';
 
 /* ---- STATE ---- */
 var wizState = { descripcion: null, oficio: null, zonaText: '', tiempo: null, prestadores: [] };
@@ -1075,7 +1076,15 @@ function goToStep(n) {
   });
   wizCurrent = n;
   updateWizSteps();
+  if (n === 1) {
+    var addrEl = document.getElementById('wizAddr');
+    if (addrEl && !addrEl.value.trim()) addrEl.value = 'Ciudad de Córdoba, Córdoba';
+  }
   if (n === 2) {
+    var wt2 = document.getElementById('wizTitle');
+    if (wt2) wt2.style.visibility = 'hidden';
+    var si4 = document.getElementById('wizSuccessIcon');
+    if (si4) si4.style.visibility = 'hidden';
     setTimeout(function() {
       var icon = document.querySelector('.wiz-success-icon');
       if (icon) { icon.classList.remove('scale-up-bounce'); void icon.offsetWidth; icon.classList.add('scale-up-bounce'); }
@@ -1481,6 +1490,10 @@ function getDemoPrestadores() {
 }
 
 function wizRenderResults(prestadores) {
+  var wt = document.getElementById('wizTitle');
+  if (wt) wt.style.visibility = '';
+  var si3 = document.getElementById('wizSuccessIcon');
+  if (si3) si3.style.visibility = '';
   document.getElementById('wizLoading').classList.remove('visible');
   document.getElementById('wizResultsView').classList.add('visible');
   document.getElementById('wizResultsCount').textContent = prestadores.length;
@@ -1489,6 +1502,8 @@ function wizRenderResults(prestadores) {
   var grid = document.getElementById('wizResultsGrid'); grid.innerHTML = '';
   if (prestadores.length === 0) {
     document.getElementById('wizNoResults').style.display = '';
+    var nrt = document.getElementById('wizNoResultsTitle');
+    if (nrt) nrt.textContent = wizState.oficio ? 'Aún no tenemos ' + wizState.oficio + ' en tu zona' : 'Todavía no tenemos prestadores en tu zona';
     document.getElementById('wizTitle').innerHTML = 'No encontramos<br>prestadores <span>en tu zona</span>';
     var si = document.getElementById('wizSuccessIcon'); if (si) si.style.display = 'none';
     return;
@@ -1539,17 +1554,46 @@ function mostrarToastFav() {
 
 function wizEnviarWA() {
   var wa = document.getElementById('wizNoResultsWA').value.trim(); if (!wa) return;
+  var digits = wa.replace(/\D/g,'');
+  if (digits.length < 6 || digits.length > 15) {
+    var inp = document.getElementById('wizNoResultsWA');
+    inp.style.borderColor = 'rgba(255,80,80,0.7)';
+    setTimeout(function(){ inp.style.borderColor = ''; }, 2000);
+    return;
+  }
   var btn = document.querySelector('#wizNoResults .no-results-wa button');
   btn.textContent = '✓ Anotado'; btn.style.background = 'var(--ink-mute)'; btn.disabled = true;
 }
 
 /* ---- INIT ---- */
-function initFromURLParams() {
+async function initFromURLParams() {
   var q = new URLSearchParams(window.location.search).get('q'); if (!q) return;
-  wizState.descripcion = q; wizState.oficio = detectOficio(q);
+  wizState.descripcion = q;
   var ta = document.getElementById('wizDesc'); ta.value = q; wizAutoExpand(ta);
   onWizInput(q);
-  if (q.length >= 3) { goToStep(1); if (!wizMapInited) setTimeout(wizInitMap, 80); }
+  if (q.length < 3) return;
+  var errEl = document.getElementById('wiz-err-0');
+  try {
+    var res = await fetch(WEBHOOK_CLASIFICAR, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ texto: q }) });
+    var data = await res.json();
+    if (data.ok && data.oficio) {
+      wizState.oficio = data.oficio;
+      if (errEl) errEl.classList.remove('visible');
+      goToStep(1); if (!wizMapInited) setTimeout(wizInitMap, 80);
+    } else {
+      wizState.oficio = null;
+      if (errEl) { errEl.textContent = 'No identificamos el servicio. Intentá describir el problema con más detalle.'; errEl.classList.add('visible'); }
+    }
+  } catch(e) {
+    var oficio = detectOficio(q);
+    wizState.oficio = oficio;
+    if (oficio) {
+      if (errEl) errEl.classList.remove('visible');
+      goToStep(1); if (!wizMapInited) setTimeout(wizInitMap, 80);
+    } else {
+      if (errEl) { errEl.textContent = 'No identificamos el servicio. Intentá describir el problema con más detalle.'; errEl.classList.add('visible'); }
+    }
+  }
 }
 
 window.addEventListener('DOMContentLoaded', function() {
@@ -1568,7 +1612,7 @@ document.querySelectorAll('.wiz-step:not(.active)').forEach(function(s) { s.iner
   function initVanta() {
     if (typeof VANTA === 'undefined' || !VANTA.NET) { setTimeout(initVanta, 100); return; }
     var _p0=document.documentElement.getAttribute('data-palette')||'midnight';
-    var _col0=_p0==='bone'?0xc8ede8:(_p0==='candy'?0xd5ff4a:0x3ce6c5);
+    var _col0=_p0==='bone'?0xeef9f6:(_p0==='candy'?0xd5ff4a:0x3ce6c5);
     var _dots0=(_p0!=='bone');
     var inst = VANTA.NET({
       el: '#wizVanta',
@@ -1580,7 +1624,7 @@ document.querySelectorAll('.wiz-step:not(.active)').forEach(function(s) { s.iner
     setTimeout(function() { if (inst) inst.resize(); }, 200);
     new MutationObserver(function() {
       var p = document.documentElement.getAttribute('data-palette');
-      var col = p === 'bone' ? 0xc8ede8 : (p === 'candy' ? 0xd5ff4a : 0x3ce6c5);
+      var col = p === 'bone' ? 0xeef9f6 : (p === 'candy' ? 0xd5ff4a : 0x3ce6c5);
       var dots = (p !== 'bone');
       if (inst) { inst.destroy(); }
       inst = VANTA.NET({

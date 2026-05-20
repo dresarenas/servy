@@ -1706,6 +1706,17 @@ main { position: relative; z-index: 1; }
   border-color: rgba(37,211,102,.7) !important;
   color: #25d366 !important;
 }
+[data-palette="bone"] .pill-wa {
+  background: rgba(37,211,102,0.10) !important;
+  border-color: rgba(37,211,102,0.55) !important;
+  color: #1a8c4b !important;
+}
+[data-palette="bone"] .pill-wa:hover {
+  background: rgba(37,211,102,0.20) !important;
+  border-color: rgba(37,211,102,0.75) !important;
+  color: #1a8c4b !important;
+}
+[data-palette="bone"] .pill-wa svg { fill: #1a8c4b !important; }
 [data-palette="bone"] .wiz-wa-share,
 [data-palette="bone"] .rec-wa-share {
   border-color: rgba(37,211,102,.5) !important;
@@ -1878,10 +1889,13 @@ main { position: relative; z-index: 1; }
     transition: color .2s;
     -webkit-tap-highlight-color: transparent;
   }
-  .bottom-nav-item.active { color: var(--accent); }
+  .bottom-nav-item.active { color: var(--accent); font-weight: 700; }
   .bottom-nav-item svg { width: 22px; height: 22px; }
-  .bottom-nav-login { color: var(--accent) !important; }
-  .bottom-nav-login svg { stroke: var(--accent); }
+  .bottom-nav-login { color: var(--accent-2) !important; }
+  .bottom-nav-login svg { stroke: var(--accent-2); }
+  [data-palette="bone"] .bottom-nav-item.active { color: #0d7a5c !important; font-weight: 700 !important; }
+  [data-palette="bone"] .bottom-nav-login { color: #1a8c4b !important; }
+  [data-palette="bone"] .bottom-nav-login svg { stroke: #1a8c4b !important; }
   .nav-burger { display: none !important; }
   .nav-links { display: none !important; }
   body { padding-bottom: 68px; }
