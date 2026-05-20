@@ -625,13 +625,34 @@ function recNext() {
   else if (recCurrent === 2) recEnviar();
 }
 
-function recValidStep1() {
+async function recValidStep1() {
   var sel = document.querySelectorAll('#oficioChips .rec-chip.sel');
   if (sel.length === 0) { recShowErr('errOficio', true); return; }
   recShowErr('errOficio', false);
   var otroSel = document.querySelector('#oficioChips .rec-chip[data-value="otro"].sel');
-  if (otroSel && !document.getElementById('otroOficioInput').value.trim()) {
-    recShowErr('errRecOtroOficio', true); return;
+  if (otroSel) {
+    var texto = document.getElementById('otroOficioInput').value.trim();
+    if (!texto) { recShowErr('errRecOtroOficio', true); document.getElementById('otroOficioInput').focus(); return; }
+    var btnSig = document.querySelector('#rs1 .rec-cta');
+    if (btnSig) { btnSig.disabled = true; btnSig.textContent = 'Verificando...'; }
+    try {
+      var r = await fetch('https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-clasificar', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({texto: texto}), signal: AbortSignal.timeout(6000)
+      });
+      var data = await r.json();
+      if (data.ok && data.oficio) {
+        document.getElementById('otroOficioInput').value = data.oficio;
+      } else if (!data.ok) {
+        var errEl = document.getElementById('errRecOtroOficio');
+        errEl.textContent = 'No reconocemos ese rubro. Intentá ser más específico (ej: plomero, carpintero).';
+        recShowErr('errRecOtroOficio', true);
+        if (btnSig) { btnSig.disabled = false; btnSig.textContent = 'Siguiente'; }
+        document.getElementById('otroOficioInput').focus();
+        return;
+      }
+    } catch(e) { /* red falla: aceptar texto tal cual */ }
+    if (btnSig) { btnSig.disabled = false; btnSig.textContent = 'Siguiente'; }
   }
   recShowErr('errRecOtroOficio', false);
   recGoTo(2);
@@ -659,7 +680,11 @@ function recValidStep0() {
   var telOk = /^\d{10,11}$/.test(tel) && !/^(\d)\1+$/.test(tel);
   if (!telOk) { recShowErr('errTel', true); ok = false; } else recShowErr('errTel', false);
   if (!recStars) { recShowErr('errEstrellas', true); ok = false; } else recShowErr('errEstrellas', false);
-  if (!ok) return;
+  if (!ok) {
+    if (!nombre) document.getElementById('recNombre').focus();
+    else if (!telOk) document.getElementById('recTel').focus();
+    else { var sr = document.getElementById('recStarsRow'); if (sr) sr.scrollIntoView({behavior:'smooth',block:'center'}); }
+    return;
   document.getElementById('nombreDisplay1').textContent = nombre;
   recGoTo(1);
 }
@@ -946,7 +971,8 @@ async function recEnviar() {
     document.getElementById('recGraciasTitle').innerHTML = '¡Ya estaba<br>en <span>SERVY</span>!';
     document.getElementById('recGraciasSub').textContent = 'Este prestador ya fue recomendado. ¡Sumamos tu reseña!';
   } else if (recStars >= 3) {
-    document.getElementById('recGraciasSub').textContent = 'Vamos a contactar a ' + (nombre || 'el prestador') + ' para pedirle permiso antes de publicar sus datos.';
+    var _ofStr = categoria ? ' (' + categoria + ')' : '';
+    document.getElementById('recGraciasSub').textContent = 'Vamos a contactar a ' + (nombre || 'el prestador') + _ofStr + ' para pedirle permiso antes de publicar sus datos.';
   } else {
     document.getElementById('recGraciasSub').textContent = '¡Tu aporte es muy valioso para otros usuarios!';
   }

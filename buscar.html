@@ -932,6 +932,7 @@
       <div class="wiz-addr-wrap">
         <input type="text" id="wizAddr" class="wiz-addr"
           placeholder="Av. Colón 1234, Córdoba..."
+          oninput="if(this.value.trim()){document.getElementById('wizCtaBtn1').classList.remove('sig-empty');}else if(!wizState.zonaText){document.getElementById('wizCtaBtn1').classList.add('sig-empty');}"
           onkeydown="if(event.key==='Enter'){event.preventDefault();wizGeocode();}">
         <button class="wiz-addr-btn" onclick="wizGeocode()">Buscar</button>
       </div>
@@ -1359,13 +1360,8 @@ function _wizCreateMap() {
 
 function wizInitMap() {
   if (wizMapInited) return;
-  if (window.google && window.google.maps) { _wizCreateMap(); return; }
-  if (!document.getElementById('_wizMapsScript')) {
-    var s = document.createElement('script');
-    s.id = '_wizMapsScript';
-    s.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyAlyXQU_W6Zi5sn1PhuHIJ1Qqf7aiBsOvc&callback=_wizCreateMap&loading=async';
-    document.head.appendChild(s);
-  }
+  if (window.google && window.google.maps) { _wizCreateMap(); }
+  // Maps carga vía script estático con callback=_wizCreateMap (ver final del archivo)
 }
 
 function wizGeocode() {
@@ -1564,5 +1560,6 @@ document.querySelectorAll('.wiz-step:not(.active)').forEach(function(s) { s.iner
   initVanta();
 })();
 </script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAlyXQU_W6Zi5sn1PhuHIJ1Qqf7aiBsOvc&callback=_wizCreateMap&loading=async" async defer></script>
 </body>
 </html>

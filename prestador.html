@@ -537,7 +537,7 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
 
       <label class="prest-check-row" for="prestTerminosCheck">
         <input type="checkbox" id="prestTerminosCheck" onchange="prestClearErr('errPrestTerminos')">
-        <span class="prest-check-label">Acepto los términos de uso de SERVY.</span>
+        <span class="prest-check-label">Acepto el aviso legal detallado arriba.</span>
       </label>
       <div class="prest-err" id="errPrestTerminos" style="margin-top:8px;">Tenés que aceptar los términos para continuar</div>
 
@@ -648,18 +648,44 @@ function prestValidStep0() {
   var telOk = /^\d{10,11}$/.test(tel) && !/^(\d)\1+$/.test(tel);
   if (!telOk) { prestShowErr('errPrestTel', true); ok = false; } else prestShowErr('errPrestTel', false);
 
-  if (!ok) return;
+  if (!ok) {
+    if (!nombre) document.getElementById('prestNombre').focus();
+    else document.getElementById('prestTel').focus();
+    return;
+  }
   prestGoTo(1);
 }
 
-function prestValidStep1() {
+async function prestValidStep1() {
   var oferr = false, zonerr = false;
   var ofSel = document.querySelectorAll('#prestOficioChips .prest-chip.sel');
   if (ofSel.length === 0) { prestShowErr('errPrestOficio', true); oferr = true; }
   else prestShowErr('errPrestOficio', false);
   var otroSel = document.querySelector('#prestOficioChips .prest-chip[data-value="otro"].sel');
-  if (otroSel && !document.getElementById('prestOtroOficio').value.trim()) {
-    prestShowErr('errPrestOtroOficio', true); oferr = true;
+  if (otroSel) {
+    var textoP = document.getElementById('prestOtroOficio').value.trim();
+    if (!textoP) { prestShowErr('errPrestOtroOficio', true); oferr = true; }
+    else {
+      var btnSigP = document.querySelector('#ps1 .prest-cta');
+      if (btnSigP) { btnSigP.disabled = true; btnSigP.textContent = 'Verificando...'; }
+      try {
+        var rp = await fetch('https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-clasificar', {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({texto: textoP}), signal: AbortSignal.timeout(6000)
+        });
+        var dp = await rp.json();
+        if (dp.ok && dp.oficio) {
+          document.getElementById('prestOtroOficio').value = dp.oficio;
+        } else if (!dp.ok) {
+          var errElP = document.getElementById('errPrestOtroOficio');
+          errElP.textContent = 'No reconocemos ese rubro. Intentá ser más específico (ej: plomero, carpintero).';
+          prestShowErr('errPrestOtroOficio', true); oferr = true;
+          if (btnSigP) { btnSigP.disabled = false; btnSigP.textContent = 'Siguiente'; }
+          document.getElementById('prestOtroOficio').focus();
+        }
+      } catch(ep) { /* red falla: aceptar texto tal cual */ }
+      if (btnSigP && !oferr) { btnSigP.disabled = false; btnSigP.textContent = 'Siguiente'; }
+    }
   } else { prestShowErr('errPrestOtroOficio', false); }
   var mapShown = document.getElementById('prestMapWrap').style.display !== 'none';
   if (mapShown) {
@@ -815,6 +841,11 @@ async function prestEnviar() {
 
   prestSubmitRetries = 0;
   prestShowErr('errPrestSubmit', false);
+  var _rN = nombre || 'el prestador';
+  var _rO = categorias || 'su rubro';
+  var _rZ = zonaTexto ? ' en ' + zonaTexto : '';
+  document.getElementById('prestGraciasSub').innerHTML =
+    'Registramos a <strong>' + _rN + '</strong> como <strong>' + _rO + '</strong>' + _rZ + '.<br>Te contactamos por WhatsApp para confirmar tu perfil.';
   prestGoTo(4);
 }
 
