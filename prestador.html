@@ -341,7 +341,7 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
       <div class="prest-field">
         <label class="prest-label">Nombre y apellido <span style="color:var(--accent)">*</span></label>
         <input type="text" class="prest-input" id="prestNombre" placeholder="Ej: Juan García"
-          autocomplete="name"
+          autocomplete="off"
           oninput="this.value=this.value.replace(/[0-9]/g,''); prestClearErr('errPrestNombre')">
         <div class="prest-err" id="errPrestNombre">Ingresá tu nombre completo</div>
       </div>
@@ -506,7 +506,7 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
       <div class="prest-field">
         <label class="prest-label">Email</label>
         <input type="email" class="prest-input" id="prestEmail" placeholder="tu@email.com"
-          autocomplete="email" inputmode="email">
+          autocomplete="off" inputmode="email">
       </div>
 
       <!-- BIO -->
