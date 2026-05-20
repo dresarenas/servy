@@ -1878,6 +1878,8 @@ main { position: relative; z-index: 1; }
   }
   .bottom-nav-item.active { color: var(--accent); }
   .bottom-nav-item svg { width: 22px; height: 22px; }
+  .bottom-nav-login { color: var(--accent) !important; }
+  .bottom-nav-login svg { stroke: var(--accent); }
   .nav-burger { display: none !important; }
   .nav-links { display: none !important; }
   body { padding-bottom: 68px; }

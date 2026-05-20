@@ -290,11 +290,12 @@
   var nav = document.createElement('nav');
   nav.className = 'bottom-nav';
   nav.setAttribute('aria-label', 'Navegación principal');
+  var loginIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
   nav.innerHTML = ITEMS.map(function(p) {
     var isActive = current === p.href || (current === '' && p.href === 'index.html');
     return '<a href="' + p.href + '" class="bottom-nav-item' + (isActive ? ' active' : '') + '" aria-current="' + (isActive ? 'page' : 'false') + '">'
          + p.icon + '<span>' + p.label + '</span></a>';
-  }).join('');
+  }).join('') + '<a href="#" class="bottom-nav-item bottom-nav-login" onclick="servyOpenLogin(event)">' + loginIcon + '<span>Ingresar</span></a>';
   document.body.appendChild(nav);
 })();
 
