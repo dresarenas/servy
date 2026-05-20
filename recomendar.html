@@ -685,6 +685,7 @@ function recValidStep0() {
     else if (!telOk) document.getElementById('recTel').focus();
     else { var sr = document.getElementById('recStarsRow'); if (sr) sr.scrollIntoView({behavior:'smooth',block:'center'}); }
     return;
+  }
   document.getElementById('nombreDisplay1').textContent = nombre;
   recGoTo(1);
 }
