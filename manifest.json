@@ -1,0 +1,27 @@
+{
+  "name": "SERVY",
+  "short_name": "SERVY",
+  "description": "Directorio de prestadores verificados en Córdoba",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0E0F12",
+  "theme_color": "#0E0F12",
+  "orientation": "portrait-primary",
+  "lang": "es-AR",
+  "categories": ["business", "utilities"],
+  "icons": [
+    {
+      "src": "assets/servy-circle.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/servy-circle.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

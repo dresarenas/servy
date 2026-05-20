@@ -334,3 +334,9 @@ window.servyCloseLogin = function () {
 window.servyDoLogin = function () {
   window.location.href = 'servy-demo-panel.html';
 };
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
