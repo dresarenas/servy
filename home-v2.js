@@ -340,3 +340,27 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js').catch(() => {});
   });
 }
+
+// iOS "Agregar a inicio" hint
+(function() {
+  var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  var isStandalone = window.navigator.standalone;
+  var dismissed = localStorage.getItem('servy_pwa_hint');
+  if (!isIOS || isStandalone || dismissed) return;
+  window.addEventListener('load', function() {
+    var el = document.createElement('div');
+    el.id = 'pwa-ios-hint';
+    el.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg><span>Tocá <strong>Compartir</strong> → <strong>Agregar a inicio</strong> para instalar SERVY</span><button aria-label="Cerrar">✕</button>';
+    el.style.cssText = 'position:fixed;bottom:80px;left:16px;right:16px;z-index:9999;display:flex;align-items:center;gap:10px;padding:12px 14px;background:#17181C;color:#F2EEE6;border-radius:14px;box-shadow:0 4px 24px rgba(0,0,0,0.45);font-family:var(--f-sans,sans-serif);font-size:13px;line-height:1.4;border:1px solid rgba(242,238,230,0.12);animation:pwaHintIn 0.35s ease';
+    var style = document.createElement('style');
+    style.textContent = '@keyframes pwaHintIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}';
+    document.head.appendChild(style);
+    el.querySelector('button').style.cssText = 'background:none;border:none;color:rgba(242,238,230,0.55);cursor:pointer;font-size:14px;padding:0 0 0 6px;flex-shrink:0';
+    el.querySelector('button').onclick = function() {
+      el.remove();
+      localStorage.setItem('servy_pwa_hint', '1');
+    };
+    document.body.appendChild(el);
+    setTimeout(function() { if (el.parentNode) el.remove(); }, 12000);
+  });
+})();

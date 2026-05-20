@@ -965,8 +965,8 @@
   <div class="wiz-step" id="ws3">
     <div class="wiz-content">
       <div class="wiz-success-wrap">
-        <div class="wiz-success-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-        <h1 class="wiz-title">¡Listo! Encontramos estos<br>prestadores <span>disponibles</span></h1>
+        <div class="wiz-success-icon" id="wizSuccessIcon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <h1 class="wiz-title" id="wizTitle">¡Listo! Encontramos estos<br>prestadores <span>disponibles</span></h1>
         <p class="wiz-results-summary" id="wizResultsSummary"></p>
         <p class="wiz-wrong-result"><a onclick="wizGoTo(0)">← Volvamos atrás, esto no es lo que necesito</a></p>
       </div>
@@ -1158,6 +1158,8 @@ function wizReset() {
   document.getElementById('wizLoading').classList.remove('visible');
   document.getElementById('wizResultsView').classList.remove('visible');
   document.getElementById('wizNoResults').style.display = 'none';
+  document.getElementById('wizTitle').innerHTML = '¡Listo! Encontramos estos<br>prestadores <span>disponibles</span>';
+  var si2 = document.getElementById('wizSuccessIcon'); if (si2) si2.style.display = '';
   document.querySelectorAll('.wiz-chip').forEach(function(c) { c.classList.remove('selected'); });
   document.querySelectorAll('.wiz-time-chip').forEach(function(c) { c.classList.remove('selected'); });
   updateWizCta0();
@@ -1485,7 +1487,12 @@ function wizRenderResults(prestadores) {
   var demoNote = document.getElementById('wizDemoNote');
   if (demoNote) demoNote.style.display = wizIsDemoData ? '' : 'none';
   var grid = document.getElementById('wizResultsGrid'); grid.innerHTML = '';
-  if (prestadores.length === 0) { document.getElementById('wizNoResults').style.display = ''; return; }
+  if (prestadores.length === 0) {
+    document.getElementById('wizNoResults').style.display = '';
+    document.getElementById('wizTitle').innerHTML = 'No encontramos<br>prestadores <span>en tu zona</span>';
+    var si = document.getElementById('wizSuccessIcon'); if (si) si.style.display = 'none';
+    return;
+  }
   document.getElementById('wizNoResults').style.display = 'none';
   prestadores.forEach(function(p, idx) {
     var stars = '★'.repeat(p.stars) + (p.stars < 5 ? '☆'.repeat(5 - p.stars) : '');
@@ -1561,7 +1568,7 @@ document.querySelectorAll('.wiz-step:not(.active)').forEach(function(s) { s.iner
   function initVanta() {
     if (typeof VANTA === 'undefined' || !VANTA.NET) { setTimeout(initVanta, 100); return; }
     var _p0=document.documentElement.getAttribute('data-palette')||'midnight';
-    var _col0=_p0==='bone'?0x3aaf92:(_p0==='candy'?0xd5ff4a:0x3ce6c5);
+    var _col0=_p0==='bone'?0xc8ede8:(_p0==='candy'?0xd5ff4a:0x3ce6c5);
     var _dots0=(_p0!=='bone');
     var inst = VANTA.NET({
       el: '#wizVanta',
@@ -1573,7 +1580,7 @@ document.querySelectorAll('.wiz-step:not(.active)').forEach(function(s) { s.iner
     setTimeout(function() { if (inst) inst.resize(); }, 200);
     new MutationObserver(function() {
       var p = document.documentElement.getAttribute('data-palette');
-      var col = p === 'bone' ? 0x3aaf92 : (p === 'candy' ? 0xd5ff4a : 0x3ce6c5);
+      var col = p === 'bone' ? 0xc8ede8 : (p === 'candy' ? 0xd5ff4a : 0x3ce6c5);
       var dots = (p !== 'bone');
       if (inst) { inst.destroy(); }
       inst = VANTA.NET({
