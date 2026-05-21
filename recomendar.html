@@ -461,21 +461,7 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
       <h1 class="rec-title">¿Qué hace<br><span id="nombreDisplay1">el prestador</span>?</h1>
       <p class="rec-sub">Seleccioná el rubro <span style="color:var(--accent)">*</span></p>
 
-      <div class="rec-chips" id="oficioChips">
-        <button class="rec-chip" data-value="plomero">Plomero</button>
-        <button class="rec-chip" data-value="electricista">Electricista</button>
-        <button class="rec-chip" data-value="gasista">Gasista</button>
-        <button class="rec-chip" data-value="pintor">Pintor</button>
-        <button class="rec-chip" data-value="albanil">Albañil</button>
-        <button class="rec-chip" data-value="cerrajero">Cerrajero</button>
-        <button class="rec-chip" data-value="aire-acondicionado">Aire Acondicionado</button>
-        <button class="rec-chip" data-value="jardinero">Jardinero</button>
-        <button class="rec-chip" data-value="mudanza">Mudanza / Flete</button>
-        <button class="rec-chip" data-value="limpieza">Limpieza</button>
-        <button class="rec-chip" data-value="carpintero">Carpintero</button>
-        <button class="rec-chip" data-value="mecanico">Mecánico</button>
-        <button class="rec-chip" data-value="otro">Otro...</button>
-      </div>
+      <div class="rec-chips" id="oficioChips"></div>
       <div id="oficioOtroWrap" style="display:none; margin-top:10px;">
         <input type="text" class="rec-input" id="otroOficioInput" placeholder="¿Cuál servicio?">
       </div>
@@ -586,6 +572,7 @@ textarea.rec-input { font-size:16px; font-weight:400; resize:vertical; min-heigh
 
 </div><!-- /rec-wiz -->
 
+<script src="servy-shared.js"></script>
 <script>
 /* ========== STATE ========== */
 var recCurrent = 0;
@@ -848,7 +835,13 @@ function initRecChips(id, maxSel) {
     });
   });
 }
-initRecChips('oficioChips', 5);
+SERVY.getCategorias().then(function(cats) {
+  SERVY.renderChips(document.getElementById('oficioChips'), cats, {
+    chipClass: 'rec-chip', selectedClass: 'sel', multiSelect: false, maxVisible: 8,
+    showOtro: true,
+    onOtro: function(sel) { document.getElementById('oficioOtroWrap').style.display = sel ? '' : 'none'; }
+  });
+});
 initRecChips('zonaChips', 5);
 initRecChips('relacionChips', 1);
 initRecChips('expChips', 6);

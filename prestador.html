@@ -390,22 +390,7 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
       <h1 class="prest-title">¿Qué ofrecés<br>y <span>dónde</span>?</h1>
 
       <div class="prest-section-label">Elegí uno o más rubros <span style="color:var(--accent)">*</span></div>
-      <div class="prest-chips" id="prestOficioChips">
-        <button class="prest-chip" data-value="electricista">Electricista</button>
-        <button class="prest-chip" data-value="plomero">Plomero</button>
-        <button class="prest-chip" data-value="gasista">Gasista</button>
-        <button class="prest-chip" data-value="pintor">Pintor</button>
-        <button class="prest-chip" data-value="albanil">Albañil</button>
-        <button class="prest-chip" data-value="cerrajero">Cerrajero</button>
-        <button class="prest-chip" data-value="aire-acondicionado">Aire Acondicionado</button>
-        <button class="prest-chip" data-value="jardinero">Jardinero</button>
-        <button class="prest-chip" data-value="mudanza">Mudanza / Flete</button>
-        <button class="prest-chip" data-value="limpieza">Limpieza</button>
-        <button class="prest-chip" data-value="carpintero">Carpintero</button>
-        <button class="prest-chip" data-value="mecanico">Mecánico</button>
-        <button class="prest-chip" data-value="tecnologia">Tecnología</button>
-        <button class="prest-chip" data-value="otro">Otro...</button>
-      </div>
+      <div class="prest-chips" id="prestOficioChips"></div>
       <div id="prestOtroOficioWrap" style="display:none; margin-top:10px;">
         <input type="text" class="prest-input" id="prestOtroOficio" placeholder="¿Cuál rubro?">
       </div>
@@ -584,6 +569,7 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
 
 </div><!-- /prest-wiz -->
 
+<script src="servy-shared.js"></script>
 <script>
 /* ========== STATE ========== */
 var prestCurrent = 0;
@@ -750,7 +736,13 @@ function initPrestChips(id, maxSel) {
     });
   });
 }
-initPrestChips('prestOficioChips', null);
+SERVY.getCategorias().then(function(cats) {
+  SERVY.renderChips(document.getElementById('prestOficioChips'), cats, {
+    chipClass: 'prest-chip', selectedClass: 'sel', multiSelect: true, maxVisible: 8,
+    showOtro: true,
+    onOtro: function(sel) { document.getElementById('prestOtroOficioWrap').style.display = sel ? '' : 'none'; }
+  });
+});
 initPrestChips('prestZonaChips', null);
 
 /* ========== INIT DOT LINES ========== */
