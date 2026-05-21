@@ -1645,6 +1645,7 @@ main { position: relative; z-index: 1; }
 #hero-vanta canvas, #wizVanta canvas, #prestVanta canvas, #recVanta canvas {
   opacity: 1 !important;
 }
+[data-palette="bone"] #hero-vanta canvas { opacity: 0.35 !important; }
 #hero-vanta, #wizVanta, #prestVanta, #recVanta { background: var(--bg); }
 
 /* Hero explicit bg so it matches page in all palettes */

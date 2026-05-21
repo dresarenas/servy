@@ -31,7 +31,7 @@
   transition: opacity 0.8s;
 }
 [data-palette="bone"] #wizVanta canvas {
-  opacity: 1 !important;
+  opacity: 0.35 !important;
   mix-blend-mode: normal;
 }
 
@@ -1611,7 +1611,7 @@ document.querySelectorAll('.wiz-step:not(.active)').forEach(function(s) { s.iner
   function initVanta() {
     if (typeof VANTA === 'undefined' || !VANTA.NET) { setTimeout(initVanta, 100); return; }
     var _p0=document.documentElement.getAttribute('data-palette')||'midnight';
-    var _col0=_p0==='bone'?0xeef9f6:(_p0==='candy'?0xd5ff4a:0x3ce6c5);
+    var _col0=_p0==='candy'?0xd5ff4a:0x3ce6c5;
     var _dots0=(_p0!=='bone');
     var _mob0=window.innerWidth<768;
     var inst = VANTA.NET({
@@ -1619,12 +1619,12 @@ document.querySelectorAll('.wiz-step:not(.active)').forEach(function(s) { s.iner
       mouseControls: true, touchControls: true, gyroControls: false,
       minHeight: 200, minWidth: 200, scale: 1, scaleMobile: 1,
       color: _col0, backgroundAlpha: 0,
-      points: _mob0?6:12, maxDistance: 22, spacing: _mob0?25:18, showDots: _dots0
+      points: _p0==='bone'?6:(_mob0?6:12), maxDistance: 22, spacing: _p0==='bone'?25:(_mob0?25:18), showDots: _dots0
     });
     setTimeout(function() { if (inst) inst.resize(); }, 200);
     new MutationObserver(function() {
       var p = document.documentElement.getAttribute('data-palette');
-      var col = p === 'bone' ? 0xeef9f6 : (p === 'candy' ? 0xd5ff4a : 0x3ce6c5);
+      var col = p === 'candy' ? 0xd5ff4a : 0x3ce6c5;
       var dots = (p !== 'bone');
       if (inst) { inst.destroy(); }
       var _mob=window.innerWidth<768;
@@ -1633,7 +1633,7 @@ document.querySelectorAll('.wiz-step:not(.active)').forEach(function(s) { s.iner
         mouseControls:true, touchControls:true, gyroControls:false,
         minHeight:200, minWidth:200, scale:1, scaleMobile:1,
         color:col, backgroundAlpha:0,
-        points:_mob?6:12, maxDistance:22, spacing:_mob?25:18, showDots:dots
+        points:p==='bone'?6:(_mob?6:12), maxDistance:22, spacing:p==='bone'?25:(_mob?25:18), showDots:dots
       });
     }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-palette'] });
   }
