@@ -332,7 +332,7 @@ window.servyCloseLogin = function () {
   document.body.style.overflow = '';
 };
 window.servyDoLogin = function () {
-  window.location.href = 'servy-demo-panel.html';
+  window.location.href = 'panel.html';
 };
 
 if ('serviceWorker' in navigator) {
@@ -350,8 +350,8 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
     var el = document.createElement('div');
     el.id = 'pwa-ios-hint';
-    el.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg><span>Tocá <strong>Compartir</strong> → <strong>Agregar a inicio</strong> para instalar SERVY</span><button aria-label="Cerrar">✕</button>';
-    el.style.cssText = 'position:fixed;bottom:80px;left:16px;right:16px;z-index:9999;display:flex;align-items:center;gap:10px;padding:12px 14px;background:#17181C;color:#F2EEE6;border-radius:14px;box-shadow:0 4px 24px rgba(0,0,0,0.45);font-family:var(--f-sans,sans-serif);font-size:13px;line-height:1.4;border:1px solid rgba(242,238,230,0.12);animation:pwaHintIn 0.35s ease';
+    el.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg><span>Tocá <strong>Compartir</strong> ↓ y luego <strong>Agregar al inicio</strong> para instalar SERVY</span><button aria-label="Cerrar">✕</button>';
+    el.style.cssText = 'position:fixed;bottom:80px;left:16px;right:16px;z-index:9999;display:flex;align-items:center;gap:12px;padding:14px 16px;background:#17181C;color:#F2EEE6;border-radius:16px;box-shadow:0 6px 32px rgba(0,0,0,0.65);font-family:var(--f-sans,sans-serif);font-size:15px;line-height:1.4;border:1px solid rgba(242,238,230,0.15);animation:pwaHintIn 0.35s ease';
     var style = document.createElement('style');
     style.textContent = '@keyframes pwaHintIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}';
     document.head.appendChild(style);
@@ -364,3 +364,34 @@ if ('serviceWorker' in navigator) {
     setTimeout(function() { if (el.parentNode) el.remove(); }, 12000);
   });
 })();
+
+// Android "Instalar" banner (beforeinstallprompt)
+var _installPrompt = null;
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  _installPrompt = e;
+  if (localStorage.getItem('servy_pwa_android')) return;
+  var el = document.createElement('div');
+  el.id = 'pwa-android-hint';
+  el.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg><span style="flex:1">Instalá <strong>SERVY</strong> en tu pantalla de inicio</span><button id="pwa-android-install" style="background:var(--accent,#3CE6C5);color:#0E0F12;border:none;border-radius:999px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">Instalar</button><button id="pwa-android-close" style="background:none;border:none;color:rgba(242,238,230,0.55);cursor:pointer;font-size:16px;padding:0 0 0 8px;flex-shrink:0">✕</button>';
+  el.style.cssText = 'position:fixed;bottom:80px;left:16px;right:16px;z-index:9999;display:flex;align-items:center;gap:12px;padding:14px 16px;background:#17181C;color:#F2EEE6;border-radius:16px;box-shadow:0 6px 32px rgba(0,0,0,0.65);font-family:var(--f-sans,sans-serif);font-size:15px;line-height:1.4;border:1px solid rgba(242,238,230,0.15);animation:pwaHintIn 0.35s ease';
+  var style = document.createElement('style');
+  style.textContent = '@keyframes pwaHintIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}';
+  document.head.appendChild(style);
+  el.querySelector('#pwa-android-install').onclick = function() {
+    if (!_installPrompt) return;
+    _installPrompt.prompt();
+    _installPrompt.userChoice.then(function() {
+      _installPrompt = null;
+      localStorage.setItem('servy_pwa_android', '1');
+      var h = document.getElementById('pwa-android-hint');
+      if (h) h.remove();
+    });
+  };
+  el.querySelector('#pwa-android-close').onclick = function() {
+    el.remove();
+    localStorage.setItem('servy_pwa_android', '1');
+  };
+  document.body.appendChild(el);
+  setTimeout(function() { var h = document.getElementById('pwa-android-hint'); if (h) h.remove(); }, 15000);
+});
