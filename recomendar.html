@@ -1002,7 +1002,7 @@ document.querySelectorAll('.rec-step:not(.active)').forEach(function(s) { s.iner
       el: '#recVanta',
       mouseControls:true, touchControls:true, gyroControls:false,
       minHeight:200, minWidth:200, scale:1, scaleMobile:1,
-      color:_col0, backgroundColor:_p0==='bone'?0xeeeae0:0x0e0f12, backgroundAlpha:_p0==='bone'?1:0,
+      color:_col0, backgroundAlpha:0,
       points:_mob0?6:12, maxDistance:22, spacing:_mob0?25:18, showDots:(_p0!=='bone')
     });
     setTimeout(function() { if (inst) inst.resize(); }, 200);
@@ -1016,7 +1016,7 @@ document.querySelectorAll('.rec-step:not(.active)').forEach(function(s) { s.iner
         el: '#recVanta',
         mouseControls:true, touchControls:true, gyroControls:false,
         minHeight:200, minWidth:200, scale:1, scaleMobile:1,
-        color:col, backgroundColor:p==='bone'?0xeeeae0:0x0e0f12, backgroundAlpha:p==='bone'?1:0,
+        color:col, backgroundAlpha:0,
         points:_mob?6:12, maxDistance:22, spacing:_mob?25:18, showDots:dots
       });
     }).observe(document.documentElement, {attributes:true, attributeFilter:['data-palette']});
