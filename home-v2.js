@@ -350,11 +350,14 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
     var el = document.createElement('div');
     el.id = 'pwa-ios-hint';
-    el.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg><span>Tocá <strong>Compartir</strong> ↓ y luego <strong>Agregar al inicio</strong> para instalar SERVY</span><button aria-label="Cerrar">✕</button>';
-    el.style.cssText = 'position:fixed;bottom:80px;left:16px;right:16px;z-index:9999;display:flex;align-items:center;gap:12px;padding:14px 16px;background:#17181C;color:#F2EEE6;border-radius:16px;box-shadow:0 6px 32px rgba(0,0,0,0.65);font-family:var(--f-sans,sans-serif);font-size:15px;line-height:1.4;border:1px solid rgba(242,238,230,0.15);animation:pwaHintIn 0.35s ease';
-    var style = document.createElement('style');
-    style.textContent = '@keyframes pwaHintIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}';
-    document.head.appendChild(style);
+    el.innerHTML = '<div class="pwa-shimmer"></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg><span>Tocá <strong>Compartir</strong> ↓ y luego <strong>Agregar al inicio</strong> para instalar SERVY</span><button aria-label="Cerrar">✕</button>';
+    el.style.cssText = 'position:fixed;bottom:20px;right:16px;left:auto;max-width:380px;z-index:9999;display:flex;align-items:center;gap:12px;padding:14px 16px;background:#17181C;color:#F2EEE6;border-radius:16px;box-shadow:0 6px 32px rgba(0,0,0,0.65);font-family:var(--f-sans,sans-serif);font-size:15px;line-height:1.4;border:1px solid rgba(60,230,197,0.35);animation:pwaHintIn 0.35s ease;overflow:hidden';
+    if (!document.getElementById('pwa-css')) {
+      var style = document.createElement('style');
+      style.id = 'pwa-css';
+      style.textContent = '@keyframes pwaHintIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}'+'@keyframes servyShimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}.pwa-shimmer{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(90deg,transparent 30%,rgba(255,255,255,0.12) 50%,transparent 70%);background-size:200% 100%;animation:servyShimmer 2.5s ease-in-out infinite;}';
+      document.head.appendChild(style);
+    }
     el.querySelector('button').style.cssText = 'background:none;border:none;color:rgba(242,238,230,0.55);cursor:pointer;font-size:14px;padding:0 0 0 6px;flex-shrink:0';
     el.querySelector('button').onclick = function() {
       el.remove();
@@ -373,11 +376,14 @@ window.addEventListener('beforeinstallprompt', function(e) {
   if (localStorage.getItem('servy_pwa_android')) return;
   var el = document.createElement('div');
   el.id = 'pwa-android-hint';
-  el.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg><span style="flex:1">Instalá <strong>SERVY</strong> en tu pantalla de inicio</span><button id="pwa-android-install" style="background:var(--accent,#3CE6C5);color:#0E0F12;border:none;border-radius:999px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">Instalar</button><button id="pwa-android-close" style="background:none;border:none;color:rgba(242,238,230,0.55);cursor:pointer;font-size:16px;padding:0 0 0 8px;flex-shrink:0">✕</button>';
-  el.style.cssText = 'position:fixed;bottom:80px;left:16px;right:16px;z-index:9999;display:flex;align-items:center;gap:12px;padding:14px 16px;background:#17181C;color:#F2EEE6;border-radius:16px;box-shadow:0 6px 32px rgba(0,0,0,0.65);font-family:var(--f-sans,sans-serif);font-size:15px;line-height:1.4;border:1px solid rgba(242,238,230,0.15);animation:pwaHintIn 0.35s ease';
-  var style = document.createElement('style');
-  style.textContent = '@keyframes pwaHintIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}';
-  document.head.appendChild(style);
+  el.innerHTML = '<div class="pwa-shimmer"></div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg><span style="flex:1">Instalá <strong>SERVY</strong> en tu pantalla de inicio</span><button id="pwa-android-install" style="background:var(--accent,#3CE6C5);color:#0E0F12;border:none;border-radius:999px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">Instalar</button><button id="pwa-android-close" style="background:none;border:none;color:rgba(242,238,230,0.55);cursor:pointer;font-size:16px;padding:0 0 0 8px;flex-shrink:0">✕</button>';
+  el.style.cssText = 'position:fixed;bottom:20px;right:16px;left:auto;max-width:380px;z-index:9999;display:flex;align-items:center;gap:12px;padding:14px 16px;background:#17181C;color:#F2EEE6;border-radius:16px;box-shadow:0 6px 32px rgba(0,0,0,0.65);font-family:var(--f-sans,sans-serif);font-size:15px;line-height:1.4;border:1px solid rgba(60,230,197,0.35);animation:pwaHintIn 0.35s ease;overflow:hidden';
+  if (!document.getElementById('pwa-css')) {
+    var style = document.createElement('style');
+    style.id = 'pwa-css';
+    style.textContent = '@keyframes pwaHintIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}'+'@keyframes servyShimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}.pwa-shimmer{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(90deg,transparent 30%,rgba(255,255,255,0.12) 50%,transparent 70%);background-size:200% 100%;animation:servyShimmer 2.5s ease-in-out infinite;}';
+    document.head.appendChild(style);
+  }
   el.querySelector('#pwa-android-install').onclick = function() {
     if (!_installPrompt) return;
     _installPrompt.prompt();

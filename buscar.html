@@ -596,8 +596,6 @@
 @media (max-width: 600px) { .modal-box { padding: 24px 20px; } }
 .modal-close { position: absolute; top: 16px; right: 16px; background: transparent; border: 1px solid var(--line); border-radius: 50%; width: 32px; height: 32px; cursor: pointer; color: var(--ink-dim); font-family: var(--f-mono); font-size: 14px; display: flex; align-items: center; justify-content: center; transition: color 0.2s, border-color 0.2s; }
 .modal-close:hover { color: var(--ink); border-color: var(--ink-dim); }
-.modal-heart { position: absolute; top: 14px; left: 16px; background: transparent; border: 1px solid var(--line); border-radius: 50%; width: 42px; height: 42px; cursor: pointer; color: var(--ink-mute); font-size: 22px; display: flex; align-items: center; justify-content: center; transition: color 0.2s, border-color 0.2s, transform 0.15s; }
-.modal-heart:hover { color: #ef4444; border-color: #ef4444; transform: scale(1.1); }
 .modal-eyebrow { font-family: var(--f-mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
 .modal-name { font-family: var(--f-display); font-weight: 800; font-size: clamp(24px, 4vw, 40px); letter-spacing: -0.02em; color: var(--ink); margin-bottom: 4px; }
 .modal-location { font-family: var(--f-mono); font-size: 13px; color: var(--ink-mute); letter-spacing: 0.06em; margin-bottom: 16px; }
@@ -1022,7 +1020,6 @@
 <!-- Modal prestador -->
 <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)cerrarModal()">
   <div class="modal-box">
-    <button class="modal-heart" onclick="mostrarToastFav()" title="Guardar favorito">♡</button>
     <button class="modal-close" onclick="cerrarModal()">✕</button>
     <div class="modal-eyebrow" id="modalEyebrow">001 · Plomería</div>
     <div class="modal-name" id="modalName">Nombre</div>
@@ -1616,12 +1613,13 @@ document.querySelectorAll('.wiz-step:not(.active)').forEach(function(s) { s.iner
     var _p0=document.documentElement.getAttribute('data-palette')||'midnight';
     var _col0=_p0==='bone'?0xeef9f6:(_p0==='candy'?0xd5ff4a:0x3ce6c5);
     var _dots0=(_p0!=='bone');
+    var _mob0=window.innerWidth<768;
     var inst = VANTA.NET({
       el: '#wizVanta',
       mouseControls: true, touchControls: true, gyroControls: false,
       minHeight: 200, minWidth: 200, scale: 1, scaleMobile: 1,
-      color: _col0, backgroundAlpha: 0,
-      points: 6, maxDistance: 22, spacing: 25, showDots: _dots0
+      color: _col0, backgroundColor:_p0==='bone'?0xeeeae0:0x0e0f12, backgroundAlpha: _p0==='bone'?1:0,
+      points: _mob0?6:12, maxDistance: 22, spacing: _mob0?25:18, showDots: _dots0
     });
     setTimeout(function() { if (inst) inst.resize(); }, 200);
     new MutationObserver(function() {
@@ -1629,12 +1627,13 @@ document.querySelectorAll('.wiz-step:not(.active)').forEach(function(s) { s.iner
       var col = p === 'bone' ? 0xeef9f6 : (p === 'candy' ? 0xd5ff4a : 0x3ce6c5);
       var dots = (p !== 'bone');
       if (inst) { inst.destroy(); }
+      var _mob=window.innerWidth<768;
       inst = VANTA.NET({
         el: '#wizVanta',
         mouseControls:true, touchControls:true, gyroControls:false,
         minHeight:200, minWidth:200, scale:1, scaleMobile:1,
-        color:col, backgroundAlpha:0,
-        points:6, maxDistance:22, spacing:25, showDots:dots
+        color:col, backgroundColor:p==='bone'?0xeeeae0:0x0e0f12, backgroundAlpha:p==='bone'?1:0,
+        points:_mob?6:12, maxDistance:22, spacing:_mob?25:18, showDots:dots
       });
     }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-palette'] });
   }
