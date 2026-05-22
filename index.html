@@ -36,7 +36,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="home-v2.css">
-<link rel="stylesheet" href="servy-grid3d-hero.css?v=3">
 
 <script type="application/ld+json">
 {
@@ -804,7 +803,39 @@
   stats.forEach(function(el) { io.observe(el); });
 })();
 </script>
-<script src="servy-grid3d-hero.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.net.min.js"></script>
+<script>
+  var _p0=document.documentElement.getAttribute('data-palette')||'midnight';
+  var _col0=_p0==='candy'?0xd5ff4a:0x3ce6c5;
+  var _dots0=(_p0!=='bone');
+  var _isMobile = window.innerWidth < 768;
+  var vantaInst = VANTA.NET({
+    el: '#hero-vanta',
+    mouseControls: true, touchControls: true, gyroControls: false,
+    minHeight: 200, minWidth: 200, scale: 1, scaleMobile: 1,
+    color: _col0, backgroundAlpha: 0,
+    points: (_p0==='bone'||_isMobile) ? 5 : 9,
+    maxDistance: _isMobile ? 18 : 22,
+    spacing: (_p0==='bone'||_isMobile) ? 22 : 18,
+    showDots: _dots0
+  });
+  setTimeout(function() { if (vantaInst) vantaInst.resize(); }, 200);
+  new MutationObserver(function() {
+    var p = document.documentElement.getAttribute('data-palette');
+    var col = p === 'candy' ? 0xd5ff4a : 0x3ce6c5;
+    var dots = (p !== 'bone');
+    if (vantaInst) { vantaInst.destroy(); }
+    var _mob = window.innerWidth < 768;
+    vantaInst = VANTA.NET({
+      el: '#hero-vanta',
+      mouseControls: true, touchControls: true, gyroControls: false,
+      minHeight: 200, minWidth: 200, scale: 1, scaleMobile: 1,
+      color: col, backgroundAlpha: 0,
+      points: (p==='bone'||_mob) ? 5 : 9, maxDistance: _mob ? 18 : 22, spacing: (p==='bone'||_mob) ? 22 : 18, showDots: dots
+    });
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-palette'] });
+</script>
 <script src="servy-shared.js"></script>
 </body>
 </html>
