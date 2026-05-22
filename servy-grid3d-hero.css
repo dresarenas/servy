@@ -173,13 +173,13 @@
 @media (max-width: 760px) {
   .hero {
     min-height: 100dvh;
-    padding-top: max(88px, env(safe-area-inset-top) + 72px);
+    padding-top: calc(env(safe-area-inset-top, 0px) + 68px);
   }
 
   .servy-grid3d-scene {
     align-items: start;
     padding-top: 8px;
-    transform: translateY(-6dvh);
+    transform: translateY(-2dvh);
   }
 
   .servy-grid3d-wrap {
