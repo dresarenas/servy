@@ -1,4 +1,4 @@
-const CACHE = 'servy-v1';
+const CACHE = 'servy-v3';
 const PRECACHE = [
   '/',
   '/index.html',
@@ -7,8 +7,10 @@ const PRECACHE = [
   '/prestador.html',
   '/home-v2.css',
   '/home-v2.js',
-  '/assets/servy-circle.png',
-  '/assets/servy-full.png'
+  '/servy-grid3d-hero.css',
+  '/servy-grid3d-hero.js',
+  '/assets/servy-icon-192.png',
+  '/assets/servy-icon-512.png'
 ];
 
 self.addEventListener('install', e => {
