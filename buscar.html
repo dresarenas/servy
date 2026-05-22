@@ -31,7 +31,7 @@
   transition: opacity 0.8s;
 }
 [data-palette="bone"] #wizVanta canvas {
-  opacity: 0.35 !important;
+  opacity: 0.12 !important;
   mix-blend-mode: normal;
 }
 
@@ -1210,8 +1210,7 @@ function updateWizCta0() {
     btn.classList.remove('sig-empty');
     if (arr) {
       arr.classList.add('visible');
-      if (oficio) arr.classList.remove('locked');
-      else arr.classList.add('locked');
+      arr.classList.remove('locked');
     }
   } else {
     btn.classList.add('sig-empty');
