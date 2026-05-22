@@ -1689,7 +1689,7 @@ function abrirModal(p) {
   // Testimonios
   document.getElementById('testimoniosList').innerHTML = (p.testimonios || []).map(function(t) {
     return '<div class="testimonio"><div class="testimonio-stars">' + '★'.repeat(t.stars) + '</div><div>' + t.texto + '</div><div class="testimonio-autor">' + t.autor + '</div></div>';
-  }).join('') || '<p style="font-family:var(--f-sans);font-size:13px;color:var(--ink-mute);padding:8px 0;">Aún no tiene recomendaciones.</p>';
+  }).join('') || '<p style="font-family:var(--f-sans);font-size:15px;color:var(--ink-mute);padding:8px 0;">Aún no tiene recomendaciones.</p>';
   document.getElementById('perfilExpansion').style.display = 'none';
   document.getElementById('btnDesplegar').textContent = 'Desplegar perfil completo ↓';
   document.getElementById('modalOverlay').classList.add('visible');
