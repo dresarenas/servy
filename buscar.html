@@ -599,8 +599,8 @@
 /* ============ MODAL ============ */
 .modal-overlay { display: none; position: fixed; inset: 0; z-index: 500; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; }
 .modal-overlay.visible { display: flex; }
-.modal-box { background: var(--bg-elev); border: 1px solid var(--line-strong); border-radius: 16px; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; position: relative; padding: 40px; }
-@media (max-width: 600px) { .modal-box { padding: 24px 20px; } }
+.modal-box { background: var(--bg-elev); border: 1px solid var(--line-strong); border-radius: 16px; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; position: relative; padding: 56px 40px 40px; }
+@media (max-width: 600px) { .modal-box { padding: 52px 20px 24px; } }
 .modal-close { position: absolute; top: 16px; left: 16px; background: transparent; border: 1px solid var(--line); border-radius: 50%; width: 32px; height: 32px; cursor: pointer; color: var(--ink-dim); font-family: var(--f-mono); font-size: 14px; display: flex; align-items: center; justify-content: center; transition: color 0.2s, border-color 0.2s; }
 .modal-close:hover { color: var(--ink); border-color: var(--ink-dim); }
 .modal-eyebrow { font-family: var(--f-mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
@@ -1748,9 +1748,15 @@ async function initFromURLParams() {
       if (errEl) errEl.classList.remove('visible');
       goToStep(1); if (!wizMapInited) setTimeout(wizInitMap, 80);
     } else {
-      wizState.oficio = null;
-      goToStep(0, true);
-      if (errEl) { errEl.textContent = 'No identificamos el servicio. Intentá describir el problema con más detalle.'; errEl.classList.add('visible'); }
+      var _localOficio = detectOficio(q);
+      wizState.oficio = _localOficio;
+      if (_localOficio) {
+        if (errEl) errEl.classList.remove('visible');
+        goToStep(1); if (!wizMapInited) setTimeout(wizInitMap, 80);
+      } else {
+        goToStep(0, true);
+        if (errEl) { errEl.textContent = 'No identificamos el servicio. Intentá describir el problema con más detalle.'; errEl.classList.add('visible'); }
+      }
     }
   } catch(e) {
     var oficio = detectOficio(q);
