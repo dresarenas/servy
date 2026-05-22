@@ -1030,7 +1030,7 @@
           <div class="loading-dot"></div>
           <div class="loading-dot"></div>
         </div>
-        <div class="loading-text">Buscando prestadores...</div>
+        <div class="loading-text" id="wizLoadingText">Buscando prestadores...</div>
       </div>
 
       <div class="results-view" id="wizResultsView">
@@ -1357,7 +1357,7 @@ var oficioMap = {
   'cocina':'Gasistas','olor a gas':'Gasistas','fuga de gas':'Gasistas','medidor de gas':'Gasistas',
   'pint':'Pintura','pintur':'Pintura','repin':'Pintura','empape':'Pintura','lij':'Pintura','barniz':'Pintura','descascar':'Pintura',
   'alban':'Albañilería','refacc':'Albañilería','reforma':'Albañilería','grieta':'Albañilería',
-  'piso':'Albañilería','techo':'Albañilería','construccion':'Albañilería','construcción':'Albañilería',
+  'piso':'Albañilería','techo':'Albañilería','construct':'Albañilería','construcción':'Albañilería',
   'demoler':'Albañilería','revoqu':'Albañilería','revoc':'Albañilería','azulejo':'Albañilería','ceramic':'Albañilería',
   'yeso':'Albañilería','masill':'Albañilería','mampost':'Albañilería','rajad':'Albañilería',
   'contrapiso':'Albañilería','tabique':'Albañilería','zocal':'Albañilería','enduido':'Albañilería',
@@ -1569,19 +1569,25 @@ function setWizZona(text) {
 async function wizBuscar() {
   document.getElementById('wizLoading').classList.add('visible');
   document.getElementById('wizResultsView').classList.remove('visible');
+  var loadTxt = document.getElementById('wizLoadingText');
+  if (loadTxt) loadTxt.textContent = 'Buscando prestadores...';
   var sum = document.getElementById('wizResultsSummary');
   var ofStr = wizState.oficio || 'el servicio';
   var zoAddr = wizState.zonaText ? (wizState.zonaText.length > 28 ? wizState.zonaText.substring(0,28)+'…' : wizState.zonaText) : 'tu zona';
   sum.innerHTML = 'Buscamos <strong>' + ofStr + '</strong> cerca de <strong>' + zoAddr + '</strong>';
   var payload = { descripcion: wizState.descripcion, oficio: wizState.oficio, zona: wizState.zonaText, tiempo: wizState.tiempo };
   var prestadores = []; wizIsDemoData = false;
+  var ctrl = new AbortController();
+  var aiMsgTimer = setTimeout(function() { if (loadTxt) loadTxt.textContent = 'Analizando tu consulta con IA…'; }, 2500);
+  var timeoutTimer = setTimeout(function() { ctrl.abort(); }, 12000);
   try {
-    var res = await fetch(WEBHOOK_BUSQUEDA, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    var res = await fetch(WEBHOOK_BUSQUEDA, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal: ctrl.signal });
     if (res.ok) {
       prestadores = await res.json();
       if (!Array.isArray(prestadores) || prestadores.length === 0) { prestadores = getDemoPrestadores(); wizIsDemoData = true; }
     } else { prestadores = getDemoPrestadores(); wizIsDemoData = true; }
   } catch(e) { prestadores = getDemoPrestadores(); wizIsDemoData = true; }
+  clearTimeout(aiMsgTimer); clearTimeout(timeoutTimer);
   wizState.prestadores = prestadores;
   wizRenderResults(prestadores);
 }
