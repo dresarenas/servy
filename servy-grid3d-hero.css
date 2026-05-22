@@ -178,8 +178,8 @@
 
   .servy-grid3d-scene {
     align-items: start;
-    padding-top: 54px;
-    transform: translateY(0);
+    padding-top: 8px;
+    transform: translateY(-6dvh);
   }
 
   .servy-grid3d-wrap {
@@ -188,7 +188,7 @@
 
   .hero-core {
     margin-top: auto;
-    padding-top: 48dvh;
+    padding-top: 38dvh;
   }
 
   .hero-title {
