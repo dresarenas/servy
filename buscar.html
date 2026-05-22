@@ -1342,35 +1342,35 @@ function selectWizTime(el, key) {
 
 /* ---- OFICIO DETECTION (identical to buscar.html) ---- */
 var oficioMap = {
-  'plomer':'Plomero','caño':'Plomero','canio':'Plomero','cano':'Plomero',
-  'humedad':'Plomero','gotera':'Plomero','filtrac':'Plomero','inundac':'Plomero',
-  'perdida':'Plomero','pérdida':'Plomero','llave de paso':'Plomero',
-  'calefon':'Plomero','termotanque':'Plomero','caneria':'Plomero','cañería':'Plomero',
-  'desague':'Plomero','desagüe':'Plomero','baño tapado':'Plomero','inodoro':'Plomero',
-  'pileta':'Plomero','agua caliente':'Plomero','no sale agua':'Plomero',
-  'griferia':'Plomero','grifería':'Plomero',
-  'electric':'Electricista','corto':'Electricista','enchufe':'Electricista',
-  'cable':'Electricista','lampara':'Electricista','lámpara':'Electricista',
-  'luminaria':'Electricista','tablero':'Electricista','disyuntor':'Electricista',
-  'luz':'Electricista','interruptor':'Electricista','toma corriente':'Electricista','no prende':'Electricista',
-  'gas':'Gasista','gasist':'Gasista','garrafa':'Gasista','estufa':'Gasista','caldera':'Gasista',
-  'cocina':'Gasista','olor a gas':'Gasista','fuga de gas':'Gasista','medidor de gas':'Gasista',
-  'pint':'Pintor','pintur':'Pintor','repin':'Pintor','empape':'Pintor',
-  'alban':'Albañil','refacc':'Albañil','reforma':'Albañil','grieta':'Albañil',
-  'piso':'Albañil','techo':'Albañil','construccion':'Albañil','construcción':'Albañil',
-  'demoler':'Albañil','revoqu':'Albañil','azulejo':'Albañil','ceramic':'Albañil',
-  'cerraj':'Cerrajero','cerradura':'Cerrajero','candado':'Cerrajero',
-  'me quede afuera':'Cerrajero','quedé afuera':'Cerrajero','no puedo entrar':'Cerrajero',
-  'aire':'Técnico en Aire Acond.','refriger':'Técnico en Aire Acond.','split':'Técnico en Aire Acond.',
-  'no enfria':'Técnico en Aire Acond.','no enfría':'Técnico en Aire Acond.','calefacci':'Técnico en Aire Acond.',
+  'plomer':'Plomería','caño':'Plomería','canio':'Plomería','cano':'Plomería',
+  'humedad':'Plomería','gotera':'Plomería','filtrac':'Plomería','inundac':'Plomería',
+  'perdida':'Plomería','pérdida':'Plomería','llave de paso':'Plomería',
+  'calefon':'Plomería','termotanque':'Plomería','caneria':'Plomería','cañería':'Plomería',
+  'desague':'Plomería','desagüe':'Plomería','baño tapado':'Plomería','inodoro':'Plomería',
+  'pileta':'Plomería','agua caliente':'Plomería','no sale agua':'Plomería',
+  'griferia':'Plomería','grifería':'Plomería',
+  'electric':'Electricidad','corto':'Electricidad','enchufe':'Electricidad',
+  'cable':'Electricidad','lampara':'Electricidad','lámpara':'Electricidad',
+  'luminaria':'Electricidad','tablero':'Electricidad','disyuntor':'Electricidad',
+  'luz':'Electricidad','interruptor':'Electricidad','toma corriente':'Electricidad','no prende':'Electricidad',
+  'gas':'Gasistas','gasist':'Gasistas','garrafa':'Gasistas','estufa':'Gasistas','caldera':'Gasistas',
+  'cocina':'Gasistas','olor a gas':'Gasistas','fuga de gas':'Gasistas','medidor de gas':'Gasistas',
+  'pint':'Pintura','pintur':'Pintura','repin':'Pintura','empape':'Pintura',
+  'alban':'Albañilería','refacc':'Albañilería','reforma':'Albañilería','grieta':'Albañilería',
+  'piso':'Albañilería','techo':'Albañilería','construccion':'Albañilería','construcción':'Albañilería',
+  'demoler':'Albañilería','revoqu':'Albañilería','azulejo':'Albañilería','ceramic':'Albañilería',
+  'cerraj':'Cerrajería','cerradura':'Cerrajería','candado':'Cerrajería',
+  'me quede afuera':'Cerrajería','quedé afuera':'Cerrajería','no puedo entrar':'Cerrajería',
+  'aire':'Aire Acondicionado','refriger':'Aire Acondicionado','split':'Aire Acondicionado',
+  'no enfria':'Aire Acondicionado','no enfría':'Aire Acondicionado','calefacci':'Aire Acondicionado',
   'limpiez':'Limpieza','ordenar la casa':'Limpieza','mucama':'Limpieza',
-  'jardin':'Jardinero','pasto':'Jardinero','podad':'Jardinero',
-  'mudanz':'Flete / Mudanza','flete':'Flete / Mudanza',
-  'carpint':'Carpintero','mueble':'Carpintero','madera':'Carpintero',
-  'herrer':'Herrero','reja':'Herrero','porton':'Herrero','portón':'Herrero',
-  'techist':'Techista','membrana':'Techista','impermeab':'Techista',
-  'destapac':'Plomero','tapado':'Plomero',
-  'desagote':'Plomero','desago':'Plomero',
+  'jardin':'Jardinería','pasto':'Jardinería','podad':'Jardinería',
+  'mudanz':'Fletes y Mudanzas','flete':'Fletes y Mudanzas',
+  'carpint':'Carpintería','mueble':'Carpintería','madera':'Carpintería',
+  'herrer':'Herrería','reja':'Herrería','porton':'Herrería','portón':'Herrería',
+  'techist':'Techistas','membrana':'Techistas','impermeab':'Techistas',
+  'destapac':'Plomería','tapado':'Plomería',
+  'desagote':'Plomería','desago':'Plomería',
   'mascota':'Cuidado de Mascotas','perro':'Cuidado de Mascotas','gato':'Cuidado de Mascotas',
   'lavarrop':'Service de Lavarropas','electrodom':'Service de Lavarropas'
 };
@@ -1385,6 +1385,21 @@ function detectOficio(text) {
   for (var kw in oficioMap) { if (t.includes(kw)) return oficioMap[kw]; }
   return null;
 }
+var _normOficio = {
+  'Plomero':'Plomería','Plomera':'Plomería',
+  'Electricista':'Electricidad',
+  'Gasista':'Gasistas',
+  'Pintor':'Pintura','Pintora':'Pintura',
+  'Albañil':'Albañilería',
+  'Cerrajero':'Cerrajería','Cerrajera':'Cerrajería',
+  'Técnico en Aire Acond.':'Aire Acondicionado','Técnico Aire':'Aire Acondicionado',
+  'Jardinero':'Jardinería','Jardinera':'Jardinería',
+  'Flete / Mudanza':'Fletes y Mudanzas','Flete':'Fletes y Mudanzas','Mudanza':'Fletes y Mudanzas',
+  'Carpintero':'Carpintería','Carpintera':'Carpintería',
+  'Herrero':'Herrería','Herrera':'Herrería',
+  'Techista':'Techistas'
+};
+function normalizarOficio(o) { return _normOficio[o] || o; }
 
 /* ---- MIC ---- */
 var _wizMediaRecorder = null, _wizAudioChunks = [], _wizMicStream = null;
@@ -1559,7 +1574,10 @@ async function wizBuscar() {
   var prestadores = []; wizIsDemoData = false;
   try {
     var res = await fetch(WEBHOOK_BUSQUEDA, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-    if (res.ok) prestadores = await res.json(); else { prestadores = getDemoPrestadores(); wizIsDemoData = true; }
+    if (res.ok) {
+      prestadores = await res.json();
+      if (!Array.isArray(prestadores) || prestadores.length === 0) { prestadores = getDemoPrestadores(); wizIsDemoData = true; }
+    } else { prestadores = getDemoPrestadores(); wizIsDemoData = true; }
   } catch(e) { prestadores = getDemoPrestadores(); wizIsDemoData = true; }
   wizState.prestadores = prestadores;
   wizRenderResults(prestadores);
@@ -1726,7 +1744,7 @@ async function initFromURLParams() {
     var res = await fetch(WEBHOOK_CLASIFICAR, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ texto: q }) });
     var data = await res.json();
     if (data.ok && data.oficio) {
-      wizState.oficio = data.oficio;
+      wizState.oficio = normalizarOficio(data.oficio);
       if (errEl) errEl.classList.remove('visible');
       goToStep(1); if (!wizMapInited) setTimeout(wizInitMap, 80);
     } else {
