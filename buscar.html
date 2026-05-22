@@ -1213,14 +1213,7 @@ function wizNext() {
       return;
     }
     wizState.descripcion = desc;
-    var _oficio = detectOficio(desc);
-    wizState.oficio = _oficio;
-    if (!_oficio) {
-      var errEl = document.getElementById('wiz-err-0');
-      errEl.textContent = 'No identificamos el servicio. Intentá describir el problema con más detalle.';
-      errEl.classList.add('visible');
-      return;
-    }
+    wizState.oficio = detectOficio(desc) || null;
     document.getElementById('wiz-err-0').classList.remove('visible');
     goToStep(1);
     if (!wizMapInited) setTimeout(wizInitMap, 80);
@@ -1763,8 +1756,9 @@ async function initFromURLParams() {
         if (errEl) errEl.classList.remove('visible');
         goToStep(1); if (!wizMapInited) setTimeout(wizInitMap, 80);
       } else {
-        goToStep(0, true);
-        if (errEl) { errEl.textContent = 'No identificamos el servicio. Intentá describir el problema con más detalle.'; errEl.classList.add('visible'); }
+        wizState.oficio = null;
+        if (errEl) errEl.classList.remove('visible');
+        goToStep(1); if (!wizMapInited) setTimeout(wizInitMap, 80);
       }
     }
   } catch(e) {
@@ -1774,8 +1768,9 @@ async function initFromURLParams() {
       if (errEl) errEl.classList.remove('visible');
       goToStep(1); if (!wizMapInited) setTimeout(wizInitMap, 80);
     } else {
-      goToStep(0, true);
-      if (errEl) { errEl.textContent = 'No identificamos el servicio. Intentá describir el problema con más detalle.'; errEl.classList.add('visible'); }
+      wizState.oficio = null;
+      if (errEl) errEl.classList.remove('visible');
+      goToStep(1); if (!wizMapInited) setTimeout(wizInitMap, 80);
     }
   }
 }
