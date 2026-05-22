@@ -260,7 +260,24 @@ body{
 .similar-card{
   background:var(--bg-e);border:1px solid var(--line-s);
   border-radius:var(--r2);padding:14px;min-width:160px;flex-shrink:0;
+  position:relative;overflow:hidden;
 }
+/* ── FAJA DIAGONAL ── */
+.faja{
+  position:absolute;top:14px;right:-22px;
+  width:88px;text-align:center;
+  font-family:var(--fm);font-size:8px;font-weight:700;
+  letter-spacing:.05em;text-transform:uppercase;
+  padding:3px 0;transform:rotate(35deg);
+  pointer-events:none;z-index:3;white-space:nowrap;
+}
+.faja-hero{top:22px;right:-32px;width:130px;font-size:10px;padding:5px 0;}
+.faja-registrado{background:rgba(242,238,230,.2);color:var(--ink-m);}
+.faja-completo  {background:#7B8FFF;color:#fff;}
+.faja-recomendado{background:var(--ac);color:var(--ak);}
+.faja-verificado{background:var(--ac2);color:var(--ak);}
+.faja-destacado {background:var(--star);color:var(--ak);}
+.faja-comunidad {background:#D4A1FF;color:var(--ak);}
 .sc-avatar{
   width:44px;height:44px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
@@ -326,7 +343,7 @@ body{
   display:flex;justify-content:center;gap:8px;margin-bottom:20px;
 }
 .sp-star{
-  font-size:40px;cursor:pointer;
+  font-size:28px;cursor:pointer;
   filter:grayscale(1);opacity:.4;
   transition:transform .15s,filter .15s,opacity .15s;
   -webkit-tap-highlight-color:transparent;
@@ -367,11 +384,12 @@ body{
   <a class="back-btn" onclick="history.back()">←</a>
   <div class="topnav-title">Carlos García · Plomero</div>
   <span class="nav-role-badge">PERFIL</span>
-  <div class="topnav-logo">SERVY</div>
+  <img src="assets/servy-full.png" alt="SERVY" style="height:22px;display:block;flex-shrink:0;">
 </nav>
 
 <!-- HERO -->
 <div class="hero">
+  <div class="faja faja-recomendado faja-hero">⭐ Recomendado</div>
   <div class="hero-top">
     <div class="hero-avatar">
       CG
@@ -657,6 +675,7 @@ body{
 </div>
 <div class="similar-scroll" style="padding-bottom:20px;">
   <div class="similar-card">
+    <div class="faja faja-recomendado">⭐ Reco.</div>
     <div class="sc-avatar" style="background:linear-gradient(135deg,#1a2a3a,#0f1822);">RM</div>
     <div class="sc-name">Roberto Méndez</div>
     <div class="sc-oficio">Electricista</div>
@@ -667,6 +686,7 @@ body{
     <div style="margin-top:6px;"><span class="hbadge hbadge-teal" style="font-size:10px;">⭐ Recomendado</span></div>
   </div>
   <div class="similar-card">
+    <div class="faja faja-destacado">🏆 Destac.</div>
     <div class="sc-avatar" style="background:linear-gradient(135deg,#2a1a3a,#1a0f22);">AV</div>
     <div class="sc-name">Ana Vázquez</div>
     <div class="sc-oficio">Limpieza</div>
@@ -677,6 +697,7 @@ body{
     <div style="margin-top:6px;"><span class="hbadge hbadge-lime" style="font-size:10px;">🏆 Destacado</span></div>
   </div>
   <div class="similar-card">
+    <div class="faja faja-recomendado">⭐ Reco.</div>
     <div class="sc-avatar" style="background:linear-gradient(135deg,#3a2a1a,#221a0f);">FT</div>
     <div class="sc-name">Facundo Torres</div>
     <div class="sc-oficio">Pintor</div>
@@ -687,6 +708,7 @@ body{
     <div style="margin-top:6px;"><span class="hbadge hbadge-teal" style="font-size:10px;">⭐ Recomendado</span></div>
   </div>
   <div class="similar-card">
+    <div class="faja faja-completo">✓ Completo</div>
     <div class="sc-avatar" style="background:linear-gradient(135deg,#1a3a1a,#0f220f);">LP</div>
     <div class="sc-name">Luis Pereyra</div>
     <div class="sc-oficio">Albañil</div>
