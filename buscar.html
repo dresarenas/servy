@@ -650,6 +650,28 @@
 .modal-nav-btn:hover { color: var(--ink); border-color: var(--ink-dim); }
 .modal-exp-section-title { font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-dim); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--line); margin-top: 24px; }
 
+/* ============ EXPANDED PROFILE ============ */
+.exp-info-strip { display: flex; gap: 1px; background: var(--line); border-radius: 10px; overflow: hidden; margin-top: 20px; margin-bottom: 4px; }
+.exp-info-item { flex: 1; background: var(--bg-elev); padding: 10px 10px; display: flex; flex-direction: column; gap: 3px; }
+.exp-info-icon { font-size: 15px; }
+.exp-info-label { font-family: var(--f-mono); font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-mute); }
+.exp-info-val { font-family: var(--f-sans); font-size: 12px; color: var(--ink-dim); line-height: 1.35; }
+.exp-sec-title { font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-dim); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--line); margin-top: 24px; }
+.exp-bio { font-family: var(--f-sans); font-size: 14px; color: var(--ink-dim); line-height: 1.65; }
+.exp-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.exp-tag { font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; padding: 5px 10px; border-radius: 6px; border: 1px solid var(--line-strong); color: var(--ink-mute); }
+.exp-tag.hl { border-color: var(--accent); color: var(--accent); background: rgba(60,230,197,0.06); }
+[data-palette="bone"] .exp-tag.hl { border-color: #137A63; color: #137A63; background: rgba(19,122,99,0.07); }
+.exp-verif-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.exp-verif-item { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; }
+.exp-verif-item.ok { border-color: rgba(60,230,197,0.3); background: rgba(60,230,197,0.04); }
+[data-palette="bone"] .exp-verif-item.ok { border-color: rgba(19,122,99,0.35); background: rgba(19,122,99,0.05); }
+.exp-verif-icon { font-size: 16px; }
+.exp-verif-label { font-family: var(--f-mono); font-size: 8.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-mute); }
+.exp-verif-val { font-family: var(--f-mono); font-size: 11px; color: var(--ink-dim); margin-top: 2px; }
+.exp-verif-item.ok .exp-verif-val { color: var(--accent); }
+[data-palette="bone"] .exp-verif-item.ok .exp-verif-val { color: #137A63; }
+
 
 /* ============ WSTEP BAR (inline, flujo normal) ============ */
 .wsteps-bar { display: flex; align-items: center; gap: 0; margin-bottom: 20px; }
@@ -1059,11 +1081,28 @@
     <div class="modal-chips" id="modalChips"></div>
     <button class="btn-desplegar" id="btnDesplegar" onclick="togglePerfilExpansion()">Desplegar perfil completo ↓</button>
     <div id="perfilExpansion" style="display:none;">
-      <div class="modal-exp-section-title">Zona de servicio</div>
-      <div id="modalExpZona" style="font-family:var(--f-sans);font-size:14px;color:var(--ink-dim);line-height:1.5;margin-bottom:20px;"></div>
-      <div class="modal-exp-section-title">Recomendaciones</div>
-      <div class="testimonios-list" id="testimoniosList" style="max-height:none;margin-bottom:24px;"></div>
-      <div class="modal-exp-section-title">Contactar</div>
+      <!-- Info strip: zona, horarios, cobro -->
+      <div class="exp-info-strip" id="expInfoStrip"></div>
+      <!-- Presentación -->
+      <div id="expBioWrap">
+        <div class="exp-sec-title">👋 Presentación</div>
+        <p class="exp-bio" id="expBio"></p>
+      </div>
+      <!-- Servicios -->
+      <div id="expServiciosWrap">
+        <div class="exp-sec-title">🔧 Servicios</div>
+        <div class="exp-tags" id="expTags"></div>
+      </div>
+      <!-- Verificaciones -->
+      <div id="expVerifWrap">
+        <div class="exp-sec-title">🛡 Verificaciones</div>
+        <div class="exp-verif-grid" id="expVerif"></div>
+      </div>
+      <!-- Recomendaciones -->
+      <div class="exp-sec-title">⭐ Recomendaciones</div>
+      <div class="testimonios-list" id="testimoniosList" style="max-height:none;margin-bottom:4px;"></div>
+      <!-- Contactar -->
+      <div class="exp-sec-title" style="margin-top:24px;">Contactar</div>
       <div class="contact-actions" style="margin-bottom:8px;">
         <button class="btn-whatsapp" onclick="contactarWhatsApp()">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
@@ -1523,13 +1562,29 @@ async function wizBuscar() {
 function getDemoPrestadores() {
   return [
     { id:1, num:'001', oficio:'Plomería', nombre:'Juan Rodríguez', zona:'Nueva Córdoba', tel:'3511234567', stars:5, reseñas:32, tier:'destacado',
-      testimonios:[{stars:5,texto:'Excelente trabajo, muy prolijo y puntual.',autor:'María G.'},{stars:5,texto:'Resolvió el problema en minutos.',autor:'Carlos T.'},{stars:4,texto:'Buen trabajo, un poco caro pero valió.',autor:'Ana V.'}] },
+      horarios:'Lun–Vie 8–18 / Sáb 8–13', cobro:'Efectivo · Transf.',
+      bio:'Plomero matriculado con 12 años de experiencia en instalaciones, reparaciones y urgencias en Córdoba Capital. Trabajo con garantía en mano de obra y coordino visitas sin costo de diagnóstico previo.',
+      servicios:['Plomería general','Destape de cañerías','Termotanques','Urgencias 24hs','Instalaciones nuevas','Detección de pérdidas','Calefones','Obras en curso'],
+      verificaciones:[{label:'TELÉFONO',val:'Verificado',ok:true},{label:'EN SERVY',val:'24 meses',ok:true},{label:'IDENTIDAD',val:'Verificada',ok:true},{label:'RESPUESTA',val:'< 20 min',ok:true}],
+      testimonios:[{stars:5,texto:'Excelente trabajo, muy prolijo y puntual. Llegó en menos de una hora de avisar.',autor:'María G.'},{stars:5,texto:'Resolvió el problema de la pérdida en minutos. Muy recomendable.',autor:'Carlos T.'},{stars:4,texto:'Buen trabajo, un poco caro pero valió la pena por la calidad.',autor:'Ana V.'},{stars:5,texto:'Super puntual y dejó todo limpio. Ya lo llamo para el próximo arreglo.',autor:'Diego F.'}] },
     { id:2, num:'002', oficio:'Electricidad', nombre:'Ana González', zona:'Alta Córdoba', tel:'3519876543', stars:5, reseñas:18, tier:'verificado',
-      testimonios:[{stars:5,texto:'Muy profesional, precios razonables.',autor:'Roberto P.'},{stars:5,texto:'Resolvió problema eléctrico complejo sin drama.',autor:'Florencia K.'}] },
+      horarios:'Lun–Sáb 8–17', cobro:'Efectivo · Transf. · Débito',
+      bio:'Electricista matriculada, especializada en instalaciones domiciliarias y certificaciones técnicas. Más de 8 años trabajando en Córdoba Capital y zona norte.',
+      servicios:['Instalaciones eléctricas','Tableros y llaves','Certificaciones técnicas','Urgencias eléctricas','Iluminación LED','Puesta a tierra'],
+      verificaciones:[{label:'TELÉFONO',val:'Verificado',ok:true},{label:'EN SERVY',val:'18 meses',ok:true},{label:'IDENTIDAD',val:'Verificada',ok:true},{label:'RESPUESTA',val:'< 30 min',ok:true}],
+      testimonios:[{stars:5,texto:'Muy profesional, precios razonables. Certificó el tablero en el mismo día.',autor:'Roberto P.'},{stars:5,texto:'Resolvió problema eléctrico complejo sin drama. La recomiendo.',autor:'Florencia K.'},{stars:5,texto:'Excelente atención y trabajo impecable. Volvería a llamarla.',autor:'Tomás M.'}] },
     { id:3, num:'003', oficio:'Gasistas', nombre:'Carlos Suárez', zona:'General Paz', tel:'3514567890', stars:4, reseñas:24, tier:'recomendado',
-      testimonios:[{stars:4,texto:'Buen trabajo, llegó puntual.',autor:'Lucía M.'},{stars:5,texto:'Certificó instalación de gas muy rápido.',autor:'Hernán B.'}] },
+      horarios:'Lun–Vie 8–17', cobro:'Efectivo · Transferencia',
+      bio:'Gasista matriculado por el Ente Nacional Regulador del Gas. Certificaciones de instalaciones, detección de fugas y mantenimiento de artefactos a gas.',
+      servicios:['Certificaciones ENARGAS','Detección de fugas','Calefacción central','Termotanques a gas','Instalaciones nuevas','Mantenimiento'],
+      verificaciones:[{label:'TELÉFONO',val:'Verificado',ok:true},{label:'EN SERVY',val:'12 meses',ok:true},{label:'IDENTIDAD',val:'Pendiente',ok:false},{label:'RESPUESTA',val:'< 1 hora',ok:true}],
+      testimonios:[{stars:4,texto:'Buen trabajo, llegó puntual y explicó todo muy bien.',autor:'Lucía M.'},{stars:5,texto:'Certificó instalación de gas muy rápido. Sin problemas.',autor:'Hernán B.'},{stars:4,texto:'Correcto y prolijo. Recomendable.',autor:'Sandra R.'}] },
     { id:4, num:'004', oficio:'Pintura', nombre:'Laura Pérez', zona:'Güemes', tel:'3512345678', stars:5, reseñas:11, tier:'verificado',
-      testimonios:[{stars:5,texto:'Trabajo impecable, muy recomendable.',autor:'Diego F.'},{stars:5,texto:'Puntual, prolija y excelente terminación.',autor:'Valeria C.'}] }
+      horarios:'Lun–Vie 8–17 / Sáb 8–12', cobro:'Efectivo · Transferencia',
+      bio:'Pintora profesional con especialización en interiores y terminaciones de alta calidad. Trabajo con materiales de primera marca y presupuesto sin cargo.',
+      servicios:['Pintura interior','Pintura exterior','Microcemento','Enduído y preparación','Pintura de techos','Impermeabilizaciones'],
+      verificaciones:[{label:'TELÉFONO',val:'Verificado',ok:true},{label:'EN SERVY',val:'8 meses',ok:true},{label:'IDENTIDAD',val:'Verificada',ok:true},{label:'RESPUESTA',val:'< 2 horas',ok:true}],
+      testimonios:[{stars:5,texto:'Trabajo impecable, muy recomendable. Quedó mejor de lo que esperaba.',autor:'Diego F.'},{stars:5,texto:'Puntual, prolija y excelente terminación. Ya la contraté para otro ambiente.',autor:'Valeria C.'},{stars:5,texto:'Dejó el departamento como nuevo. Precios muy accesibles.',autor:'Marcelo A.'}] }
   ];
 }
 
@@ -1582,10 +1637,36 @@ function abrirModal(p) {
   document.getElementById('modalStars').textContent = '★'.repeat(p.stars) + (p.stars < 5 ? '☆'.repeat(5-p.stars) : '');
   document.getElementById('modalRatingSub').textContent = p.stars + '.0 · ' + p.reseñas + ' reseñas';
   document.getElementById('modalChips').innerHTML = '<span class="modal-chip">' + p.oficio + '</span>';
-  document.getElementById('modalExpZona').textContent = p.zona;
+  // Info strip
+  var _strip = document.getElementById('expInfoStrip');
+  var _si = '<div class="exp-info-item"><span class="exp-info-icon">📍</span><span class="exp-info-label">Zona</span><span class="exp-info-val">' + p.zona + '</span></div>';
+  if (p.horarios) _si += '<div class="exp-info-item"><span class="exp-info-icon">🕐</span><span class="exp-info-label">Horarios</span><span class="exp-info-val">' + p.horarios + '</span></div>';
+  if (p.cobro)    _si += '<div class="exp-info-item"><span class="exp-info-icon">💳</span><span class="exp-info-label">Cobro</span><span class="exp-info-val">' + p.cobro + '</span></div>';
+  _strip.innerHTML = _si;
+  // Bio
+  var _bw = document.getElementById('expBioWrap');
+  if (p.bio) { document.getElementById('expBio').textContent = p.bio; _bw.style.display = ''; }
+  else _bw.style.display = 'none';
+  // Servicios
+  var _sw = document.getElementById('expServiciosWrap');
+  if (p.servicios && p.servicios.length) {
+    document.getElementById('expTags').innerHTML = p.servicios.map(function(s, i) {
+      return '<span class="exp-tag' + (i < 3 ? ' hl' : '') + '">' + s + '</span>';
+    }).join('');
+    _sw.style.display = '';
+  } else _sw.style.display = 'none';
+  // Verificaciones
+  var _vw = document.getElementById('expVerifWrap');
+  if (p.verificaciones && p.verificaciones.length) {
+    document.getElementById('expVerif').innerHTML = p.verificaciones.map(function(v) {
+      return '<div class="exp-verif-item' + (v.ok ? ' ok' : '') + '"><span class="exp-verif-icon">' + (v.ok ? '✅' : '⏳') + '</span><div><div class="exp-verif-label">' + v.label + '</div><div class="exp-verif-val">' + v.val + '</div></div></div>';
+    }).join('');
+    _vw.style.display = '';
+  } else _vw.style.display = 'none';
+  // Testimonios
   document.getElementById('testimoniosList').innerHTML = (p.testimonios || []).map(function(t) {
     return '<div class="testimonio"><div class="testimonio-stars">' + '★'.repeat(t.stars) + '</div><div>' + t.texto + '</div><div class="testimonio-autor">' + t.autor + '</div></div>';
-  }).join('');
+  }).join('') || '<p style="font-family:var(--f-sans);font-size:13px;color:var(--ink-mute);padding:8px 0;">Aún no tiene recomendaciones.</p>';
   document.getElementById('perfilExpansion').style.display = 'none';
   document.getElementById('btnDesplegar').textContent = 'Desplegar perfil completo ↓';
   document.getElementById('modalOverlay').classList.add('visible');
