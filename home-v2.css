@@ -1518,17 +1518,17 @@ main { position: relative; z-index: 1; }
 /* ============ FLOATING SEARCH ============ */
 .search-float {
   position: fixed;
-  bottom: 28px;
+  bottom: 0;
   left: 0;
   right: 0;
-  width: min(620px, calc(100% - 40px));
-  margin: 0 auto;
-  transform: translateY(90px);
+  display: flex;
+  justify-content: center;
+  padding: 0 20px 28px;
   z-index: 300;
+  transform: translateY(100%);
   opacity: 0;
-  transition: transform 0.5s var(--ease-out), opacity 0.4s var(--ease-out);
+  transition: transform 0.45s var(--ease-out), opacity 0.4s var(--ease-out);
   pointer-events: none;
-  will-change: transform, opacity;
 }
 .search-float.visible {
   transform: translateY(0);
@@ -1537,7 +1537,7 @@ main { position: relative; z-index: 1; }
 }
 .search-float-pill {
   display: flex; align-items: center; justify-content: center; gap: 10px;
-  width: 100%;
+  width: 100%; max-width: 580px;
   background: var(--accent); color: var(--accent-ink);
   font-family: var(--f-mono); font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase;
   padding: 20px 36px; border-radius: 999px; text-decoration: none;
@@ -1547,8 +1547,8 @@ main { position: relative; z-index: 1; }
 }
 .search-float-pill:hover { background: var(--ink); transform: translateY(-2px); }
 @media (max-width: 820px) {
-  .search-float { bottom: 84px; width: calc(100vw - 80px); max-width: 320px; }
-  .search-float-pill { font-size: 15px; padding: 18px 24px; }
+  .search-float { padding: 0 20px 84px; }
+  .search-float-pill { font-size: 15px; padding: 18px 24px; max-width: 320px; }
 }
 
 /* Provider cards: a slight rotate on hover for fun */
