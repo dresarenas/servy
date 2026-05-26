@@ -307,15 +307,14 @@
   overlay.innerHTML = [
     '<div class="servy-login-box">',
     '  <button class="servy-login-close" onclick="servyCloseLogin()">✕</button>',
-    '  <div class="servy-login-logo">SERVY</div>',
+    '  <img src="assets/servy-full.png" alt="SERVY" class="servy-login-logo-img">',
     '  <div class="servy-login-sub">Accedé a tu panel de prestador</div>',
     '  <div class="servy-login-demo-badge">',
     '    ◈ Modo demo — credenciales precargadas',
     '  </div>',
-    '  <input class="servy-login-field" id="servyLoginEmail" type="email" value="demo@servy.ar" placeholder="Email">',
-    '  <input class="servy-login-field" id="servyLoginPass" type="password" value="demo123" placeholder="Contraseña">',
+    '  <input class="servy-login-field" id="servyLoginEmail" type="email" value="demo@servy.ar" placeholder="Email" autocomplete="off">',
+    '  <input class="servy-login-field" id="servyLoginPass" type="password" value="demo123" placeholder="Contraseña" autocomplete="new-password">',
     '  <button class="servy-login-btn" onclick="servyDoLogin()">Ingresar al panel →</button>',
-    '  <button class="servy-login-free" onclick="servyDoLogin()">Continuar sin cuenta</button>',
     '</div>'
   ].join('');
   overlay.addEventListener('click', function (e) { if (e.target === overlay) servyCloseLogin(); });
@@ -365,7 +364,7 @@ if ('serviceWorker' in navigator) {
       localStorage.setItem('servy_pwa_hint', '1');
     };
     document.body.appendChild(el);
-    setTimeout(function() { if (el.parentNode) el.remove(); }, 12000);
+    setTimeout(function() { if (el.parentNode) el.remove(); localStorage.setItem('servy_pwa_hint', '1'); }, 12000);
   });
 })();
 

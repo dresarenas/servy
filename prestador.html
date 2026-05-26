@@ -655,7 +655,7 @@ function prestValidStep0() {
   var tel    = document.getElementById('prestTel').value.replace(/\s/g, '');
   var ok = true;
 
-  if (!nombre) { prestShowErr('errPrestNombre', true); ok = false; } else prestShowErr('errPrestNombre', false);
+  if (!nombre || nombre.length < 2) { prestShowErr('errPrestNombre', true); ok = false; } else prestShowErr('errPrestNombre', false);
   var telOk = /^\d{10,11}$/.test(tel) && !/^(\d)\1+$/.test(tel);
   if (!telOk) { prestShowErr('errPrestTel', true); ok = false; } else prestShowErr('errPrestTel', false);
 

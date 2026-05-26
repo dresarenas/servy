@@ -614,8 +614,9 @@
 .modal-overlay.visible { display: flex; }
 .modal-box { background: var(--bg-elev); border: 1px solid var(--line-strong); border-radius: 16px; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; position: relative; padding: 56px 40px 40px; }
 @media (max-width: 600px) { .modal-box { padding: 52px 20px 24px; } }
-.modal-close { position: absolute; top: 16px; left: 16px; background: transparent; border: 1px solid var(--line); border-radius: 50%; width: 32px; height: 32px; cursor: pointer; color: var(--ink-dim); font-family: var(--f-mono); font-size: 14px; display: flex; align-items: center; justify-content: center; transition: color 0.2s, border-color 0.2s; }
-.modal-close:hover { color: var(--ink); border-color: var(--ink-dim); }
+.modal-close { position: absolute; top: 16px; left: 16px; background: rgba(11,26,43,0.65); border: 1.5px solid var(--line-strong); border-radius: 50%; width: 40px; height: 40px; cursor: pointer; color: var(--ink); font-family: var(--f-mono); font-size: 16px; display: flex; align-items: center; justify-content: center; transition: background 0.2s, color 0.2s; backdrop-filter: blur(4px); }
+.modal-close:hover { background: rgba(0,201,167,0.18); color: var(--accent); }
+[data-palette="bone"] .modal-close { background: rgba(230,226,218,0.8); color: #0F1014; border-color: rgba(15,16,20,0.25); }
 .modal-eyebrow { font-family: var(--f-mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
 .modal-name { font-family: var(--f-display); font-weight: 800; font-size: clamp(24px, 4vw, 40px); letter-spacing: -0.02em; color: var(--ink); margin-bottom: 4px; }
 .modal-location { font-family: var(--f-mono); font-size: 13px; color: var(--ink-mute); letter-spacing: 0.06em; margin-bottom: 16px; }
@@ -1073,13 +1074,29 @@
         <button class="wiz-btn-back" onclick="goToStep(1)">← Volver</button>
         <button class="wiz-cta" onclick="wizReset()">Nueva búsqueda <span class="btn-arr"></span></button>
       </div>
-      <a href="https://wa.me/?text=Encontr%C3%A1%20prestadores%20verificados%20en%20SERVY%20%F0%9F%94%8D%20https%3A%2F%2Fdresarenas.github.io%2Fservy%2F" target="_blank" rel="noopener" class="wiz-wa-share">
+      <a href="https://wa.me/?text=Encontr%C3%A1%20prestadores%20verificados%20en%20SERVY%20%F0%9F%94%8D%20https%3A%2F%2Fservy.ar" target="_blank" rel="noopener" class="wiz-wa-share">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
         Compartir SERVY por WhatsApp
       </a>
     </div>
   </div>
 
+
+<!-- Modal presupuesto -->
+<div class="modal-overlay" id="modalPresupuesto" onclick="if(event.target===this)document.getElementById('modalPresupuesto').classList.remove('visible')">
+  <div class="modal-box" style="text-align:center;padding:48px 32px 36px;max-width:380px;">
+    <button class="modal-close" onclick="document.getElementById('modalPresupuesto').classList.remove('visible')">✕</button>
+    <div style="font-size:44px;margin-bottom:16px;">🔧</div>
+    <div class="modal-name" style="font-size:clamp(20px,4vw,28px);margin-bottom:12px;">Próximamente</div>
+    <p style="font-family:var(--f-sans);font-size:15px;color:var(--ink-dim);line-height:1.65;max-width:280px;margin:0 auto 28px;">
+      Estamos preparando el sistema de presupuestos. Por ahora, contactá al prestador directo por WhatsApp.
+    </p>
+    <button class="btn-whatsapp" onclick="contactarWhatsApp();document.getElementById('modalPresupuesto').classList.remove('visible')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+      Contactar por WhatsApp
+    </button>
+  </div>
+</div>
 </div><!-- /wiz -->
 
 <!-- Modal prestador -->
@@ -1227,6 +1244,12 @@ function wizNext() {
     }
     wizState.descripcion = desc;
     wizState.oficio = detectOficio(desc) || null;
+    if (!wizState.oficio) {
+      var _e0 = document.getElementById('wiz-err-0');
+      _e0.textContent = 'No reconocemos esa búsqueda. Intentá con "plomero", "electricista", "pintor"...';
+      _e0.classList.add('visible');
+      return;
+    }
     document.getElementById('wiz-err-0').classList.remove('visible');
     goToStep(1);
     if (!wizMapInited) setTimeout(wizInitMap, 80);
@@ -1726,7 +1749,7 @@ function contactarWhatsApp() {
   if (!prestadorActual) return;
   window.open('https://wa.me/549' + prestadorActual.tel + '?text=' + encodeURIComponent('Hola, te contacto a través de SERVY. ¿Podés ayudarme?'), '_blank');
 }
-function solicitarPresupuesto() { alert('Próximamente habilitaremos esta opción. Disculpas.'); }
+function solicitarPresupuesto() { document.getElementById('modalPresupuesto').classList.add('visible'); }
 
 var _favToastTimer = null;
 function mostrarToastFav() {
@@ -1758,7 +1781,8 @@ async function initFromURLParams() {
   try {
     var res = await fetch(WEBHOOK_CLASIFICAR, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ texto: q }) });
     var data = await res.json();
-    if (data.ok && data.oficio) {
+    var _GENERIC = ['el servicio', 'servicio', 'los servicios', 'servicios'];
+    if (data.ok && data.oficio && _GENERIC.indexOf(data.oficio.toLowerCase().trim()) === -1) {
       wizState.oficio = normalizarOficio(data.oficio);
       if (errEl) errEl.classList.remove('visible');
       goToStep(1); if (!wizMapInited) setTimeout(wizInitMap, 80);
@@ -1770,8 +1794,7 @@ async function initFromURLParams() {
         goToStep(1); if (!wizMapInited) setTimeout(wizInitMap, 80);
       } else {
         wizState.oficio = null;
-        if (errEl) errEl.classList.remove('visible');
-        goToStep(1); if (!wizMapInited) setTimeout(wizInitMap, 80);
+        if (errEl) { errEl.textContent = 'No reconocemos esa búsqueda. Intentá con "plomero", "electricista", "pintor"...'; errEl.classList.add('visible'); }
       }
     }
   } catch(e) {
@@ -1782,8 +1805,7 @@ async function initFromURLParams() {
       goToStep(1); if (!wizMapInited) setTimeout(wizInitMap, 80);
     } else {
       wizState.oficio = null;
-      if (errEl) errEl.classList.remove('visible');
-      goToStep(1); if (!wizMapInited) setTimeout(wizInitMap, 80);
+      if (errEl) { errEl.textContent = 'No reconocemos esa búsqueda. Intentá con "plomero", "electricista", "pintor"...'; errEl.classList.add('visible'); }
     }
   }
 }

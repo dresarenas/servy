@@ -94,29 +94,47 @@ body{
 .tab-content{display:none;padding-bottom:calc(var(--bot) + 24px);}
 .tab-content.active{display:block;}
 
-/* ── BOTTOM NAV ── */
+/* ── PANEL TOP TABS ── */
+.panel-tabs {
+  display:flex; overflow-x:auto; gap:0;
+  border-bottom:1px solid var(--line-s);
+  background:rgba(14,15,18,.96); backdrop-filter:blur(12px);
+  position:sticky; top:57px; z-index:90;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+.panel-tabs::-webkit-scrollbar{display:none;}
+.panel-tab-btn {
+  flex:1; min-width:80px; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:3px;
+  padding:10px 8px 9px;
+  background:none; border:none; border-bottom:2px solid transparent;
+  color:var(--ink-m); font-family:var(--fm); font-size:10px;
+  letter-spacing:.04em; text-transform:uppercase;
+  cursor:pointer; transition:color .2s, border-color .2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.panel-tab-btn .pt-icon{font-size:18px;line-height:1;}
+.panel-tab-btn.active{color:var(--ac);border-bottom-color:var(--ac);}
+
+/* ── BOTTOM NAV (home-v2.js generated) ── */
 .bottom-nav{
-  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
-  width:100%;max-width:480px;
+  position:fixed;bottom:0;left:0;right:0;
   background:rgba(23,24,28,.96);
   backdrop-filter:blur(20px);
   border-top:1px solid var(--line-s);
-  display:flex;
-  height:var(--bot);
-  padding-bottom:env(safe-area-inset-bottom);
-  z-index:200;
+  display:flex; z-index:200;
+  padding-bottom:max(env(safe-area-inset-bottom),4px);
 }
-.nav-btn{
-  flex:1;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:4px;
-  background:none;border:none;cursor:pointer;
-  color:var(--ink-m);transition:color .2s;
-  padding:8px 0;
-  -webkit-tap-highlight-color:transparent;
+.bottom-nav-item {
+  flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
+  padding:8px 0; text-decoration:none;
+  color:var(--ink-m); font-family:var(--fm);
+  font-size:10px; letter-spacing:.04em; text-transform:uppercase;
+  transition:color .2s; -webkit-tap-highlight-color:transparent;
 }
-.nav-btn.active{color:var(--ac);}
-.nav-btn .ni{font-size:20px;line-height:1;}
-.nav-btn .nl{font-size:10px;font-family:var(--fm);font-weight:500;}
+.bottom-nav-item.active{color:var(--ac);}
+.bottom-nav-item svg{width:22px;height:22px;stroke:currentColor;}
 
 /* ── CARDS ── */
 .card{
@@ -522,6 +540,22 @@ body{
     </div>
   </div>
   <div class="topbar-avatar">CG</div>
+</div>
+
+<!-- TOP TABS -->
+<div class="panel-tabs" role="tablist">
+  <button class="panel-tab-btn active" id="ptb-inicio" onclick="switchTab('inicio')" role="tab">
+    <span class="pt-icon">◈</span>Inicio
+  </button>
+  <button class="panel-tab-btn" id="ptb-perfil" onclick="switchTab('perfil')" role="tab">
+    <span class="pt-icon">👤</span>Perfil
+  </button>
+  <button class="panel-tab-btn" id="ptb-reputacion" onclick="switchTab('reputacion')" role="tab">
+    <span class="pt-icon">⭐</span>Reseñas
+  </button>
+  <button class="panel-tab-btn" id="ptb-kit" onclick="switchTab('kit')" role="tab">
+    <span class="pt-icon">⬡</span>Kit Digital
+  </button>
 </div>
 
 <!-- ══════════════════════════════════
@@ -1101,32 +1135,15 @@ body{
 
 </div><!-- /tab-kit -->
 
-<!-- BOTTOM NAV -->
-<nav class="bottom-nav">
-  <button class="nav-btn active" onclick="switchTab('inicio')" id="btn-inicio">
-    <span class="ni">◈</span>
-    <span class="nl">Inicio</span>
-  </button>
-  <button class="nav-btn" onclick="switchTab('perfil')" id="btn-perfil">
-    <span class="ni">👤</span>
-    <span class="nl">Perfil</span>
-  </button>
-  <button class="nav-btn" onclick="switchTab('reputacion')" id="btn-reputacion">
-    <span class="ni">⭐</span>
-    <span class="nl">Reseñas</span>
-  </button>
-  <button class="nav-btn" onclick="switchTab('kit')" id="btn-kit">
-    <span class="ni">⬡</span>
-    <span class="nl">Kit Digital</span>
-  </button>
-</nav>
+
 
 <script>
 function switchTab(name) {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.panel-tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
-  document.getElementById('btn-' + name).classList.add('active');
+  var ptb = document.getElementById('ptb-' + name);
+  if (ptb) ptb.classList.add('active');
   window.scrollTo(0, 0);
 }
 function copyURL() {
