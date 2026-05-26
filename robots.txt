@@ -1,4 +1,8 @@
 User-agent: *
 Allow: /
+Disallow: /panel.html
+Disallow: /perfil.html
+Disallow: /buscar-v3.html
+Disallow: /informe_prestador.html
 
 Sitemap: https://servy.ar/sitemap.xml

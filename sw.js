@@ -7,8 +7,6 @@ const PRECACHE = [
   '/prestador.html',
   '/home-v2.css',
   '/home-v2.js',
-  '/servy-grid3d-hero.css',
-  '/servy-grid3d-hero.js',
   '/assets/servy-icon-192.png',
   '/assets/servy-icon-512.png'
 ];

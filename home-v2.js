@@ -375,6 +375,8 @@ window.addEventListener('beforeinstallprompt', function(e) {
   e.preventDefault();
   _installPrompt = e;
   if (localStorage.getItem('servy_pwa_android')) return;
+  var _dis = localStorage.getItem('servy_pwa_dismissed');
+  if (_dis && Date.now() - parseInt(_dis) < 7*24*3600*1000) return;
   var el = document.createElement('div');
   el.id = 'pwa-android-hint';
   el.innerHTML = '<div class="pwa-shimmer"></div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg><span style="flex:1">Instalá <strong>SERVY</strong> en tu pantalla de inicio</span><button id="pwa-android-install" style="background:var(--accent,#3CE6C5);color:#0E0F12;border:none;border-radius:999px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">Instalar</button><button id="pwa-android-close" style="background:none;border:none;color:rgba(242,238,230,0.55);cursor:pointer;font-size:16px;padding:0 0 0 8px;flex-shrink:0">✕</button>';
@@ -398,7 +400,7 @@ window.addEventListener('beforeinstallprompt', function(e) {
   };
   el.querySelector('#pwa-android-close').onclick = function() {
     el.remove();
-    localStorage.setItem('servy_pwa_android', '1');
+    localStorage.setItem('servy_pwa_dismissed', Date.now());
   };
   document.body.appendChild(el);
   setTimeout(function() { var h = document.getElementById('pwa-android-hint'); if (h) h.remove(); }, 15000);
