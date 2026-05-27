@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es" data-palette="midnight">
+<head>
+<meta charset="UTF-8">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0E0F12">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SERVY">
+<link rel="apple-touch-icon" href="assets/servy-icon-192.png">
+<link rel="icon" href="assets/servy-circle.png" type="image/png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Términos y Condiciones — Servy.ar</title>
+<meta name="description" content="Términos y condiciones de uso de Servy.ar, directorio de prestadores de servicios del hogar en Córdoba, Argentina.">
+<link rel="canonical" href="https://servy.ar/terminos.html">
+<meta name="robots" content="noindex">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="home-v2.css">
+<script>
+(function(){
+  try {
+    var t = JSON.parse(localStorage.getItem('servy-v2-tweaks') || '{}');
+    if (t.palette) document.documentElement.setAttribute('data-palette', t.palette);
+  } catch(e) {}
+})();
+</script>
+<style>
+.legal-wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 100px 28px 80px;
+  box-sizing: border-box;
+}
+.legal-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink-dim);
+  font-size: 13px;
+  text-decoration: none;
+  margin-bottom: 40px;
+  transition: color .2s;
+}
+.legal-back:hover { color: var(--accent); }
+.legal-eyebrow {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+.legal-title {
+  font-family: var(--f-display);
+  font-size: clamp(28px, 5vw, 42px);
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+.legal-meta {
+  font-size: 13px;
+  color: var(--ink-dim);
+  margin-bottom: 48px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--line);
+}
+.legal-section {
+  margin-bottom: 40px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid var(--line);
+}
+.legal-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+.legal-h2 {
+  font-family: var(--f-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.legal-h2::before {
+  content: attr(data-n);
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-mute);
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 2px 7px;
+  flex-shrink: 0;
+}
+.legal-body {
+  font-family: var(--f-sans);
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--ink-dim);
+}
+.legal-body p { margin: 0 0 12px; }
+.legal-body p:last-child { margin-bottom: 0; }
+.legal-body strong { color: var(--ink); font-weight: 600; }
+.legal-body ul {
+  margin: 10px 0 12px 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.legal-body a { color: var(--accent); text-decoration: none; }
+.legal-body a:hover { text-decoration: underline; }
+.legal-contact-box {
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 20px 22px;
+  margin-top: 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.legal-contact-box .label {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-bottom: 4px;
+}
+.legal-contact-box a {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 15px;
+}
+</style>
+</head>
+<body>
+
+<nav class="nav" aria-label="Principal">
+  <a href="index.html" class="nav-logo" data-magnetic>
+    <img src="assets/servy-full.png" alt="SERVY">
+  </a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link" data-magnetic>Inicio</a>
+    <a href="buscar.html" class="nav-link" data-magnetic>Buscar</a>
+    <a href="recomendar.html" class="nav-link" data-magnetic>Recomendar</a>
+    <a href="prestador.html" class="nav-link" data-magnetic>Prestador</a>
+    <a href="#" class="nav-link nav-login" onclick="servyOpenLogin(event)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Ingresar
+    </a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema" title="Cambiar tema"><span class="toggle-moon">☾</span><span class="toggle-sun">☀</span></button>
+  <button class="nav-burger" aria-label="Menú" aria-expanded="false" id="navBurger">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<main>
+<div class="legal-wrap">
+
+  <a href="index.html" class="legal-back">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    Volver al inicio
+  </a>
+
+  <div class="legal-eyebrow">Documento legal</div>
+  <h1 class="legal-title">Términos y Condiciones</h1>
+  <div class="legal-meta">
+    Actualización: enero 2026 &middot; <a href="privacidad.html">Ver Política de Privacidad</a>
+  </div>
+
+  <div class="legal-section">
+    <div class="legal-h2" data-n="1">Qué es Servy</div>
+    <div class="legal-body">
+      <p>Servy.ar es un directorio digital que conecta a personas con prestadores de servicios en Córdoba, Argentina. Somos una plataforma de visibilidad: no intermediamos en la contratación, no cobramos comisiones y no somos parte de ningún acuerdo entre usuario y prestador.</p>
+    </div>
+  </div>
+
+  <div class="legal-section">
+    <div class="legal-h2" data-n="2">Para usuarios que buscan prestadores</div>
+    <div class="legal-body">
+      <p>El directorio es gratuito y de libre consulta. La información de los prestadores es provista por ellos mismos o autorizada su publicación. <strong>Servy no certifica la idoneidad, habilitaciones o conducta de ningún prestador.</strong> Recomendamos al usuario verificar referencias y acordar condiciones directamente.</p>
+    </div>
+  </div>
+
+  <div class="legal-section">
+    <div class="legal-h2" data-n="3">Para prestadores registrados</div>
+    <div class="legal-body">
+      <p>Al registrarte en Servy aceptás:</p>
+      <ul>
+        <li>Proveer información veraz, completa y actualizada.</li>
+        <li>Mantener tus datos de contacto vigentes.</li>
+        <li>Actuar con profesionalismo en tus servicios.</li>
+      </ul>
+      <p>Servy puede remover o suspender un perfil en cualquier momento si detecta información falsa, quejas reiteradas o usos contrarios a estos términos.</p>
+    </div>
+  </div>
+
+  <div class="legal-section">
+    <div class="legal-h2" data-n="4">Usos prohibidos</div>
+    <div class="legal-body">
+      <p>Está prohibido usar Servy para:</p>
+      <ul>
+        <li>Publicar información falsa o engañosa.</li>
+        <li>Hacer spam o contacto no solicitado a otros usuarios.</li>
+        <li>Actividades ilegales de cualquier tipo.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="legal-section">
+    <div class="legal-h2" data-n="5">Limitación de responsabilidad</div>
+    <div class="legal-body">
+      <p>Servy no es responsable por los servicios prestados, los acuerdos entre partes, ni los daños que puedan surgir de la relación entre usuario y prestador. El uso del directorio es bajo responsabilidad del usuario.</p>
+    </div>
+  </div>
+
+  <div class="legal-section">
+    <div class="legal-h2" data-n="6">Propiedad intelectual</div>
+    <div class="legal-body">
+      <p>El nombre, logo y diseño de Servy son de propiedad de Marcelo Andrés Arenas Chávez. El contenido del directorio (perfiles de prestadores) pertenece a cada prestador.</p>
+    </div>
+  </div>
+
+  <div class="legal-section">
+    <div class="legal-h2" data-n="7">Modificaciones</div>
+    <div class="legal-body">
+      <p>Podemos actualizar estos términos. Los cambios se publican en esta página con la fecha de actualización.</p>
+    </div>
+  </div>
+
+  <div class="legal-section">
+    <div class="legal-h2" data-n="8">Legislación aplicable</div>
+    <div class="legal-body">
+      <p>Estos términos se rigen por la legislación argentina. Ante cualquier conflicto, las partes se someten a la jurisdicción de los tribunales de la ciudad de Córdoba.</p>
+    </div>
+  </div>
+
+  <div class="legal-contact-box">
+    <div class="label">Contacto</div>
+    <a href="mailto:info@servy.ar">info@servy.ar</a>
+    <span style="font-size:13px;color:var(--ink-dim);">También podés consultar la <a href="privacidad.html">Política de Privacidad</a>.</span>
+  </div>
+
+</div>
+</main>
+
+<footer class="footer">
+    <div>
+      <div class="footer-title">Contacto</div>
+      <div><a href="mailto:info@servy.ar">info@servy.ar</a></div>
+      <div><a href="https://www.servy.ar" target="_blank" rel="noopener">www.servy.ar</a></div>
+      <div class="footer-social">
+        <a href="https://www.instagram.com/servy.ar/" target="_blank" rel="noopener" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+        </a>
+        <a href="https://www.facebook.com/profile.php?id=61589827885699" target="_blank" rel="noopener" aria-label="Facebook">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+        </a>
+        <a href="https://www.tiktok.com/@servy.ar" target="_blank" rel="noopener" aria-label="TikTok" class="social-desktop">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34l.01-8.62a8.24 8.24 0 0 0 4.82 1.53V4.78a4.85 4.85 0 0 1-1.06-.09z"/></svg>
+        </a>
+        <a href="https://www.youtube.com/@servy-ar" target="_blank" rel="noopener" aria-label="YouTube" class="social-desktop">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.47 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .47 5.58 2.78 2.78 0 0 0 1.94 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.94-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="currentColor" stroke="none"/></svg>
+        </a>
+        <a href="https://www.linkedin.com/in/servy-ar/" target="_blank" rel="noopener" aria-label="LinkedIn" class="social-desktop">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+        </a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-title">Navegación</div>
+      <div><a href="buscar.html">Buscar prestador</a></div>
+      <div><a href="recomendar.html">Recomendar</a></div>
+      <div><a href="prestador.html">Soy prestador</a></div>
+    </div>
+    <div>
+      <div class="footer-title">Legal</div>
+      <div><a href="terminos.html">Términos y Condiciones</a></div>
+      <div><a href="privacidad.html">Política de Privacidad</a></div>
+    </div>
+    <div>
+      <img src="assets/servy-full.png?v=2" alt="SERVY" class="footer-logo-img" loading="lazy">
+    </div>
+
+  <div class="footer-legal">Servy es un producto de <a href="https://landtrix.ar" target="_blank" rel="noopener">Landtrix</a> &middot; Titular: ARENAS CHAVEZ MARCELO ANDRES &middot; CUIT 20-26413459-6 &middot; Tel: <a href="https://wa.me/5493515120786">+54 9 351 5120786</a></div>
+</footer>
+
+<script src="servy-shared.js"></script>
+</body>
+</html>
