@@ -140,15 +140,27 @@
   }
 
   /* ============ FLOATING SEARCH ============ */
+  /* Scroll + hysteresis en lugar de IntersectionObserver:
+     IO se dispara en cada resize de viewport (barra Android) causando flickering.
+     Histéresis: show >250px, hide <80px — el resize de la barra (~56px) no puede flipear el estado. */
   const floatEl = document.getElementById('search-float');
-  const heroEl  = document.querySelector('.hero');
-  if (floatEl && heroEl && 'IntersectionObserver' in window) {
-    const heroObs = new IntersectionObserver((entries) => {
-      const hidden = !entries[0].isIntersecting;
-      floatEl.classList.toggle('visible', hidden);
-      floatEl.setAttribute('aria-hidden', hidden ? 'false' : 'true');
-    }, { threshold: 0 });
-    heroObs.observe(heroEl);
+  if (floatEl) {
+    var _floatShown = false, _floatRaf = false;
+    var FLOAT_SHOW = 250, FLOAT_HIDE = 80;
+    function _updateFloat() {
+      _floatRaf = false;
+      var sy = window.scrollY || window.pageYOffset || 0;
+      var want = _floatShown ? (sy > FLOAT_HIDE) : (sy > FLOAT_SHOW);
+      if (want !== _floatShown) {
+        _floatShown = want;
+        floatEl.classList.toggle('visible', _floatShown);
+        floatEl.setAttribute('aria-hidden', _floatShown ? 'false' : 'true');
+      }
+    }
+    window.addEventListener('scroll', function() {
+      if (!_floatRaf) { _floatRaf = true; requestAnimationFrame(_updateFloat); }
+    }, { passive: true });
+    _updateFloat();
   }
 
   /* ============ SEARCH SUBMIT ============ */
