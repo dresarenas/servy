@@ -1234,7 +1234,7 @@ function wizPrev() {
   history.back();
 }
 
-function wizNext() {
+async function wizNext() {
   if (wizCurrent === 0) {
     var desc = document.getElementById('wizDesc').value.trim();
     if (!desc) {
@@ -1244,12 +1244,45 @@ function wizNext() {
     }
     wizState.descripcion = desc;
     wizState.oficio = detectOficio(desc) || null;
+
     if (!wizState.oficio) {
+      // Diccionario local no reconoce → probar AI clasificador antes de bloquear
       var _e0 = document.getElementById('wiz-err-0');
-      _e0.textContent = 'No reconocemos esa búsqueda. Intentá con "plomero", "electricista", "pintor"...';
-      _e0.classList.add('visible');
-      return;
+      var _btn0 = document.getElementById('wizCtaBtn0');
+      if (_btn0) { _btn0.textContent = 'Identificando...'; _btn0.disabled = true; }
+      try {
+        var _ctrl0 = new AbortController();
+        var _t0 = setTimeout(function(){ _ctrl0.abort(); }, 6000);
+        var _aiRes = await fetch(WEBHOOK_CLASIFICAR, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ q: desc }), signal: _ctrl0.signal
+        });
+        clearTimeout(_t0);
+        if (_aiRes.ok) {
+          var _aiData = await _aiRes.json();
+          var _GENERIC2 = ['el servicio','servicio','los servicios','servicios'];
+          if (_aiData.ok && _aiData.oficio && _GENERIC2.indexOf(_aiData.oficio.toLowerCase().trim()) === -1) {
+            wizState.oficio = normalizarOficio(_aiData.oficio);
+          }
+        }
+      } catch(_err2) { /* AI no disponible */ }
+      if (_btn0) { _btn0.textContent = 'Siguiente'; _btn0.disabled = false; }
+
+      if (!wizState.oficio) {
+        // AI también falló → error + log fire-and-forget a Supabase
+        _e0.textContent = 'No identificamos ese servicio. Intentá con "plomero", "electricista", "pintor"...';
+        _e0.classList.add('visible');
+        try {
+          fetch('https://oupmslbpvtuszwkdcbvq.supabase.co/rest/v1/consultas', {
+            method: 'POST',
+            headers: { 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91cG1zbGJwdnR1c3p3a2RjYnZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3OTQ5NjIsImV4cCI6MjA5MDM3MDk2Mn0.6w3jb216pQ2UGfmCY6gSbpkBW9E_TnXvCskXNArctwI', 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+            body: JSON.stringify({ descripcion_problema: desc, estado: 'sin_resultado' })
+          });
+        } catch(_le) {}
+        return;
+      }
     }
+
     document.getElementById('wiz-err-0').classList.remove('visible');
     goToStep(1);
     if (!wizMapInited) setTimeout(wizInitMap, 80);
@@ -1613,7 +1646,8 @@ async function wizBuscar() {
     var res = await fetch(WEBHOOK_BUSQUEDA, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal: ctrl.signal });
     if (res.ok) {
       prestadores = await res.json();
-      if (!Array.isArray(prestadores) || prestadores.length === 0) { prestadores = getDemoPrestadores(); wizIsDemoData = true; }
+      if (!Array.isArray(prestadores)) { prestadores = getDemoPrestadores(); wizIsDemoData = true; }
+      // length === 0 = oficio válido sin prestadores → pantalla sin resultados (no demo)
     } else { prestadores = getDemoPrestadores(); wizIsDemoData = true; }
   } catch(e) { prestadores = getDemoPrestadores(); wizIsDemoData = true; }
   clearTimeout(aiMsgTimer); clearTimeout(timeoutTimer);
