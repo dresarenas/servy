@@ -425,8 +425,9 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
       <div id="recFormFields">
         <div class="rec-field">
           <label class="rec-label">¿Cómo se llama el prestador? <span style="color:var(--accent)">*</span></label>
-          <input type="text" class="rec-input" id="recNombre" placeholder="Ej: Mario Rodríguez" autocomplete="name"
-            oninput="this.value=this.value.replace(/[0-9]/g,''); recClearErr('errNombre')">
+          <input type="text" class="rec-input" id="recNombre" placeholder="Ej: Mario Rodríguez" autocomplete="off"
+            oninput="this.value=this.value.replace(/[0-9]/g,''); recClearErr('errNombre')"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();}"
           <div class="rec-err" id="errNombre">Ingresá el nombre del prestador</div>
         </div>
 
@@ -435,8 +436,9 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
           <div class="rec-phone-wrap" id="recPhoneWrap">
             <span class="rec-phone-prefix">+54 9</span>
             <input type="tel" class="rec-input" id="recTel" placeholder="351 1234567"
-              inputmode="numeric" autocomplete="tel"
-              oninput="this.value=this.value.replace(/[^0-9 ]/g,''); recClearErr('errTel')">
+              inputmode="numeric" autocomplete="off"
+              oninput="this.value=this.value.replace(/[^0-9 ]/g,''); recClearErr('errTel')"
+              onkeydown="if(event.key==='Enter'){event.preventDefault();}"
           </div>
           <div class="rec-hint">Sin el 0 ni el 15</div>
           <div class="rec-err" id="errTel">Ingresá un número de WhatsApp válido</div>

@@ -357,9 +357,9 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
 
       <div class="prest-field">
         <label class="prest-label">Nombre y apellido <span style="color:var(--accent)">*</span></label>
-        <input type="text" class="prest-input" id="prestNombre" placeholder="Ej: Juan García" autocomplete="name"
-          autocomplete="off"
-          oninput="this.value=this.value.replace(/[0-9]/g,''); prestClearErr('errPrestNombre')">
+        <input type="text" class="prest-input" id="prestNombre" placeholder="Ej: Juan García" autocomplete="off"
+          oninput="this.value=this.value.replace(/[0-9]/g,''); prestClearErr('errPrestNombre')"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();}"
         <div class="prest-err" id="errPrestNombre">Ingresá tu nombre completo</div>
       </div>
 
@@ -368,8 +368,9 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
         <div class="prest-phone-wrap" id="prestPhoneWrap">
           <span class="prest-phone-prefix">+54 9</span>
           <input type="tel" class="prest-input" id="prestTel" placeholder="351 1234567"
-            inputmode="numeric" autocomplete="tel"
-            oninput="this.value=this.value.replace(/[^0-9 ]/g,''); prestClearErr('errPrestTel')">
+            inputmode="numeric" autocomplete="off"
+            oninput="this.value=this.value.replace(/[^0-9 ]/g,''); prestClearErr('errPrestTel')"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();}"
         </div>
         <div class="prest-hint">Sin el 0 ni el 15</div>
         <div class="prest-err" id="errPrestTel">Ingresá un número de WhatsApp válido</div>
@@ -387,7 +388,7 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
     </div>
     <div class="prest-foot">
       <div class="prest-foot-row">
-        <button class="prest-back" onclick="prestPrev()">← Inicio</button>
+        <button class="prest-back" onclick="prestPrev()">← Volver</button>
         <button class="prest-cta" onclick="prestNext()">Siguiente <span class="btn-arr"></span></button>
       </div>
     </div>
@@ -755,7 +756,7 @@ function initPrestChips(id, maxSel) {
 }
 SERVY.getCategorias().then(function(cats) {
   SERVY.renderChips(document.getElementById('prestOficioChips'), cats, {
-    chipClass: 'prest-chip', selectedClass: 'sel', multiSelect: true, maxVisible: 8,
+    chipClass: 'prest-chip', selectedClass: 'sel', multiSelect: true, maxVisible: 8, maxSel: 5,
     showOtro: true,
     onOtro: function(sel) { document.getElementById('prestOtroOficioWrap').style.display = sel ? '' : 'none'; }
   });

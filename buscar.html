@@ -1467,7 +1467,7 @@ var _normOficio = {
 function normalizarOficio(o) { return _normOficio[o] || o; }
 
 /* ---- MIC ---- */
-var _wizMediaRecorder = null, _wizAudioChunks = [], _wizMicStream = null;
+var _wizMediaRecorder = null, _wizAudioChunks = [], _wizMicStream = null, _wizAudioTimeout = null, _wizAudioCountdown = null;
 async function getWizMicStream() {
   if (_wizMicStream && _wizMicStream.active) return _wizMicStream;
   _wizMicStream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -1490,6 +1490,8 @@ async function toggleWizMic() {
     _wizMediaRecorder = new MediaRecorder(stream, _mime ? { mimeType: _mime } : {});
     _wizMediaRecorder.ondataavailable = function(e) { _wizAudioChunks.push(e.data); };
     _wizMediaRecorder.onstop = async function() {
+      clearTimeout(_wizAudioTimeout); _wizAudioTimeout = null;
+      clearInterval(_wizAudioCountdown); _wizAudioCountdown = null;
       btn.classList.remove('recording');
       lbl.textContent = 'Procesando...';
       var blob = new Blob(_wizAudioChunks, { type: _mime || 'audio/webm' });
@@ -1512,7 +1514,15 @@ async function toggleWizMic() {
     };
     _wizMediaRecorder.start(250);
     btn.classList.add('recording');
-    lbl.textContent = 'Grabando...';
+    var _secs = 30;
+    lbl.textContent = 'Grabando ' + _secs + 's...';
+    _wizAudioCountdown = setInterval(function() {
+      _secs--;
+      if (_secs > 0) { lbl.textContent = 'Grabando ' + _secs + 's...'; }
+    }, 1000);
+    _wizAudioTimeout = setTimeout(function() {
+      if (_wizMediaRecorder && _wizMediaRecorder.state === 'recording') _wizMediaRecorder.stop();
+    }, 30000);
   } catch(e) {
     alert('No se pudo acceder al micrófono. Verificá los permisos.');
   }
@@ -1794,7 +1804,7 @@ function mostrarToastFav() {
 function wizEnviarWA() {
   var wa = document.getElementById('wizNoResultsWA').value.trim(); if (!wa) return;
   var digits = wa.replace(/\D/g,'');
-  if (digits.length < 6 || digits.length > 15) {
+  if (!/^\d{10,11}$/.test(digits) || /^(\d)\1+$/.test(digits)) {
     var inp = document.getElementById('wizNoResultsWA');
     inp.style.borderColor = 'rgba(255,80,80,0.7)';
     setTimeout(function(){ inp.style.borderColor = ''; }, 2000);

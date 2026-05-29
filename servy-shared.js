@@ -90,6 +90,10 @@ S.renderChips = function (el, cats, opts) {
     var otroPrevSel = !multi &&
       !!el.querySelector('[data-value="otro"].' + sc);
     if (!multi) el.querySelectorAll('.' + cc).forEach(function (x) { x.classList.remove(sc); });
+    if (multi && opts.maxSel && !b.classList.contains(sc)) {
+      var n = el.querySelectorAll('.' + cc + '.' + sc).length;
+      if (n >= opts.maxSel) return;
+    }
     b.classList.toggle(sc);
     if (v === 'otro') {
       onOtro(b.classList.contains(sc));
