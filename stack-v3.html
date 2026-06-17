@@ -10,15 +10,15 @@
   :root {
     --accent:    #3CE6C5;
     --ink:       #F2EEE6;
-    --ink-mute:  rgba(242,238,230,0.58);
+    --ink-mute:  rgba(242,238,230,0.55);
     --bg:        #0E0F12;
     --bg-card:   #1C1E23;
+    --bg-back:   #17191E;
     --line:      rgba(242,238,230,0.08);
     --f-display:'Bricolage Grotesque', sans-serif;
     --f-sans:   'Geist', sans-serif;
     --spring:    cubic-bezier(0.32, 0.72, 0, 1);
   }
-
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
@@ -38,7 +38,7 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    padding: 20px 20px 28px;
+    padding: 20px 20px 24px;
   }
 
   /* ── TOP BAR ── */
@@ -46,237 +46,247 @@
     display: flex;
     align-items: center;
     flex-shrink: 0;
-    margin-bottom: 18px;
+    margin-bottom: 16px;
   }
   .topbar-logo {
     font-family: var(--f-display);
-    font-size: 20px;
-    font-weight: 800;
+    font-size: 20px; font-weight: 800;
     color: var(--accent);
-    letter-spacing: -0.02em;
   }
   .topbar-step {
     margin-left: auto;
-    font-size: 12px;
-    color: var(--ink-mute);
-    letter-spacing: 0.04em;
+    font-size: 12px; color: var(--ink-mute);
   }
 
-  /* ── CHIPS ZONE (completed steps) ── */
+  /* ── CHIPS ZONE ──
+     Chips solapan como un mazo de cartas: sin gap, con margin-top negativo por JS.
+     La carta activa también solapa el último chip (margin-top: -16px via JS).
+  */
   .chips-zone {
+    flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    flex-shrink: 0;
+    /* sin gap — el solapamiento lo maneja JS */
   }
 
   .step-chip {
-    background: rgba(60,230,197,0.06);
-    border: 1px solid rgba(60,230,197,0.20);
-    border-radius: 16px;
+    background: var(--bg-back);
+    border: 1px solid rgba(60,230,197,0.18);
+    border-radius: 20px;
     padding: 11px 16px;
     display: flex;
     align-items: center;
     gap: 12px;
     cursor: pointer;
-    /* starts invisible, animates in */
+    position: relative;
+    /* Entrada: sube desde abajo y solapa la carta anterior */
     opacity: 0;
-    transform: translateY(-10px) scale(0.95);
-    transition: opacity 0.40s var(--spring), transform 0.40s var(--spring);
+    transform: translateY(16px) scale(0.96);
+    transition: opacity 0.38s var(--spring), transform 0.38s var(--spring);
   }
-  .step-chip.visible {
+  .step-chip.in {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
-  .step-chip:active { opacity: 0.75; }
-  .chip-icon  { font-size: 18px; flex-shrink: 0; }
-  .chip-body  { flex: 1; }
-  .chip-val   { font-size: 13px; font-weight: 600; color: var(--accent); }
-  .chip-lbl   { font-size: 10px; color: var(--ink-mute); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 1px; }
-  .chip-edit  { font-size: 14px; color: rgba(242,238,230,0.28); }
+  .step-chip:active { opacity: 0.7; }
 
-  /* ── CARD ZONE ── */
+  .chip-ico  { font-size: 18px; flex-shrink: 0; }
+  .chip-body { flex: 1; min-width: 0; }
+  .chip-val  { font-size: 13px; font-weight: 600; color: var(--accent); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .chip-lbl  { font-size: 10px; color: var(--ink-mute); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 1px; }
+  .chip-edit { font-size: 13px; color: rgba(242,238,230,0.22); flex-shrink: 0; }
+
+  /* ── CARD ZONE ──
+     Flex: 1. La carta activa NO ocupa toda la altura:
+     deja 52px al fondo para que asoma la siguiente (peek strip).
+     margin-top: 0 al inicio; se cambia a -16px cuando hay chips (solapa el último chip).
+  */
   .card-zone {
     flex: 1;
     position: relative;
-    margin-top: 14px;
     min-height: 0;
+    z-index: 5;
+    /* Transición suave cuando aparece el primer chip */
+    transition: margin-top 0.40s var(--spring);
   }
 
-  /* ── WIZARD CARD ── */
+  /* ── CARTA ACTIVA ── */
   .wcard {
     position: absolute;
-    inset: 0;
+    top: 0; left: 0; right: 0;
+    bottom: 52px;          /* espacio para el peek abajo */
     background: var(--bg-card);
-    border: 1px solid var(--line);
-    border-radius: 28px;
-    padding: 26px 22px 20px;
+    border: 1px solid rgba(242,238,230,0.10);
+    border-radius: 26px;
+    padding: 24px 22px 18px;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.50);
+    box-shadow:
+      0 10px 48px rgba(0,0,0,0.55),
+      0 1px 0 rgba(242,238,230,0.06) inset;
+    z-index: 2;
     overflow: hidden;
   }
+  .wcard.fwd  { animation: enter-fwd  0.54s var(--spring) forwards; }
+  .wcard.back { animation: enter-back 0.48s var(--spring) forwards; }
+  .wcard.exit { animation: card-exit  0.26s ease-in      forwards; pointer-events: none; }
+  .wcard.shake { animation: card-shake 0.42s cubic-bezier(0.36,.07,.19,.97) both; }
 
-  .wcard.anim-enter {
-    animation: anim-enter 0.56s var(--spring) forwards;
-  }
-  .wcard.anim-exit {
-    animation: anim-exit 0.26s ease-in forwards;
-    pointer-events: none;
-  }
-  .wcard.anim-shake {
-    animation: anim-shake 0.40s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
-  }
-
-  @keyframes anim-enter {
-    from { transform: translateY(64px) scale(0.95); opacity: 0; }
+  @keyframes enter-fwd {
+    from { transform: translateY(68px) scale(0.95); opacity: 0; }
     to   { transform: translateY(0)    scale(1);    opacity: 1; }
   }
-  @keyframes anim-exit {
-    from { transform: translateY(0)    scale(1);    opacity: 1; }
-    to   { transform: translateY(-56px) scale(0.93); opacity: 0; }
+  @keyframes enter-back {
+    from { transform: translateY(-52px) scale(0.95); opacity: 0; }
+    to   { transform: translateY(0)     scale(1);    opacity: 1; }
   }
-  @keyframes anim-shake {
-    0%, 100% { transform: translateX(0); }
-    16%  { transform: translateX(-9px); }
-    36%  { transform: translateX(8px); }
-    56%  { transform: translateX(-5px); }
-    76%  { transform: translateX(4px); }
+  @keyframes card-exit {
+    from { transform: translateY(0)    scale(1);    opacity: 1; }
+    to   { transform: translateY(-52px) scale(0.92); opacity: 0; }
+  }
+  @keyframes card-shake {
+    0%,100% { transform: translateX(0);  }
+    18% { transform: translateX(-10px); }
+    36% { transform: translateX(9px);  }
+    54% { transform: translateX(-6px); }
+    72% { transform: translateX(5px);  }
   }
 
-  /* ── CARD CONTENT ── */
+  /* ── PEEK STRIP (siguiente paso visible debajo de la carta activa) ── */
+  .peek-strip {
+    position: absolute;
+    bottom: 0; left: 6px; right: 6px;
+    height: 64px;
+    background: var(--bg-back);
+    border: 1px solid rgba(242,238,230,0.06);
+    border-radius: 22px;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 12px;
+    z-index: 0;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.40s ease, transform 0.40s var(--spring);
+    pointer-events: none;
+  }
+  .peek-strip.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .peek-ico { font-size: 15px; color: var(--ink-mute); }
+  .peek-txt { flex: 1; }
+  .peek-lbl { font-size: 13px; font-weight: 500; color: rgba(242,238,230,0.45); }
+  .peek-num { font-size: 10px; color: rgba(242,238,230,0.25); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 1px; }
+  .peek-arr { font-size: 13px; color: rgba(242,238,230,0.22); animation: pulse-up 1.8s ease-in-out infinite; }
+  @keyframes pulse-up {
+    0%,100% { transform: translateY(0); opacity: 0.22; }
+    50%      { transform: translateY(-4px); opacity: 0.50; }
+  }
+
+  /* ── CONTENIDO CARTA ── */
   .wcard-step {
     font-size: 11px; font-weight: 600;
     letter-spacing: 0.10em; text-transform: uppercase;
-    color: var(--accent); margin-bottom: 12px; flex-shrink: 0;
+    color: var(--accent); margin-bottom: 10px; flex-shrink: 0;
   }
   .wcard-title {
     font-family: var(--f-display);
-    font-size: 26px; font-weight: 800; line-height: 1.15;
+    font-size: 25px; font-weight: 800; line-height: 1.15;
     margin-bottom: 6px; flex-shrink: 0;
   }
   .wcard-desc {
-    font-size: 14px; line-height: 1.6;
-    color: var(--ink-mute); margin-bottom: 20px; flex-shrink: 0;
+    font-size: 13px; line-height: 1.6;
+    color: var(--ink-mute); margin-bottom: 18px; flex-shrink: 0;
   }
 
-  /* ── OPTIONS GRID ── */
+  /* ── OPCIONES ── */
   .opts-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 8px;
     flex: 1;
     align-content: start;
   }
   .opt {
     background: rgba(242,238,230,0.04);
-    border: 1.5px solid rgba(242,238,230,0.09);
-    border-radius: 18px;
-    padding: 18px 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    border: 1.5px solid rgba(242,238,230,0.08);
+    border-radius: 16px;
+    padding: 16px 12px;
+    display: flex; flex-direction: column; gap: 7px;
     cursor: pointer;
-    transition: background 0.16s ease, border-color 0.16s ease, transform 0.10s ease;
+    transition: background 0.15s, border-color 0.15s, transform 0.10s;
     -webkit-tap-highlight-color: transparent;
     user-select: none;
   }
-  .opt:active  { transform: scale(0.95); }
-  .opt.sel     { background: rgba(60,230,197,0.10); border-color: rgba(60,230,197,0.48); }
-  .opt-ico     { font-size: 24px; }
-  .opt-txt     { font-size: 14px; font-weight: 500; }
+  .opt:active  { transform: scale(0.94); }
+  .opt.sel     { background: rgba(60,230,197,0.10); border-color: rgba(60,230,197,0.46); }
+  .opt-ico     { font-size: 22px; }
+  .opt-txt     { font-size: 13px; font-weight: 500; }
   .opt.sel .opt-txt { color: var(--accent); }
 
-  /* ── SWIPE HINT ── */
+  /* ── HINT DESLIZAR (dentro de la carta) ── */
   .swipe-hint {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     gap: 6px;
-    margin-top: auto;
-    padding-top: 14px;
+    margin-top: auto; padding-top: 12px;
     flex-shrink: 0;
     color: var(--ink-mute);
-    opacity: 0;
-    transition: opacity 0.35s ease;
-    pointer-events: none;
+    opacity: 0; transition: opacity 0.30s ease; pointer-events: none;
+    font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
   }
-  .swipe-hint.show { opacity: 1; }
-  .hint-arr  { font-size: 14px; animation: float-up 1.5s ease-in-out infinite; }
-  .swipe-hint span { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
-  @keyframes float-up {
-    0%, 100% { transform: translateY(0); }
-    50%       { transform: translateY(-4px); }
-  }
+  .swipe-hint.show { opacity: 0.60; }
+  .hint-arr { font-size: 12px; }
 
-  /* ── RESULTS ── */
+  /* ── RESULTADOS ── */
   .results-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    flex: 1;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    margin-bottom: 16px;
+    display: flex; flex-direction: column; gap: 10px;
+    flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    margin-bottom: 14px;
   }
   .ri {
     display: flex; align-items: center; gap: 12px;
     background: rgba(242,238,230,0.04);
     border: 1px solid var(--line);
-    border-radius: 16px;
-    padding: 14px 16px;
+    border-radius: 15px; padding: 13px 15px;
   }
   .ri-av {
-    width: 42px; height: 42px; border-radius: 50%;
-    flex-shrink: 0; display: flex;
-    align-items: center; justify-content: center; font-size: 18px;
+    width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 17px;
   }
   .ri-info { flex: 1; }
-  .ri-name { font-size: 15px; font-weight: 600; }
-  .ri-meta { font-size: 12px; color: var(--ink-mute); margin-top: 2px; }
+  .ri-name { font-size: 14px; font-weight: 600; }
+  .ri-meta { font-size: 11px; color: var(--ink-mute); margin-top: 2px; }
   .ri-badge {
-    font-size: 11px; font-weight: 600;
-    padding: 3px 9px; border-radius: 99px;
-    background: rgba(60,230,197,0.15); color: var(--accent);
+    font-size: 10px; font-weight: 600;
+    padding: 3px 8px; border-radius: 99px;
+    background: rgba(60,230,197,0.15); color: var(--accent); white-space: nowrap;
   }
-
-  /* ── CTA ── */
   .btn-cta {
-    width: 100%; padding: 16px;
-    border-radius: 999px; border: none;
+    width: 100%; padding: 15px; border-radius: 999px; border: none;
     background: var(--accent); color: #0a0a0a;
     font-family: var(--f-sans); font-size: 15px; font-weight: 700;
-    cursor: pointer;
-    transition: transform 0.12s ease;
-    flex-shrink: 0;
+    cursor: pointer; flex-shrink: 0;
+    transition: transform 0.12s;
   }
-  .btn-cta:active { transform: scale(0.98); }
+  .btn-cta:active { transform: scale(0.97); }
 
   /* ── TOAST ── */
   .toast {
-    position: fixed;
-    bottom: 36px; left: 50%;
-    transform: translateX(-50%) translateY(16px);
-    background: rgba(28,30,35,0.92);
+    position: fixed; bottom: 32px; left: 50%;
+    transform: translateX(-50%) translateY(14px);
+    background: rgba(24,26,31,0.96);
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(242,238,230,0.14);
-    border-radius: 999px;
-    padding: 10px 20px;
-    font-size: 13px;
-    color: var(--ink);
-    opacity: 0;
-    transition: opacity 0.28s ease, transform 0.28s ease;
-    pointer-events: none;
-    white-space: nowrap;
-    z-index: 200;
+    border: 1px solid rgba(242,238,230,0.12);
+    border-radius: 999px; padding: 10px 20px;
+    font-size: 13px; color: var(--ink);
+    opacity: 0; transition: opacity 0.25s ease, transform 0.25s ease;
+    pointer-events: none; white-space: nowrap; z-index: 100;
   }
-  .toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
   @media (prefers-reduced-motion: reduce) {
-    .wcard, .step-chip, .hint-arr { animation: none !important; transition: none !important; }
+    .wcard, .step-chip, .peek-strip, .peek-arr { animation: none !important; transition: none !important; }
   }
 </style>
 </head>
@@ -287,79 +297,106 @@
     <span class="topbar-logo">SERVY</span>
     <span class="topbar-step" id="topStep">Paso 1 de 3</span>
   </header>
+
+  <!-- Chips de steps completados (se solapan como mazo de cartas) -->
   <div class="chips-zone" id="chipsZone"></div>
-  <div class="card-zone"  id="cardZone"></div>
+
+  <!-- Carta activa + peek de la siguiente -->
+  <div class="card-zone" id="cardZone">
+    <!-- .wcard se inyecta acá via JS, antes del peek -->
+    <div class="peek-strip" id="peekStrip">
+      <span class="peek-ico">◻</span>
+      <div class="peek-txt">
+        <p class="peek-lbl" id="peekLbl">Zona</p>
+        <p class="peek-num" id="peekNum">Paso 2 de 3</p>
+      </div>
+      <span class="peek-arr">↑</span>
+    </div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// ── STEPS DATA ──────────────────────────────────────────
+// ── DATOS ─────────────────────────────────────────────
 const STEPS = [
   {
     lbl: 'Problema',
     title: '¿Qué necesitás arreglar?',
     desc: 'Elegí el tipo de trabajo.',
     opts: [
-      { ico:'🔧', txt:'Plomería',     val:'plomeria' },
-      { ico:'⚡', txt:'Electricidad', val:'electricidad' },
-      { ico:'🔥', txt:'Gas',          val:'gas' },
-      { ico:'🏠', txt:'Albañilería',  val:'albanileria' },
+      { ico:'🔧', txt:'Plomería',      val:'plomeria' },
+      { ico:'⚡', txt:'Electricidad',  val:'electricidad' },
+      { ico:'🔥', txt:'Gas',           val:'gas' },
+      { ico:'🏠', txt:'Albañilería',   val:'albanileria' },
     ],
     validate: () => !!answers[0],
-    summary:  () => {
-      const o = STEPS[0].opts.find(x => x.val === answers[0]);
-      return o ? { ico: o.ico, txt: o.txt } : null;
-    }
+    summary:  () => STEPS[0].opts.find(x => x.val === answers[0]) || null,
   },
   {
     lbl: 'Zona',
     title: '¿En qué barrio estás?',
     desc: 'Buscamos prestadores cerca tuyo.',
     opts: [
-      { ico:'📍', txt:'Villa Allende',   val:'villa-allende' },
-      { ico:'📍', txt:'Córdoba Capital', val:'cordoba' },
-      { ico:'📍', txt:'La Calera',       val:'la-calera' },
-      { ico:'📍', txt:'Otro barrio',     val:'otro' },
+      { ico:'📍', txt:'Villa Allende',    val:'villa-allende' },
+      { ico:'📍', txt:'Córdoba Capital',  val:'cordoba' },
+      { ico:'📍', txt:'La Calera',        val:'la-calera' },
+      { ico:'📍', txt:'Otro barrio',      val:'otro' },
     ],
     validate: () => !!answers[1],
-    summary:  () => {
-      const o = STEPS[1].opts.find(x => x.val === answers[1]);
-      return o ? { ico: o.ico, txt: o.txt } : null;
-    }
+    summary:  () => STEPS[1].opts.find(x => x.val === answers[1]) || null,
   },
-  { lbl: 'Resultados', isResult: true }
+  { lbl: 'Resultados', isResult: true },
 ];
 
-const answers   = {};
-let cur         = 0;
-let busy        = false; // prevent double-advance
-let toastTimer  = null;
+const answers = {};
+let cur   = 0;
+let busy  = false;
+let toastT = null;
 
 const chipsZone = document.getElementById('chipsZone');
 const cardZone  = document.getElementById('cardZone');
 const topStep   = document.getElementById('topStep');
 const toastEl   = document.getElementById('toast');
+const peekStrip = document.getElementById('peekStrip');
+const peekLbl   = document.getElementById('peekLbl');
+const peekNum   = document.getElementById('peekNum');
 
-// ── TOAST ───────────────────────────────────────────────
+// ── TOAST ──────────────────────────────────────────────
 function showToast(msg) {
-  clearTimeout(toastTimer);
+  clearTimeout(toastT);
   toastEl.textContent = msg;
   toastEl.classList.add('show');
-  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2600);
+  toastT = setTimeout(() => toastEl.classList.remove('show'), 2600);
 }
 
-// ── ADD CHIP ────────────────────────────────────────────
+// ── PEEK STRIP ─────────────────────────────────────────
+function updatePeek(stepIdx) {
+  const next = STEPS[stepIdx + 1];
+  if (!next) { peekStrip.classList.remove('show'); return; }
+  peekLbl.textContent = next.lbl;
+  peekNum.textContent = `Paso ${stepIdx + 2} de ${STEPS.length}`;
+  peekStrip.classList.add('show');
+}
+
+// ── AGREGAR CHIP (step completado) ─────────────────────
 function addChip(stepIdx) {
-  const s = STEPS[stepIdx];
-  const info = s.summary();
+  const s    = STEPS[stepIdx];
+  const info = s.summary && s.summary();
   if (!info) return;
 
-  const chip = document.createElement('div');
-  chip.className = 'step-chip';
+  const isFirst = chipsZone.children.length === 0;
+  const chip    = document.createElement('div');
+  chip.className    = 'step-chip';
   chip.dataset.step = stepIdx;
+
+  // Cada chip nuevo va ENCIMA del anterior (mayor z-index, solapa desde abajo)
+  const depth = chipsZone.children.length;
+  chip.style.zIndex = depth + 1;
+  if (!isFirst) chip.style.marginTop = '-14px'; // solapamiento
+
   chip.innerHTML = `
-    <span class="chip-icon">${info.ico}</span>
+    <span class="chip-ico">${info.ico}</span>
     <div class="chip-body">
       <p class="chip-val">${info.txt}</p>
       <span class="chip-lbl">${s.lbl}</span>
@@ -368,18 +405,25 @@ function addChip(stepIdx) {
   `;
   chip.addEventListener('click', () => { if (!busy) editStep(stepIdx); });
   chipsZone.appendChild(chip);
-  // Double rAF so transition fires after element is in DOM
-  requestAnimationFrame(() => requestAnimationFrame(() => chip.classList.add('visible')));
+
+  // La zona de carta solapa el stack de chips
+  if (isFirst) cardZone.style.marginTop = '-16px';
+
+  // Animación de entrada (doble rAF para que la transición CSS dispare)
+  requestAnimationFrame(() => requestAnimationFrame(() => chip.classList.add('in')));
 }
 
-// ── RENDER CARD ─────────────────────────────────────────
-function renderCard(stepIdx, animate) {
+// ── RENDERIZAR CARTA ───────────────────────────────────
+function renderCard(stepIdx, dir /* 'none'|'fwd'|'back' */) {
   const s = STEPS[stepIdx];
   topStep.textContent = `Paso ${stepIdx + 1} de ${STEPS.length}`;
+  updatePeek(stepIdx);
 
   const card = document.createElement('div');
-  card.className = 'wcard' + (animate ? ' anim-enter' : '');
-  card.addEventListener('animationend', () => card.classList.remove('anim-enter'), { once: true });
+  card.className = 'wcard' + (dir !== 'none' ? ' ' + dir : '');
+  card.addEventListener('animationend', () => {
+    card.classList.remove('fwd', 'back');
+  }, { once: true });
 
   if (s.isResult) {
     card.innerHTML = `
@@ -413,9 +457,9 @@ function renderCard(stepIdx, animate) {
       </div>
       <button class="btn-cta" id="ctaBtn">Ver resultados →</button>
     `;
-    card.querySelector('#ctaBtn').addEventListener('click', () => {
-      showToast('¡Conectando con los prestadores!');
-    });
+    card.querySelector('#ctaBtn').addEventListener('click', () =>
+      showToast('¡Conectando con los prestadores!')
+    );
   } else {
     const optsHTML = s.opts.map(o => `
       <div class="opt ${answers[stepIdx] === o.val ? 'sel' : ''}" data-val="${o.val}">
@@ -434,46 +478,41 @@ function renderCard(stepIdx, animate) {
         <span>Deslizá para continuar</span>
       </div>
     `;
-
-    // Option tap
     card.querySelectorAll('.opt').forEach(el => {
       el.addEventListener('click', () => {
         answers[stepIdx] = el.dataset.val;
         card.querySelectorAll('.opt').forEach(x => x.classList.remove('sel'));
         el.classList.add('sel');
-        const hint = card.querySelector('.swipe-hint');
-        if (hint) hint.classList.add('show');
+        card.querySelector('.swipe-hint')?.classList.add('show');
       });
     });
   }
 
-  cardZone.appendChild(card);
+  // Insertar ANTES del peek strip para que quede en el orden correcto
+  cardZone.insertBefore(card, peekStrip);
   setupSwipe(card, stepIdx);
 }
 
-// ── SETUP SWIPE ─────────────────────────────────────────
+// ── DETECCIÓN DE SWIPE ─────────────────────────────────
 function setupSwipe(card, stepIdx) {
-  let startY = 0, startT = 0;
+  let sy = 0, st = 0;
 
   card.addEventListener('touchstart', e => {
-    startY = e.touches[0].clientY;
-    startT = Date.now();
+    sy = e.touches[0].clientY;
+    st = Date.now();
   }, { passive: true });
 
   card.addEventListener('touchend', e => {
     if (stepIdx !== cur || busy) return;
-    const dy = startY - e.changedTouches[0].clientY;
-    const dt = Date.now() - startT;
-    const vel = Math.abs(dy) / dt;
-
-    if (Math.abs(dy) < 28) return;
-
-    if (dy > 0 && vel > 0.18) tryAdvance();
-    else if (dy < 0 && vel > 0.18 && cur > 0) goBack();
+    const dy  = sy - e.changedTouches[0].clientY;
+    const vel = Math.abs(dy) / (Date.now() - st);
+    if (Math.abs(dy) < 26) return;
+    if      (dy > 0 && vel > 0.18)              tryAdvance();
+    else if (dy < 0 && vel > 0.18 && cur > 0)  goBack();
   }, { passive: true });
 }
 
-// ── ADVANCE ─────────────────────────────────────────────
+// ── AVANZAR ────────────────────────────────────────────
 function tryAdvance() {
   const s = STEPS[cur];
   if (s.isResult) return;
@@ -481,55 +520,56 @@ function tryAdvance() {
   if (s.validate && !s.validate()) {
     const card = cardZone.querySelector('.wcard');
     if (card) {
-      card.classList.remove('anim-shake');
+      card.classList.remove('shake');
       void card.offsetWidth;
-      card.classList.add('anim-shake');
-      card.addEventListener('animationend', () => card.classList.remove('anim-shake'), { once: true });
+      card.classList.add('shake');
+      card.addEventListener('animationend', () => card.classList.remove('shake'), { once: true });
     }
     showToast('Elegí una opción para continuar ↑');
     return;
   }
 
   busy = true;
-  const oldCard = cardZone.querySelector('.wcard');
-  if (oldCard) {
-    oldCard.classList.add('anim-exit');
-    oldCard.addEventListener('animationend', () => oldCard.remove(), { once: true });
+  const old = cardZone.querySelector('.wcard');
+  if (old) {
+    old.classList.add('exit');
+    old.addEventListener('animationend', () => old.remove(), { once: true });
   }
-
   addChip(cur);
   cur++;
-
-  setTimeout(() => {
-    renderCard(cur, true);
-    busy = false;
-  }, 140);
+  setTimeout(() => { renderCard(cur, 'fwd'); busy = false; }, 130);
 }
 
-// ── GO BACK ──────────────────────────────────────────────
+// ── VOLVER ─────────────────────────────────────────────
 function goBack() {
   if (cur === 0) return;
   editStep(cur - 1);
 }
 
-// ── EDIT STEP (tap chip) ─────────────────────────────────
+// ── EDITAR (tap en chip) ───────────────────────────────
 function editStep(stepIdx) {
   busy = true;
-  // Clear answers from stepIdx onward
   for (let i = stepIdx; i < STEPS.length; i++) delete answers[i];
-  // Remove chips from stepIdx onward
+
+  // Quitar chips de este step en adelante
   [...chipsZone.querySelectorAll('.step-chip')].forEach(c => {
     if (+c.dataset.step >= stepIdx) c.remove();
   });
-  // Remove current card
-  while (cardZone.firstChild) cardZone.removeChild(cardZone.firstChild);
+
+  // Ajustar margin según chips restantes
+  cardZone.style.marginTop = chipsZone.children.length > 0 ? '-16px' : '0';
+
+  // Quitar carta activa
+  const old = cardZone.querySelector('.wcard');
+  if (old) old.remove();
+
   cur = stepIdx;
-  renderCard(cur, true);
+  renderCard(cur, 'back');
   setTimeout(() => { busy = false; }, 300);
 }
 
-// ── INIT ────────────────────────────────────────────────
-renderCard(0, false);
+// ── INICIO ─────────────────────────────────────────────
+renderCard(0, 'none');
 </script>
 </body>
 </html>
