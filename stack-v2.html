@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>SERVY — Stack Cards V2 Swipe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Geist:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --accent:      #3CE6C5;
+    --accent-2:    #C6FF3C;
+    --ink:         #F2EEE6;
+    --ink-mute:    rgba(242,238,230,0.60);
+    --bg:          #0E0F12;
+    --bg-card:     #1C1E23;
+    --line:        rgba(242,238,230,0.08);
+    --f-display:  'Bricolage Grotesque', sans-serif;
+    --f-sans:     'Geist', sans-serif;
+    --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--f-sans);
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 20px 40px;
+    -webkit-tap-highlight-color: transparent;
+    overflow-x: hidden;
+  }
+
+  .wizard {
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  /* ── STACK ─────────────────────────────── */
+  .stack-area {
+    position: relative;
+    height: 380px;
+  }
+
+  /* ── CARDS ─────────────────────────────── */
+  .card {
+    position: absolute;
+    inset: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    padding: 28px 24px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    transform-origin: top center;
+    will-change: transform, opacity;
+    pointer-events: none;
+    user-select: none;
+    touch-action: pan-y;
+
+    transform: translateY(110%) scale(1);
+    opacity: 0;
+    z-index: 0;
+
+    transition:
+      transform 0.72s var(--ease-spring),
+      opacity   0.52s ease,
+      box-shadow 0.3s ease,
+      z-index   0s;
+  }
+
+  .card.s-front {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    z-index: 10;
+    pointer-events: auto;
+    touch-action: none;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.28);
+  }
+
+  /* Glow when dragged past threshold */
+  .card.s-front.at-threshold {
+    box-shadow:
+      0 8px 40px rgba(0,0,0,0.55),
+      0 0 0 1.5px rgba(60,230,197,0.45),
+      0 0 24px rgba(60,230,197,0.15);
+  }
+
+  .card.s-back1 {
+    transform: translateY(-11%) scale(0.92);
+    opacity: 0.80;
+    z-index: 9;
+    border-top: 2px solid rgba(60,230,197,0.28);
+  }
+  .card.s-back2 {
+    transform: translateY(-18%) scale(0.84);
+    opacity: 0.50;
+    z-index: 8;
+    border-top: 1.5px solid rgba(60,230,197,0.12);
+  }
+  .card.s-back3 {
+    transform: translateY(-24%) scale(0.76);
+    opacity: 0.22;
+    z-index: 7;
+  }
+
+  /* Bounce reject animation */
+  .card.bounce {
+    animation: bounce-reject 0.48s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes bounce-reject {
+    0%   { transform: translateY(0)     scale(1); }
+    28%  { transform: translateY(-20px) scale(1.018); }
+    58%  { transform: translateY(9px)   scale(0.990); }
+    82%  { transform: translateY(-6px)  scale(1.005); }
+    100% { transform: translateY(0)     scale(1); }
+  }
+
+  /* ── CARD CONTENT ── */
+  .card-label {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.10em; text-transform: uppercase;
+    color: var(--accent);
+  }
+  .card-title {
+    font-family: var(--f-display);
+    font-size: 26px; font-weight: 800; line-height: 1.15;
+  }
+  .card-desc {
+    font-size: 14px; line-height: 1.65;
+    color: var(--ink-mute); flex: 1;
+  }
+  .card-body {
+    display: flex; flex-direction: column; gap: 10px; flex: 1;
+  }
+  .mock-input {
+    background: rgba(60,230,197,0.07);
+    border: 1px solid rgba(60,230,197,0.18);
+    border-radius: 14px; padding: 14px 18px;
+    font-size: 15px; color: var(--accent); font-weight: 500;
+  }
+  .result-item {
+    display: flex; align-items: center; gap: 12px;
+    background: rgba(242,238,230,0.04);
+    border: 1px solid var(--line);
+    border-radius: 14px; padding: 12px 14px;
+  }
+  .result-avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    flex-shrink: 0; display: flex;
+    align-items: center; justify-content: center; font-size: 17px;
+  }
+  .result-info { flex: 1; }
+  .result-name { font-size: 14px; font-weight: 600; }
+  .result-meta { font-size: 12px; color: var(--ink-mute); margin-top: 2px; }
+  .result-badge {
+    font-size: 11px; font-weight: 600;
+    padding: 3px 8px; border-radius: 99px;
+    background: rgba(60,230,197,0.15); color: var(--accent);
+  }
+
+  /* ── SWIPE HINT ── */
+  .swipe-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--ink-mute);
+    transition: opacity 0.4s ease;
+  }
+  .swipe-row.hidden { opacity: 0; pointer-events: none; }
+  .swipe-row.last-step { opacity: 0.2; }
+  .hint-arrow {
+    font-size: 16px;
+    animation: float-up 1.5s ease-in-out infinite;
+  }
+  .swipe-row p {
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  @keyframes float-up {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-5px); }
+  }
+
+  /* ── DOTS ── */
+  .dots { display: flex; gap: 6px; justify-content: center; }
+  .dot {
+    height: 6px; border-radius: 3px;
+    background: rgba(242,238,230,0.18);
+    transition: all 0.35s var(--ease-spring); width: 6px;
+  }
+  .dot.on { width: 22px; background: var(--accent); }
+
+  /* ── BOTONES ── */
+  .btn-row { display: flex; gap: 10px; }
+  .btn {
+    flex: 1; padding: 15px 10px; border-radius: 999px; border: none;
+    font-family: var(--f-sans); font-size: 14px; font-weight: 600;
+    cursor: pointer; letter-spacing: 0.02em;
+    transition: opacity 0.2s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.28; cursor: default; }
+  .btn:disabled:active { transform: none; }
+  .btn-back {
+    background: transparent;
+    border: 1px solid rgba(242,238,230,0.15);
+    color: var(--ink-mute); flex: 0.7;
+  }
+  .btn-next { background: var(--accent); color: #0a0a0a; flex: 1.3; }
+
+  /* ── HEADER ── */
+  .test-header { text-align: center; margin-bottom: 8px; }
+  .test-header p {
+    font-size: 11px; color: var(--ink-mute);
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .test-header h1 {
+    font-family: var(--f-display);
+    font-size: 20px; font-weight: 800; color: var(--accent); margin-top: 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card, .dot { transition: none; }
+    .hint-arrow { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="test-header">
+  <p>Prototipo V2 — Swipe nativo</p>
+  <h1>SERVY Stack Cards</h1>
+</div>
+
+<div class="wizard">
+
+  <div class="stack-area" id="stack">
+
+    <!-- CARD 0 — Problema -->
+    <div class="card" data-i="0">
+      <span class="card-label">Paso 1 de 3 · Problema</span>
+      <h2 class="card-title">¿Qué necesitás arreglar?</h2>
+      <div class="card-body">
+        <p class="card-desc">Contanos el problema en tu hogar y vamos a encontrar al especialista ideal.</p>
+        <div class="mock-input">🔧 Pérdida de agua en el baño</div>
+        <div class="mock-input" style="background:rgba(242,238,230,0.04);color:var(--ink-mute);border-color:var(--line);">🎙 O grabá un mensaje de voz</div>
+      </div>
+    </div>
+
+    <!-- CARD 1 — Zona -->
+    <div class="card" data-i="1">
+      <span class="card-label">Paso 2 de 3 · Zona</span>
+      <h2 class="card-title">¿En qué barrio estás?</h2>
+      <div class="card-body">
+        <p class="card-desc">Buscamos prestadores disponibles cerca tuyo para que lleguen rápido.</p>
+        <div class="mock-input">📍 Villa Allende, Córdoba</div>
+        <div class="mock-input" style="background:rgba(242,238,230,0.04);color:var(--ink-mute);border-color:var(--line);">🗺 O activá tu ubicación</div>
+      </div>
+    </div>
+
+    <!-- CARD 2 — Resultados -->
+    <div class="card" data-i="2">
+      <span class="card-label">Paso 3 de 3 · Resultados</span>
+      <h2 class="card-title">3 prestadores cerca tuyo</h2>
+      <div class="card-body">
+        <div class="result-item">
+          <div class="result-avatar" style="background:rgba(60,230,197,0.15)">🔧</div>
+          <div class="result-info">
+            <p class="result-name">Martín Hlavach</p>
+            <p class="result-meta">⭐ 4.9 · Plomero · 47 trabajos</p>
+          </div>
+          <span class="result-badge">Verificado</span>
+        </div>
+        <div class="result-item">
+          <div class="result-avatar" style="background:rgba(198,255,60,0.12)">⚡</div>
+          <div class="result-info">
+            <p class="result-name">José Rodríguez</p>
+            <p class="result-meta">⭐ 4.7 · Electricista · 31 trabajos</p>
+          </div>
+          <span class="result-badge">Recomendado</span>
+        </div>
+        <div class="result-item">
+          <div class="result-avatar" style="background:rgba(245,183,49,0.12)">🔥</div>
+          <div class="result-info">
+            <p class="result-name">Carlos Pérez</p>
+            <p class="result-meta">⭐ 4.6 · Gasista · 22 trabajos</p>
+          </div>
+          <span class="result-badge" style="background:rgba(245,183,49,0.15);color:#F5B731">Destacado</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /stack-area -->
+
+  <!-- Swipe hint -->
+  <div class="swipe-row" id="swipeHint">
+    <span class="hint-arrow">↑</span>
+    <p>Deslizá para continuar</p>
+  </div>
+
+  <!-- Dots -->
+  <div class="dots" id="dots">
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+  </div>
+
+  <!-- Botones (fallback) -->
+  <div class="btn-row">
+    <button class="btn btn-back" id="btnBack" onclick="go(-1)">← Volver</button>
+    <button class="btn btn-next" id="btnNext" onclick="go(1)">Siguiente →</button>
+  </div>
+
+</div>
+
+<script>
+  const cards     = [...document.querySelectorAll('.card')];
+  const dots      = [...document.querySelectorAll('.dot')];
+  const btnBack   = document.getElementById('btnBack');
+  const btnNext   = document.getElementById('btnNext');
+  const swipeHint = document.getElementById('swipeHint');
+  const TOTAL     = cards.length;
+  const THRESHOLD = 65; // px drag to trigger advance
+  let cur = 0;
+  let hintDismissed = false;
+
+  function render() {
+    cards.forEach((c, i) => {
+      c.className = 'card';
+      const d = i - cur;
+      if (d === 0)  c.classList.add('s-front');
+      if (d === -1) c.classList.add('s-back1');
+      if (d === -2) c.classList.add('s-back2');
+      if (d <= -3)  c.classList.add('s-back3');
+    });
+    dots.forEach((d, i) => d.classList.toggle('on', i === cur));
+    btnBack.disabled = cur === 0;
+    btnNext.disabled = cur === TOTAL - 1;
+    btnNext.textContent = cur === TOTAL - 1 ? '✓ Ver resultados' : 'Siguiente →';
+
+    // Hint: hide on last step, hide permanently once dismissed
+    if (cur === TOTAL - 1) {
+      swipeHint.classList.add('last-step');
+    } else {
+      swipeHint.classList.remove('last-step');
+      if (hintDismissed) swipeHint.classList.add('hidden');
+      else swipeHint.classList.remove('hidden');
+    }
+  }
+
+  function go(dir) {
+    const next = cur + dir;
+    if (next < 0 || next >= TOTAL) {
+      if (dir > 0) triggerBounce(cards[cur]);
+      return;
+    }
+    cur = next;
+    render();
+  }
+
+  function triggerBounce(card) {
+    card.classList.remove('bounce');
+    void card.offsetWidth;
+    card.classList.add('bounce');
+    card.addEventListener('animationend', () => card.classList.remove('bounce'), { once: true });
+  }
+
+  // ── TOUCH DRAG ──────────────────────────────────────
+  cards.forEach((card, idx) => {
+    let startY = 0;
+    let dy     = 0;
+    let active = false;
+
+    card.addEventListener('touchstart', e => {
+      if (idx !== cur) return;
+      startY = e.touches[0].clientY;
+      dy     = 0;
+      active = true;
+      card.style.transition = 'none';
+
+      if (!hintDismissed) {
+        hintDismissed = true;
+        swipeHint.classList.add('hidden');
+      }
+    }, { passive: true });
+
+    card.addEventListener('touchmove', e => {
+      if (!active || idx !== cur) return;
+      e.preventDefault();
+
+      dy = startY - e.touches[0].clientY;
+
+      if (dy <= 0) {
+        // Pull down: slight resistance, no back-nav
+        const pull = Math.min(-dy * 0.12, 16);
+        card.style.transform = `translateY(${pull}px)`;
+        card.classList.remove('at-threshold');
+        return;
+      }
+
+      // Swipe up: rubberband past threshold
+      const eased = dy < THRESHOLD
+        ? dy
+        : THRESHOLD + (dy - THRESHOLD) * 0.20;
+      card.style.transform = `translateY(-${eased}px) scale(${1 - eased * 0.0006})`;
+
+      if (dy >= THRESHOLD) card.classList.add('at-threshold');
+      else card.classList.remove('at-threshold');
+    }, { passive: false });
+
+    card.addEventListener('touchend', () => {
+      if (!active) return;
+      active = false;
+      card.classList.remove('at-threshold');
+
+      const didSwipeUp = dy >= THRESHOLD && idx === cur && cur < TOTAL - 1;
+      const atLast     = dy >= THRESHOLD && idx === cur && cur === TOTAL - 1;
+
+      if (didSwipeUp) {
+        // Fly off top, then advance
+        card.style.transition = 'transform 0.24s cubic-bezier(0.4, 0, 0.6, 1)';
+        card.style.transform  = 'translateY(-115%) scale(0.88)';
+        setTimeout(() => {
+          card.style.transition = '';
+          card.style.transform  = '';
+          cur++;
+          render();
+        }, 190);
+      } else {
+        // Snap back to s-front
+        card.style.transition = 'transform 0.44s var(--ease-spring)';
+        card.style.transform  = '';
+        if (atLast) {
+          // After snap, bounce to signal "no more steps"
+          setTimeout(() => {
+            card.style.transition = '';
+            triggerBounce(card);
+          }, 450);
+        } else {
+          setTimeout(() => { card.style.transition = ''; }, 480);
+        }
+      }
+      dy = 0;
+    });
+  });
+
+  render();
+</script>
+</body>
+</html>
