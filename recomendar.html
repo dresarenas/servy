@@ -195,6 +195,11 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
 .rec-star.lit { color:#F5B731; }
 .rec-star:hover { transform:scale(1.1); }
 .rec-star-label { font-family:var(--f-mono); font-size:16px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-mute); margin-bottom:16px; }
+.rec-oficio-wrap { position:relative; }
+.rec-oficio-sugg { position:absolute; top:100%; left:0; right:0; z-index:50; background:var(--bg-elev); border:1px solid rgba(255,255,255,0.12); border-radius:12px; margin-top:4px; overflow:hidden; box-shadow:0 8px 32px rgba(0,0,0,0.4); }
+.rec-sugg-item { padding:13px 16px; cursor:pointer; font-family:var(--f-sans); font-size:15px; color:var(--ink); border-bottom:1px solid var(--line); transition:background .12s; }
+.rec-sugg-item:last-child { border-bottom:none; }
+.rec-sugg-item:hover,.rec-sugg-item:focus { background:color-mix(in srgb,var(--accent) 12%,transparent); color:var(--ink); outline:none; }
 
 /* ===== SECTION DIVIDER ===== */
 .rec-opt-label {
@@ -484,13 +489,13 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
       <h1 class="rec-title">¿Qué hace<br><span id="nombreDisplay1">el prestador</span>?</h1>
       <p class="rec-sub">Seleccioná el rubro <span style="color:var(--accent)">*</span></p>
 
-      <div class="rec-chips" id="oficioChips"></div>
-      <div id="oficioOtroWrap" style="display:none; margin-top:10px;">
-        <input type="text" class="rec-input" id="otroOficioInput" placeholder="¿Cuál servicio?">
-        <div class="nombre-badge" id="recOtroBadge" style="display:none"><div class="nombre-badge-icon">✓</div><span id="recOtroText"></span></div>
+      <div class="rec-oficio-wrap">
+        <input type="text" class="rec-input" id="ofInputAuto" placeholder="Ej: plomero, electricista..." autocomplete="off" oninput="recOficioAuto(this.value)" onkeydown="recOficioAutoKey(event)">
+        <div class="rec-oficio-sugg" id="recOficioSugg" style="display:none;"></div>
       </div>
-      <div class="rec-err" id="errRecOtroOficio" style="margin-top:6px;">Escribí el nombre del rubro antes de continuar.</div>
-      <div class="rec-err" id="errOficio" style="margin-top:8px;">Seleccioná al menos un rubro</div>
+      <div class="nombre-badge" id="recOtroBadge" style="display:none"><div class="nombre-badge-icon">✓</div><span id="recOtroText"></span></div>
+      <div class="rec-err" id="errRecOtroOficio" style="margin-top:6px;">Rubro no reconocido. Intentá ser más específico (ej: plomero, carpintero).</div>
+      <div class="rec-err" id="errOficio" style="margin-top:8px;">Ingresá el rubro del prestador</div>
 
       <div class="rec-spacer"></div>
     </div>
@@ -602,6 +607,8 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
 var recCurrent = 0;
 var recSubmitRetries = 0;
 var recStars = 0;
+var recOficioFinal = null;
+var _recCats = [];
 
 /* ========== NAVIGATION ========== */
 function recGoTo(n) {
@@ -645,38 +652,64 @@ function recNext() {
 }
 
 async function recValidStep1() {
-  var sel = document.querySelectorAll('#oficioChips .rec-chip.sel');
-  if (sel.length === 0) { recShowErr('errOficio', true); return; }
+  var val = (document.getElementById('ofInputAuto').value || '').trim();
+  if (!val) { recShowErr('errOficio', true); document.getElementById('ofInputAuto').focus(); return; }
   recShowErr('errOficio', false);
-  var otroSel = document.querySelector('#oficioChips .rec-chip[data-value="otro"].sel');
-  if (otroSel) {
-    var texto = document.getElementById('otroOficioInput').value.trim();
-    if (!texto) { recShowErr('errRecOtroOficio', true); document.getElementById('otroOficioInput').focus(); return; }
-    var btnSig = document.querySelector('#rs1 .rec-cta');
-    if (btnSig) { btnSig.disabled = true; btnSig.textContent = 'Verificando...'; }
-    try {
-      var r = await fetch('https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-clasificar', {
-        method: 'POST', headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({texto: texto}), signal: AbortSignal.timeout(6000)
-      });
-      var data = await r.json();
-      if (data.ok && data.oficio) {
-        document.getElementById('otroOficioInput').value = data.oficio;
-        var _ob = document.getElementById('recOtroBadge');
-        if (_ob) { _ob.style.display = 'flex'; document.getElementById('recOtroText').textContent = data.oficio; }
-      } else if (!data.ok) {
-        var errEl = document.getElementById('errRecOtroOficio');
-        errEl.textContent = 'No reconocemos ese rubro. Intentá ser más específico (ej: plomero, carpintero).';
-        recShowErr('errRecOtroOficio', true);
-        if (btnSig) { btnSig.disabled = false; btnSig.textContent = 'Siguiente'; }
-        document.getElementById('otroOficioInput').focus();
-        return;
-      }
-    } catch(e) { /* red falla: aceptar texto tal cual */ }
-    if (btnSig) { btnSig.disabled = false; btnSig.textContent = 'Siguiente'; }
-  }
+  if (recOficioFinal) { recGoTo(2); return; }
+  var btnSig = document.querySelector('#rs1 .rec-cta');
+  if (btnSig) { btnSig.disabled = true; btnSig.textContent = 'Verificando...'; }
+  try {
+    var r = await fetch('https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-clasificar', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({texto: val}), signal: AbortSignal.timeout(6000)
+    });
+    var data = await r.json();
+    if (data.ok && data.oficio) {
+      recOficioFinal = data.oficio;
+      document.getElementById('ofInputAuto').value = data.oficio;
+      var _ob = document.getElementById('recOtroBadge');
+      if (_ob) { _ob.style.display = 'flex'; document.getElementById('recOtroText').textContent = data.oficio; }
+    } else {
+      recShowErr('errRecOtroOficio', true);
+      if (btnSig) { btnSig.disabled = false; btnSig.textContent = 'Siguiente'; }
+      document.getElementById('ofInputAuto').focus();
+      return;
+    }
+  } catch(e) { recOficioFinal = val; }
+  if (btnSig) { btnSig.disabled = false; btnSig.textContent = 'Siguiente'; }
   recShowErr('errRecOtroOficio', false);
   recGoTo(2);
+}
+function recOficioAuto(val) {
+  recOficioFinal = null;
+  var badge = document.getElementById('recOtroBadge');
+  if (badge) badge.style.display = 'none';
+  recShowErr('errOficio', false); recShowErr('errRecOtroOficio', false);
+  var sugg = document.getElementById('recOficioSugg');
+  val = (val || '').trim();
+  if (val.length < 2) { sugg.innerHTML = ''; sugg.style.display = 'none'; return; }
+  var lower = val.toLowerCase();
+  var matches = _recCats.filter(function(m) { return m.toLowerCase().includes(lower); }).slice(0, 6);
+  if (!matches.length) { sugg.innerHTML = ''; sugg.style.display = 'none'; return; }
+  sugg.innerHTML = matches.map(function(m) {
+    var safe = m.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    return '<div class="rec-sugg-item" tabindex="0" onclick="recOficioSelect(\'' + safe + '\')">' + m + '</div>';
+  }).join('');
+  sugg.style.display = 'block';
+}
+function recOficioSelect(val) {
+  document.getElementById('ofInputAuto').value = val;
+  document.getElementById('recOficioSugg').style.display = 'none';
+  recOficioFinal = val;
+  document.getElementById('recOtroText').textContent = val;
+  document.getElementById('recOtroBadge').style.display = 'flex';
+  recShowErr('errOficio', false);
+}
+function recOficioAutoKey(e) {
+  var items = document.querySelectorAll('#recOficioSugg .rec-sugg-item');
+  if (!items.length) return;
+  if (e.key === 'ArrowDown') { e.preventDefault(); items[0].focus(); }
+  if (e.key === 'Enter') { e.preventDefault(); if (items[0]) items[0].click(); }
 }
 
 function recPrev() {
@@ -738,6 +771,10 @@ function recReset() {
   document.getElementById('recPhoneWrap').style.borderColor = '';
   recStars = 0; hlStars(0);
   document.getElementById('recStarLabel').textContent = 'Tocá para calificar';
+  recOficioFinal = null;
+  var _ofIn = document.getElementById('ofInputAuto'); if (_ofIn) _ofIn.value = '';
+  var _ofBadge = document.getElementById('recOtroBadge'); if (_ofBadge) _ofBadge.style.display = 'none';
+  var _ofSugg = document.getElementById('recOficioSugg'); if (_ofSugg) _ofSugg.style.display = 'none';
   document.querySelectorAll('.rec-chip.sel').forEach(function(ch) { ch.classList.remove('sel'); });
   var resena = document.getElementById('recReseña');
   if (resena) { resena.value = ''; resena.style.height = 'auto'; }
@@ -880,13 +917,7 @@ function initRecChips(id, maxSel) {
     });
   });
 }
-SERVY.getCategorias().then(function(cats) {
-  SERVY.renderChips(document.getElementById('oficioChips'), cats, {
-    chipClass: 'rec-chip', selectedClass: 'sel', multiSelect: false, maxVisible: 8,
-    showOtro: true,
-    onOtro: function(sel) { document.getElementById('oficioOtroWrap').style.display = sel ? '' : 'none'; }
-  });
-});
+SERVY.getCategorias().then(function(cats) { _recCats = cats; });
 initRecChips('zonaChips', 5);
 initRecChips('relacionChips', 1);
 initRecChips('expChips', 6);
@@ -915,7 +946,7 @@ document.querySelectorAll('.rec-dots').forEach(function(bar) {
 
 
 /* ========== STARS ========== */
-var starLbls = ['','Muy malo','Malo','Regular','Muy bueno','Excelente'];
+var starLbls = ['','Malo','Regular','Bueno','Muy bueno','Excelente'];
 document.querySelectorAll('.rec-star').forEach(function(s) {
   s.addEventListener('click', function() { setRecStar(+s.getAttribute('data-star')); });
   s.addEventListener('mouseenter', function() { hlStars(+s.getAttribute('data-star')); });
@@ -954,11 +985,7 @@ async function recEnviar() {
   var telRaw = document.getElementById('recTel').value.replace(/\s/g, '');
   var telefono = telRaw ? '+549' + telRaw : '';
 
-  var oficioEls = document.querySelectorAll('#oficioChips .rec-chip.sel');
-  var oficios = Array.from(oficioEls).map(function(c) { return c.getAttribute('data-value'); });
-  var otroOficio = document.getElementById('otroOficioInput').value.trim();
-  var catFinal = oficios.map(function(v) { return (v === 'otro' && otroOficio) ? otroOficio : v; }).filter(Boolean);
-  var categoria = catFinal.join(', ');
+  var categoria = recOficioFinal || '';
 
   var expEls = document.querySelectorAll('#expChips .rec-chip.sel');
   var experiencia = Array.from(expEls).map(function(c) { return c.getAttribute('data-value'); }).join(', ');

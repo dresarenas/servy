@@ -116,6 +116,7 @@ S.validarNombre = function(val) {
   if (/[^aeiouáéíóúü\s\-']{5,}/i.test(val)) return false;
   var words = val.split(/\s+/).filter(Boolean);
   if (words.some(function(w) { return w.length < 2; })) return false;
+  if (/\b(no|qué|que|poner|pongo|algo|nada|hola|bueno|bien|nombre|dni|soy|sé)\b/i.test(val)) return false;
   return true;
 };
 })();
