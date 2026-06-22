@@ -117,7 +117,9 @@ S.validarNombre = function(val) {
   var words = val.split(/\s+/).filter(Boolean);
   if (words.length > 5) return false;
   if (words.some(function(w) { return w.length < 2; })) return false;
-  if (/\b(no|qué|que|poner|pongo|algo|nada|hola|bueno|bien|nombre|dni|soy|sé|me|lo|hoy|ayer|muy|hay|ya|mal|tomo|como|tengo|vivo|quiero|puedo)\b/i.test(val)) return false;
+  // Stop words del español que nunca aparecen en nombres propios
+  var SW = /\b(yo|me|te|se|nos|les|lo|la|le|él|ella|ellos|ellas|nosotros|vosotros|usted|ustedes|mi|tu|su|mis|tus|sus|un|una|unos|unas|este|esta|estos|estas|ese|esa|esos|esas|aquel|aquella|es|son|era|fue|ser|estar|hay|haber|tener|hacer|ir|ver|dar|poder|querer|saber|deber|poner|volver|venir|salir|decir|llamar|tomar|hola|gracias|bueno|bien|mal|muy|más|menos|tan|tanto|ya|si|sí|no|ni|porque|pero|aunque|sino|que|qué|cómo|como|dónde|donde|cuándo|cuando|cuál|cual|hoy|ayer|mañana|ahora|antes|después|aquí|ahí|allí|acá|allá|algo|nada|nadie|todo|nombre|dni|número|numero|poner|pongo|tomo|como|tengo|vivo|quiero|puedo|soy|sé)\b/i;
+  if (SW.test(val)) return false;
   return true;
 };
 })();

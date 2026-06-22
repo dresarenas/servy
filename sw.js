@@ -1,4 +1,4 @@
-const CACHE = 'servy-v3';
+const CACHE = 'servy-v4';
 const PRECACHE = [
   '/',
   '/index.html',
