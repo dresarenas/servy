@@ -200,6 +200,10 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
 .rec-sugg-item { padding:13px 16px; cursor:pointer; font-family:var(--f-sans); font-size:15px; color:var(--ink); border-bottom:1px solid var(--line); transition:background .12s; }
 .rec-sugg-item:last-child { border-bottom:none; }
 .rec-sugg-item:hover,.rec-sugg-item:focus { background:color-mix(in srgb,var(--accent) 12%,transparent); color:var(--ink); outline:none; }
+.rec-oficio-tags { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
+.rec-oficio-tag { display:flex; align-items:center; gap:5px; background:color-mix(in srgb,var(--accent) 15%,transparent); border:1px solid color-mix(in srgb,var(--accent) 35%,transparent); border-radius:20px; padding:5px 12px; font-family:var(--f-sans); font-size:13px; color:var(--ink); }
+.rec-oficio-tag-x { background:none; border:none; color:var(--ink-mute); cursor:pointer; font-size:17px; line-height:1; padding:0 0 0 2px; }
+.rec-oficio-tag-x:hover { color:var(--accent); }
 
 /* ===== SECTION DIVIDER ===== */
 .rec-opt-label {
@@ -490,9 +494,11 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
       <p class="rec-sub">Seleccioná el rubro <span style="color:var(--accent)">*</span></p>
 
       <div class="rec-oficio-wrap">
-        <input type="text" class="rec-input" id="ofInputAuto" placeholder="Ej: plomero, electricista..." autocomplete="off" oninput="recOficioAuto(this.value)" onkeydown="recOficioAutoKey(event)">
+        <div class="rec-oficio-tags" id="recOficioTags"></div>
+        <input type="text" class="rec-input" id="ofInputAuto" placeholder="Ej: plomero..." autocomplete="off" oninput="recOficioAuto(this.value)" onkeydown="recOficioAutoKey(event)">
         <div class="rec-oficio-sugg" id="recOficioSugg" style="display:none;"></div>
       </div>
+      <div style="font-size:12px;color:var(--ink-mute);font-family:var(--f-sans);margin-top:4px;">Podés agregar más de un rubro</div>
       <div class="nombre-badge" id="recOtroBadge" style="display:none"><div class="nombre-badge-icon">✓</div><span id="recOtroText"></span></div>
       <div class="rec-err" id="errRecOtroOficio" style="margin-top:6px;">Rubro no reconocido. Intentá ser más específico (ej: plomero, carpintero).</div>
       <div class="rec-err" id="errOficio" style="margin-top:8px;">Ingresá el rubro del prestador</div>
@@ -607,7 +613,7 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
 var recCurrent = 0;
 var recSubmitRetries = 0;
 var recStars = 0;
-var recOficioFinal = null;
+var recOficioFinal = [];
 var _recCats = [];
 
 /* ========== NAVIGATION ========== */
@@ -653,9 +659,13 @@ function recNext() {
 
 async function recValidStep1() {
   var val = (document.getElementById('ofInputAuto').value || '').trim();
-  if (!val) { recShowErr('errOficio', true); document.getElementById('ofInputAuto').focus(); return; }
+  // Sin texto en input: si hay tags seleccionados → avanzar; si no → error
+  if (!val) {
+    if (recOficioFinal.length > 0) { recGoTo(2); return; }
+    recShowErr('errOficio', true); document.getElementById('ofInputAuto').focus(); return;
+  }
   recShowErr('errOficio', false);
-  if (recOficioFinal) { recGoTo(2); return; }
+  // Con texto: intentar añadir el rubro
   var btnSig = document.querySelector('#rs1 .rec-cta');
   if (btnSig) { btnSig.disabled = true; btnSig.textContent = 'Verificando...'; }
   try {
@@ -665,20 +675,23 @@ async function recValidStep1() {
     });
     var data = await r.json();
     if (data.ok && data.oficio) {
-      recOficioFinal = data.oficio;
-      document.getElementById('ofInputAuto').value = data.oficio;
-      var _ob = document.getElementById('recOtroBadge');
-      if (_ob) { _ob.style.display = 'flex'; document.getElementById('recOtroText').textContent = data.oficio; }
+      recOficioSelect(data.oficio);
+      recShowErr('errRecOtroOficio', false);
+      if (btnSig) { btnSig.disabled = false; btnSig.textContent = 'Siguiente'; }
+      // Si ya hay tags, permitir avanzar en el próximo click de Siguiente
+      return;
     } else {
       recShowErr('errRecOtroOficio', true);
       if (btnSig) { btnSig.disabled = false; btnSig.textContent = 'Siguiente'; }
       document.getElementById('ofInputAuto').focus();
       return;
     }
-  } catch(e) { recOficioFinal = val; }
-  if (btnSig) { btnSig.disabled = false; btnSig.textContent = 'Siguiente'; }
-  recShowErr('errRecOtroOficio', false);
-  recGoTo(2);
+  } catch(e) {
+    recOficioSelect(val);
+    recShowErr('errRecOtroOficio', false);
+    if (btnSig) { btnSig.disabled = false; btnSig.textContent = 'Siguiente'; }
+    return;
+  }
 }
 function recOficioAuto(val) {
   recOficioFinal = null;
@@ -689,7 +702,7 @@ function recOficioAuto(val) {
   val = (val || '').trim();
   if (val.length < 2) { sugg.innerHTML = ''; sugg.style.display = 'none'; return; }
   var lower = val.toLowerCase();
-  var matches = _recCats.filter(function(m) { return m.toLowerCase().includes(lower); }).slice(0, 6);
+  var matches = _recCats.filter(function(m) { return m.toLowerCase().includes(lower) && recOficioFinal.indexOf(m) === -1; }).slice(0, 6);
   if (!matches.length) { sugg.innerHTML = ''; sugg.style.display = 'none'; return; }
   sugg.innerHTML = matches.map(function(m) {
     var safe = m.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
@@ -698,12 +711,25 @@ function recOficioAuto(val) {
   sugg.style.display = 'block';
 }
 function recOficioSelect(val) {
-  document.getElementById('ofInputAuto').value = val;
+  if (recOficioFinal.indexOf(val) !== -1) return; // ya seleccionado
+  recOficioFinal.push(val);
+  document.getElementById('ofInputAuto').value = '';
   document.getElementById('recOficioSugg').style.display = 'none';
-  recOficioFinal = val;
-  document.getElementById('recOtroText').textContent = val;
-  document.getElementById('recOtroBadge').style.display = 'flex';
+  _recRenderTags();
   recShowErr('errOficio', false);
+  document.getElementById('ofInputAuto').focus();
+}
+function _recRenderTags() {
+  var tags = document.getElementById('recOficioTags');
+  if (!tags) return;
+  tags.innerHTML = recOficioFinal.map(function(v) {
+    var safe = v.replace(/'/g, "\'");
+    return '<span class="rec-oficio-tag">' + v + '<button type="button" class="rec-oficio-tag-x" onclick="recOficioRemove(\'' + safe + '\')">×</button></span>';
+  }).join('');
+}
+function recOficioRemove(val) {
+  recOficioFinal = recOficioFinal.filter(function(v) { return v !== val; });
+  _recRenderTags();
 }
 function recOficioAutoKey(e) {
   var items = document.querySelectorAll('#recOficioSugg .rec-sugg-item');
@@ -771,9 +797,9 @@ function recReset() {
   document.getElementById('recPhoneWrap').style.borderColor = '';
   recStars = 0; hlStars(0);
   document.getElementById('recStarLabel').textContent = 'Tocá para calificar';
-  recOficioFinal = null;
+  recOficioFinal = [];
   var _ofIn = document.getElementById('ofInputAuto'); if (_ofIn) _ofIn.value = '';
-  var _ofBadge = document.getElementById('recOtroBadge'); if (_ofBadge) _ofBadge.style.display = 'none';
+  var _ofTags = document.getElementById('recOficioTags'); if (_ofTags) _ofTags.innerHTML = '';
   var _ofSugg = document.getElementById('recOficioSugg'); if (_ofSugg) _ofSugg.style.display = 'none';
   document.querySelectorAll('.rec-chip.sel').forEach(function(ch) { ch.classList.remove('sel'); });
   var resena = document.getElementById('recReseña');
@@ -985,7 +1011,7 @@ async function recEnviar() {
   var telRaw = document.getElementById('recTel').value.replace(/\s/g, '');
   var telefono = telRaw ? '+549' + telRaw : '';
 
-  var categoria = recOficioFinal || '';
+  var categoria = recOficioFinal.join(', ');
 
   var expEls = document.querySelectorAll('#expChips .rec-chip.sel');
   var experiencia = Array.from(expEls).map(function(c) { return c.getAttribute('data-value'); }).join(', ');
