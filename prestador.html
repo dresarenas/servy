@@ -305,6 +305,8 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
 }
 .prest-privacy-note svg { flex-shrink:0; margin-top:2px; color:var(--accent); }
 .prest-privacy-note span { color:var(--accent); font-weight:600; }
+.nombre-badge{display:flex;align-items:center;gap:10px;background:color-mix(in srgb,var(--accent) 10%,transparent);border:1px solid color-mix(in srgb,var(--accent) 25%,transparent);border-radius:10px;padding:8px 14px;margin-top:8px;font-size:14px;color:var(--ink-dim);font-family:var(--f-sans);}
+.nombre-badge-icon{width:20px;height:20px;border-radius:50%;background:var(--accent);color:#0B1A2B;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 
 </style>
 </head>
@@ -358,9 +360,10 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
       <div class="prest-field">
         <label class="prest-label">Nombre y apellido <span style="color:var(--accent)">*</span></label>
         <input type="text" class="prest-input" id="prestNombre" placeholder="Ej: Juan García" autocomplete="off"
-          oninput="this.value=this.value.replace(/[0-9]/g,''); prestClearErr('errPrestNombre')"
+          oninput="this.value=this.value.replace(/[0-9]/g,''); prestNombreInput(this)"
           onkeydown="if(event.key==='Enter'){event.preventDefault();}"
-        <div class="prest-err" id="errPrestNombre">Ingresá tu nombre completo</div>
+        <div class="prest-err" id="errPrestNombre">Ingresá un nombre válido (ej: Juan García)</div>
+        <div class="nombre-badge" id="prestNombreBadge" style="display:none"><div class="nombre-badge-icon">✓</div><span id="prestNombreBadgeText"></span></div>
       </div>
 
       <div class="prest-field">
@@ -411,6 +414,7 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
       <div class="prest-chips" id="prestOficioChips"></div>
       <div id="prestOtroOficioWrap" style="display:none; margin-top:10px;">
         <input type="text" class="prest-input" id="prestOtroOficio" placeholder="¿Cuál rubro?">
+        <div class="nombre-badge" id="prestOtroBadge" style="display:none"><div class="nombre-badge-icon">✓</div><span id="prestOtroText"></span></div>
       </div>
       <div class="prest-err" id="errPrestOtroOficio" style="margin-top:6px;">Escribí el nombre del rubro antes de continuar.</div>
       <div class="prest-err" id="errPrestOficio" style="margin-top:8px;">Elegí al menos un rubro</div>
@@ -650,13 +654,23 @@ function prestShowErr(id, show) {
 }
 function prestClearErr(id) { prestShowErr(id, false); }
 
+function prestNombreInput(el) {
+  prestClearErr('errPrestNombre');
+  var v = el.value.trim();
+  var badge = document.getElementById('prestNombreBadge');
+  if (SERVY.validarNombre(v)) {
+    document.getElementById('prestNombreBadgeText').textContent = v;
+    badge.style.display = 'flex';
+  } else { badge.style.display = 'none'; }
+}
+
 /* ========== VALIDATION ========== */
 function prestValidStep0() {
   var nombre = document.getElementById('prestNombre').value.trim();
   var tel    = document.getElementById('prestTel').value.replace(/\s/g, '');
   var ok = true;
 
-  if (!nombre || nombre.length < 2) { prestShowErr('errPrestNombre', true); ok = false; } else prestShowErr('errPrestNombre', false);
+  if (!SERVY.validarNombre(nombre)) { prestShowErr('errPrestNombre', true); ok = false; } else prestShowErr('errPrestNombre', false);
   var telOk = /^\d{10,11}$/.test(tel) && !/^(\d)\1+$/.test(tel);
   if (!telOk) { prestShowErr('errPrestTel', true); ok = false; } else prestShowErr('errPrestTel', false);
 
@@ -688,6 +702,8 @@ async function prestValidStep1() {
         var dp = await rp.json();
         if (dp.ok && dp.oficio) {
           document.getElementById('prestOtroOficio').value = dp.oficio;
+          var _ob = document.getElementById('prestOtroBadge');
+          if (_ob) { _ob.style.display = 'flex'; document.getElementById('prestOtroText').textContent = dp.oficio; }
         } else if (!dp.ok) {
           var errElP = document.getElementById('errPrestOtroOficio');
           errElP.textContent = 'No reconocemos ese rubro. Intentá ser más específico (ej: plomero, carpintero).';

@@ -340,6 +340,8 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
   #recWiz.show-form .rec-opt-label { display: block !important; }
   #recWiz.show-form #recVolverWALink { display: block !important; }
 }
+.nombre-badge{display:flex;align-items:center;gap:10px;background:color-mix(in srgb,var(--accent) 10%,transparent);border:1px solid color-mix(in srgb,var(--accent) 25%,transparent);border-radius:10px;padding:8px 14px;margin-top:8px;font-size:14px;color:var(--ink-dim);font-family:var(--f-sans);}
+.nombre-badge-icon{width:20px;height:20px;border-radius:50%;background:var(--accent);color:#0B1A2B;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 </style>
 </head>
 <body class="loaded">
@@ -408,8 +410,9 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
         <label class="rec-label">Tu nombre <span style="color:var(--accent)">*</span></label>
         <input type="text" class="rec-input" id="recRecomendadorNombre" placeholder="Ej: Ana García"
           autocomplete="name"
-          oninput="this.value=this.value.replace(/[0-9]/g,''); recClearErr('errRecomendadorNombre')">
-        <div class="rec-err" id="errRecomendadorNombre">Ingresá tu nombre</div>
+          oninput="this.value=this.value.replace(/[0-9]/g,''); recRecomNombreInput(this)">
+        <div class="rec-err" id="errRecomendadorNombre">Ingresá un nombre válido (ej: Ana García)</div>
+        <div class="nombre-badge" id="recRecomNombreBadge" style="display:none"><div class="nombre-badge-icon">✓</div><span id="recRecomNombreText"></span></div>
       </div>
 
       <div id="mobileWASection">
@@ -426,9 +429,10 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
         <div class="rec-field">
           <label class="rec-label">¿Cómo se llama el prestador? <span style="color:var(--accent)">*</span></label>
           <input type="text" class="rec-input" id="recNombre" placeholder="Ej: Mario Rodríguez" autocomplete="off"
-            oninput="this.value=this.value.replace(/[0-9]/g,''); recClearErr('errNombre')"
+            oninput="this.value=this.value.replace(/[0-9]/g,''); recNombreInput(this)"
             onkeydown="if(event.key==='Enter'){event.preventDefault();}"
-          <div class="rec-err" id="errNombre">Ingresá el nombre del prestador</div>
+          <div class="rec-err" id="errNombre">Ingresá un nombre válido (ej: Mario Rodríguez)</div>
+          <div class="nombre-badge" id="recNombreBadge" style="display:none"><div class="nombre-badge-icon">✓</div><span id="recNombreText"></span></div>
         </div>
 
         <div class="rec-field">
@@ -483,6 +487,7 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
       <div class="rec-chips" id="oficioChips"></div>
       <div id="oficioOtroWrap" style="display:none; margin-top:10px;">
         <input type="text" class="rec-input" id="otroOficioInput" placeholder="¿Cuál servicio?">
+        <div class="nombre-badge" id="recOtroBadge" style="display:none"><div class="nombre-badge-icon">✓</div><span id="recOtroText"></span></div>
       </div>
       <div class="rec-err" id="errRecOtroOficio" style="margin-top:6px;">Escribí el nombre del rubro antes de continuar.</div>
       <div class="rec-err" id="errOficio" style="margin-top:8px;">Seleccioná al menos un rubro</div>
@@ -657,6 +662,8 @@ async function recValidStep1() {
       var data = await r.json();
       if (data.ok && data.oficio) {
         document.getElementById('otroOficioInput').value = data.oficio;
+        var _ob = document.getElementById('recOtroBadge');
+        if (_ob) { _ob.style.display = 'flex'; document.getElementById('recOtroText').textContent = data.oficio; }
       } else if (!data.ok) {
         var errEl = document.getElementById('errRecOtroOficio');
         errEl.textContent = 'No reconocemos ese rubro. Intentá ser más específico (ej: plomero, carpintero).';
@@ -683,14 +690,33 @@ function recShowErr(id, show) {
 }
 function recClearErr(id) { recShowErr(id, false); }
 
+function recRecomNombreInput(el) {
+  recClearErr('errRecomendadorNombre');
+  var v = el.value.trim();
+  var badge = document.getElementById('recRecomNombreBadge');
+  if (SERVY.validarNombre(v)) {
+    document.getElementById('recRecomNombreText').textContent = v;
+    badge.style.display = 'flex';
+  } else { badge.style.display = 'none'; }
+}
+function recNombreInput(el) {
+  recClearErr('errNombre');
+  var v = el.value.trim();
+  var badge = document.getElementById('recNombreBadge');
+  if (SERVY.validarNombre(v)) {
+    document.getElementById('recNombreText').textContent = v;
+    badge.style.display = 'flex';
+  } else { badge.style.display = 'none'; }
+}
+
 /* ========== STEP VALIDATION ========== */
 function recValidStep0() {
-  var recNombreOk = (document.getElementById('recRecomendadorNombre').value||'').trim().length >= 2;
+  var recNombreOk = SERVY.validarNombre((document.getElementById('recRecomendadorNombre').value||'').trim());
   if (!recNombreOk) { recShowErr('errRecomendadorNombre', true); } else recShowErr('errRecomendadorNombre', false);
   var nombre = document.getElementById('recNombre').value.trim();
   var tel = document.getElementById('recTel').value.replace(/\s/g, '');
   var ok = recNombreOk;
-  if (!nombre) { recShowErr('errNombre', true); ok = false; } else recShowErr('errNombre', false);
+  if (!SERVY.validarNombre(nombre)) { recShowErr('errNombre', true); ok = false; } else recShowErr('errNombre', false);
   var telOk = /^\d{10,11}$/.test(tel) && !/^(\d)\1+$/.test(tel);
   if (!telOk) { recShowErr('errTel', true); ok = false; } else recShowErr('errTel', false);
   if (!recStars) { recShowErr('errEstrellas', true); ok = false; } else recShowErr('errEstrellas', false);
@@ -1043,7 +1069,7 @@ document.querySelectorAll('.rec-step:not(.active)').forEach(function(s) { s.iner
 <script>
 function recAbrirWA() {
   var nombre = (document.getElementById('recRecomendadorNombre').value || '').trim();
-  if (nombre.length < 2) {
+  if (!SERVY.validarNombre(nombre)) {
     recShowErr('errRecomendadorNombre', true);
     document.getElementById('recRecomendadorNombre').focus();
     return;

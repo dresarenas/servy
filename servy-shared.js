@@ -109,4 +109,13 @@ S.getSelectedChips = function (el, cc, sc) {
     el.querySelectorAll('.' + (cc || 'chip') + '.' + (sc || 'sel'))
   ).map(function (b) { return b.getAttribute('data-value'); });
 };
+S.validarNombre = function(val) {
+  val = (val || '').trim();
+  if (val.length < 3) return false;
+  if (!/[aeiouáéíóúü]/i.test(val)) return false;
+  if (/[^aeiouáéíóúü\s\-']{5,}/i.test(val)) return false;
+  var words = val.split(/\s+/).filter(Boolean);
+  if (words.some(function(w) { return w.length < 2; })) return false;
+  return true;
+};
 })();
