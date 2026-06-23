@@ -767,7 +767,7 @@ function recNombreInput(el) {
 }
 
 /* ========== STEP VALIDATION ========== */
-function recValidStep0() {
+async function recValidStep0() {
   var recNombreOk = SERVY.validarNombre((document.getElementById('recRecomendadorNombre').value||'').trim());
   if (!recNombreOk) { recShowErr('errRecomendadorNombre', true); } else recShowErr('errRecomendadorNombre', false);
   var nombre = document.getElementById('recNombre').value.trim();
@@ -783,6 +783,10 @@ function recValidStep0() {
     else { var sr = document.getElementById('recStarsRow'); if (sr) sr.scrollIntoView({behavior:'smooth',block:'center'}); }
     return;
   }
+  var _recOmb = (document.getElementById('recRecomendadorNombre').value||'').trim();
+  var _ia = await Promise.all([SERVY.validarNombreIA(nombre), SERVY.validarNombreIA(_recOmb)]);
+  if (SERVY.nombreRechazadoIA(_ia[0])) { recShowErr('errNombre', true); document.getElementById('recNombre').focus(); return; }
+  if (SERVY.nombreRechazadoIA(_ia[1])) { recShowErr('errRecomendadorNombre', true); document.getElementById('recRecomendadorNombre').focus(); return; }
   document.getElementById('nombreDisplay1').textContent = nombre;
   recGoTo(1);
 }
@@ -1118,9 +1122,15 @@ document.querySelectorAll('.rec-step:not(.active)').forEach(function(s) { s.iner
 </script>
 <script src="home-v2.js"></script>
 <script>
-function recAbrirWA() {
+async function recAbrirWA() {
   var nombre = (document.getElementById('recRecomendadorNombre').value || '').trim();
   if (!SERVY.validarNombre(nombre)) {
+    recShowErr('errRecomendadorNombre', true);
+    document.getElementById('recRecomendadorNombre').focus();
+    return;
+  }
+  var _iaWA = await SERVY.validarNombreIA(nombre);
+  if (SERVY.nombreRechazadoIA(_iaWA)) {
     recShowErr('errRecomendadorNombre', true);
     document.getElementById('recRecomendadorNombre').focus();
     return;

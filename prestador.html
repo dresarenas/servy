@@ -666,7 +666,7 @@ function prestNombreInput(el) {
 }
 
 /* ========== VALIDATION ========== */
-function prestValidStep0() {
+async function prestValidStep0() {
   var nombre = document.getElementById('prestNombre').value.trim();
   var tel    = document.getElementById('prestTel').value.replace(/\s/g, '');
   var ok = true;
@@ -680,6 +680,8 @@ function prestValidStep0() {
     else document.getElementById('prestTel').focus();
     return;
   }
+  var _iaP = await SERVY.validarNombreIA(nombre);
+  if (SERVY.nombreRechazadoIA(_iaP)) { prestShowErr('errPrestNombre', true); document.getElementById('prestNombre').focus(); return; }
   prestGoTo(1);
 }
 

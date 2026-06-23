@@ -124,4 +124,21 @@ S.validarNombre = function(val) {
   if (SW.test(val)) return false;
   return true;
 };
+
+// Validación autoritativa con IA (gpt-4o-mini vía n8n). Falla ABIERTO ante error de red.
+S.WEBHOOK_VALIDAR = 'https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-validar-nombre';
+S.validarNombreIA = async function(nombre) {
+  try {
+    var r = await fetch(S.WEBHOOK_VALIDAR, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nombre: nombre })
+    });
+    if (!r.ok) return { valido: true, confianza: 0, motivo: 'fail_open' };
+    return await r.json();
+  } catch (e) { return { valido: true, confianza: 0, motivo: 'fail_open' }; }
+};
+// Rechaza solo si la IA dice inválido con confianza suficiente (>=0.6)
+S.nombreRechazadoIA = function(res) {
+  return !!(res && res.valido === false && (res.confianza == null || res.confianza >= 0.6));
+};
 })();
