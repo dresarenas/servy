@@ -1562,7 +1562,12 @@ async function toggleWizMic() {
       if (_wizMediaRecorder && _wizMediaRecorder.state === 'recording') _wizMediaRecorder.stop();
     }, 30000);
   } catch(e) {
-    alert('No se pudo acceder al micrófono. Verificá los permisos.');
+    if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
+      var ta = document.getElementById('wizDesc');
+      if (ta) { var _orig = ta.placeholder; ta.placeholder = 'Sin permiso de mic. En Android: Configuración → Apps → SERVY → Permisos → Micrófono'; setTimeout(function(){ ta.placeholder = _orig; }, 7000); }
+    } else {
+      alert('No se pudo acceder al micrófono. Verificá los permisos.');
+    }
   }
 }
 
