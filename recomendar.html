@@ -747,6 +747,14 @@ function recClearErr(id) { recShowErr(id, false); }
 
 function recRecomNombreInput(el) {
   recClearErr('errRecomendadorNombre');
+  var val = (el.value || '').trim();
+  if (val.length >= 3 && SERVY.validarNombre(val)) {
+    el.style.borderColor = 'var(--accent)';
+    el.style.boxShadow = '0 0 0 2px color-mix(in srgb,var(--accent) 20%,transparent)';
+  } else {
+    el.style.borderColor = '';
+    el.style.boxShadow = '';
+  }
 }
 function recNombreInput(el) {
   recClearErr('errNombre');
