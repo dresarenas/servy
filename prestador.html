@@ -136,6 +136,7 @@
 textarea.prest-input { font-size:18px; font-weight:400; resize:none; min-height:96px; line-height:1.5; overflow:hidden; }
 .prest-phone-wrap {
   display:flex; align-items:stretch;
+  width:100%; box-sizing:border-box;
   background:color-mix(in srgb,var(--ink) 5%,var(--bg));
   border:2px solid var(--line-strong); border-radius:12px;
   overflow:hidden; transition:border-color .2s,background .2s;
@@ -297,6 +298,7 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
 /* ===== PRIVACY NOTE ===== */
 .prest-privacy-note {
   display:flex; align-items:flex-start; gap:8px;
+  width:100%; box-sizing:border-box;
   background:color-mix(in srgb,var(--accent) 6%,var(--bg-elev));
   border:1px solid color-mix(in srgb,var(--accent) 25%,transparent);
   border-radius:12px; padding:12px 14px; margin:14px 0;

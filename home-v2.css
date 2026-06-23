@@ -1134,7 +1134,7 @@ main { position: relative; z-index: 1; }
 /* ============ FOOTER ============ */
 .footer {
   border-top: 1px solid var(--line);
-  padding: 36px 32px 24px;
+  padding: 36px 32px 80px;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 24px;
