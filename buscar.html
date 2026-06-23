@@ -1851,6 +1851,9 @@ function wizEnviarWA() {
   }
   var btn = document.querySelector('#wizNoResults .no-results-wa button');
   btn.textContent = '✓ Anotado'; btn.style.background = 'var(--ink-mute)'; btn.disabled = true;
+  var oficioTexto = wizState.oficio || 'prestadores del hogar';
+  var conf = document.getElementById('wizNoResultsConfirm');
+  if (conf) { conf.textContent = '¡Listo! Te avisamos ni bien sumemos ' + oficioTexto + ' cerca tuyo.'; conf.style.display = ''; }
 }
 
 /* ---- INIT ---- */
