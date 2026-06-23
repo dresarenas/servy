@@ -421,7 +421,6 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
           autocomplete="name"
           oninput="this.value=this.value.replace(/[0-9]/g,''); recRecomNombreInput(this)">
         <div class="rec-err" id="errRecomendadorNombre">Ingresá un nombre válido (ej: Ana García)</div>
-        <div class="nombre-badge" id="recRecomNombreBadge" style="display:none"><div class="nombre-badge-icon">✓</div><span id="recRecomNombreText"></span></div>
       </div>
 
       <div id="mobileWASection">
@@ -440,7 +439,6 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
           <input type="text" class="rec-input" id="recNombre" placeholder="Ej: Mario Rodríguez" autocomplete="off"
             oninput="this.value=this.value.replace(/[0-9]/g,''); recNombreInput(this)"
             onkeydown="if(event.key==='Enter'){event.preventDefault();}"
-          <div class="nombre-badge" id="recNombreBadge" style="display:none"><div class="nombre-badge-icon">✓</div><span id="recNombreText"></span></div>
         </div>
 
         <div class="rec-field">
@@ -498,7 +496,6 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
         <div class="rec-oficio-sugg" id="recOficioSugg" style="display:none;"></div>
       </div>
       <div style="font-size:12px;color:var(--ink-mute);font-family:var(--f-sans);margin-top:4px;">Podés agregar más de un rubro</div>
-      <div class="nombre-badge" id="recOtroBadge" style="display:none"><div class="nombre-badge-icon">✓</div><span id="recOtroText"></span></div>
       <div class="rec-err" id="errRecOtroOficio" style="margin-top:6px;">Rubro no reconocido. Intentá ser más específico (ej: plomero, carpintero).</div>
       <div class="rec-err" id="errOficio" style="margin-top:8px;">Ingresá el rubro del prestador</div>
 
@@ -749,21 +746,10 @@ function recClearErr(id) { recShowErr(id, false); }
 
 function recRecomNombreInput(el) {
   recClearErr('errRecomendadorNombre');
-  var v = el.value.trim();
-  var badge = document.getElementById('recRecomNombreBadge');
-  if (SERVY.validarNombre(v)) {
-    document.getElementById('recRecomNombreText').textContent = v;
-    badge.style.display = 'flex';
-  } else { badge.style.display = 'none'; }
 }
 function recNombreInput(el) {
   recClearErr('errNombre');
-  var v = el.value.trim();
-  var badge = document.getElementById('recNombreBadge');
-  if (SERVY.validarNombre(v)) {
-    document.getElementById('recNombreText').textContent = v;
-    badge.style.display = 'flex';
-  } else { badge.style.display = 'none'; }
+} else { badge.style.display = 'none'; }
 }
 
 /* ========== STEP VALIDATION ========== */
@@ -857,7 +843,7 @@ function recReset() {
     var iosH = document.getElementById('iosHint');
     if (iosH) iosH.style.display = '';
   } else {
-    formFields.style.display = '';
+    formFields.style.display = 'none';
     if (btnImport) btnImport.style.display = 'none';
     if (linkManual) linkManual.style.display = 'none';
   }

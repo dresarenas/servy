@@ -209,6 +209,13 @@
   color: var(--ink-mute);
 }
 
+/* ============ MULTI OFICIO ============ */
+.wiz-multi-oficio { display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:8px 0 4px; }
+.wiz-multi-label { font-family:var(--f-mono); font-size:11px; letter-spacing:.06em; color:var(--ink-mute); text-transform:uppercase; width:100%; }
+.wiz-multi-chips { display:flex; gap:8px; flex-wrap:wrap; }
+.wiz-multi-chip { font-family:var(--f-mono); font-size:13px; padding:7px 16px; border-radius:999px; border:1.5px solid var(--line); background:transparent; color:var(--ink-dim); cursor:pointer; transition:color .15s,border-color .15s,background .15s; }
+.wiz-multi-chip.selected,.wiz-multi-chip:hover { color:var(--accent); border-color:var(--accent); background:color-mix(in srgb, var(--accent) 8%, transparent); }
+
 /* ============ SUGGESTION CHIPS ============ */
 .wiz-chips-row {
   display: flex;
@@ -951,6 +958,10 @@
         <div class="wiz-oficio-icon">✓</div>
         <span id="wizOficioText">—</span>
       </div>
+      <div class="wiz-multi-oficio" id="wizMultiOficio" style="display:none;">
+        <span class="wiz-multi-label">¿Cuál tipo de servicio necesitás?</span>
+        <div class="wiz-multi-chips" id="wizMultiChips"></div>
+      </div>
 
       <div class="wiz-mic-area">
         <button class="wiz-mic-circle" id="wizMicBtn" onclick="toggleWizMic()" title="Hablar por voz">
@@ -1162,7 +1173,7 @@ var WEBHOOK_WHISPER    = 'https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-wh
 var WEBHOOK_CLASIFICAR = 'https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-clasificar';
 
 /* ---- STATE ---- */
-var wizState = { descripcion: null, oficio: null, zonaText: '', tiempo: null, prestadores: [] };
+var wizState = { descripcion: null, oficio: null, oficios: null, zonaText: '', tiempo: null, prestadores: [] };
 var wizIsDemoData = false;
 var wizCurrent = 0;
 history.replaceState({wizStep: 0}, '');
@@ -1261,7 +1272,10 @@ async function wizNext() {
         if (_aiRes.ok) {
           var _aiData = await _aiRes.json();
           var _GENERIC2 = ['el servicio','servicio','los servicios','servicios'];
-          if (_aiData.ok && _aiData.oficio && _GENERIC2.indexOf(_aiData.oficio.toLowerCase().trim()) === -1) {
+          if (_aiData.ok && _aiData.oficios && _aiData.oficios.length) {
+            var _ofs = _aiData.oficios.map(normalizarOficio).filter(function(o){ return o && _GENERIC2.indexOf(o.toLowerCase().trim()) === -1; });
+            if (_ofs.length) { wizState.oficio = _ofs[0]; wizState.oficios = _ofs.length > 1 ? _ofs : null; }
+          } else if (_aiData.ok && _aiData.oficio && _GENERIC2.indexOf(_aiData.oficio.toLowerCase().trim()) === -1) {
             wizState.oficio = normalizarOficio(_aiData.oficio);
           }
         }
@@ -1314,6 +1328,7 @@ function wizReset() {
   desc.value = ''; desc.style.height = 'auto';
   document.getElementById('wizAddr').value = '';
   document.getElementById('wizOficioBadge').style.display = 'none';
+  document.getElementById('wizMultiOficio').style.display = 'none';
   var _gst = document.getElementById('wizGeoStatus'); if (_gst) { _gst.style.display = 'none'; _gst.textContent = ''; }
   document.getElementById('wizResultsGrid').innerHTML = '';
   document.getElementById('wizLoading').classList.remove('visible');
@@ -1329,6 +1344,26 @@ function wizReset() {
   document.getElementById('wizDesc').focus();
 }
 
+/* ---- MULTI OFICIO ---- */
+function showMultiOficios(ofs) {
+  var panel = document.getElementById('wizMultiOficio');
+  var chips = document.getElementById('wizMultiChips');
+  if (!panel || !chips) return;
+  chips.innerHTML = '';
+  ofs.forEach(function(of, i) {
+    var b = document.createElement('button');
+    b.className = 'wiz-multi-chip' + (i === 0 ? ' selected' : '');
+    b.textContent = of;
+    b.onclick = function() {
+      chips.querySelectorAll('.wiz-multi-chip').forEach(function(x){x.classList.remove('selected');});
+      b.classList.add('selected');
+      wizState.oficio = of;
+    };
+    chips.appendChild(b);
+  });
+  document.getElementById('wizOficioBadge').style.display = 'none';
+  panel.style.display = 'flex';
+}
 /* ---- INPUT ---- */
 var _wizDescTimer = null;
 function onWizInput(val) {
@@ -1342,10 +1377,13 @@ function onWizInput(val) {
   }
   clearTimeout(_wizDescTimer);
   document.getElementById('wizOficioBadge').style.display = 'none';
+  document.getElementById('wizMultiOficio').style.display = 'none';
   document.querySelectorAll('.wiz-chip').forEach(function(c) { c.classList.remove('selected'); });
   if (val.trim().length >= 3) {
     _wizDescTimer = setTimeout(function() {
-      if (wizState.oficio) {
+      if (wizState.oficios && wizState.oficios.length > 1) {
+        showMultiOficios(wizState.oficios);
+      } else if (wizState.oficio) {
         document.getElementById('wizOficioText').textContent = wizState.oficio;
         document.getElementById('wizOficioBadge').style.display = 'flex';
       }
@@ -1704,6 +1742,7 @@ function wizRenderResults(prestadores) {
   document.getElementById('wizResultsCount').textContent = prestadores.length;
   var demoNote = document.getElementById('wizDemoNote');
   if (demoNote) demoNote.style.display = wizIsDemoData ? '' : 'none';
+  if (wizIsDemoData) { var wt = document.getElementById('wizTitle'); if (wt) wt.innerHTML = 'Mostrando resultados<br>de <span>ejemplo</span>'; }
   var grid = document.getElementById('wizResultsGrid'); grid.innerHTML = '';
   if (prestadores.length === 0) {
     document.getElementById('wizNoResults').style.display = '';

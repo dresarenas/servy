@@ -139,6 +139,6 @@ S.validarNombreIA = async function(nombre) {
 };
 // Rechaza solo si la IA dice inválido con confianza suficiente (>=0.6)
 S.nombreRechazadoIA = function(res) {
-  return !!(res && res.valido === false && (res.confianza == null || res.confianza >= 0.6));
+  return !!(res && res.valido === false && (res.confianza == null || res.confianza >= 0.5));
 };
 })();

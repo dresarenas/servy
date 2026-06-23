@@ -139,7 +139,6 @@ textarea.prest-input { font-size:18px; font-weight:400; resize:none; min-height:
   background:color-mix(in srgb,var(--ink) 5%,var(--bg));
   border:2px solid var(--line-strong); border-radius:12px;
   overflow:hidden; transition:border-color .2s,background .2s;
-  max-width:420px;
 }
 .prest-phone-wrap:focus-within { border-color:var(--accent); background:color-mix(in srgb,var(--accent) 5%,var(--bg)); }
 .prest-phone-prefix { padding:14px 0 14px 16px; font-family:var(--f-mono); font-size:18px; color:var(--ink-mute); white-space:nowrap; flex-shrink:0; }
@@ -513,8 +512,8 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
       <!-- EMAIL -->
       <div class="prest-field">
         <label class="prest-label">Email</label>
-        <input type="email" class="prest-input" id="prestEmail" placeholder="tu@email.com"
-          autocomplete="email" inputmode="email">
+        <input type="text" class="prest-input" id="prestEmail" placeholder="tu@email.com"
+          autocomplete="off" inputmode="email">
       </div>
 
       <!-- BIO -->
