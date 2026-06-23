@@ -440,7 +440,6 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
           <input type="text" class="rec-input" id="recNombre" placeholder="Ej: Mario Rodríguez" autocomplete="off"
             oninput="this.value=this.value.replace(/[0-9]/g,''); recNombreInput(this)"
             onkeydown="if(event.key==='Enter'){event.preventDefault();}"
-          <div class="rec-err" id="errNombre">Ingresá un nombre válido (ej: Mario Rodríguez)</div>
           <div class="nombre-badge" id="recNombreBadge" style="display:none"><div class="nombre-badge-icon">✓</div><span id="recNombreText"></span></div>
         </div>
 
@@ -659,38 +658,37 @@ function recNext() {
 
 async function recValidStep1() {
   var val = (document.getElementById('ofInputAuto').value || '').trim();
-  // Sin texto en input: si hay tags seleccionados → avanzar; si no → error
   if (!val) {
     if (recOficioFinal.length > 0) { recGoTo(2); return; }
     recShowErr('errOficio', true); document.getElementById('ofInputAuto').focus(); return;
   }
   recShowErr('errOficio', false);
-  // Con texto: intentar añadir el rubro
+  recShowErr('errRecOtroOficio', false);
   var btnSig = document.querySelector('#rs1 .rec-cta');
   if (btnSig) { btnSig.disabled = true; btnSig.textContent = 'Verificando...'; }
   try {
-    var r = await fetch('https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-clasificar', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({texto: val}), signal: AbortSignal.timeout(6000)
-    });
-    var data = await r.json();
+    var _tout = new Promise(function(_, rej) { setTimeout(function() { rej(new Error('timeout')); }, 7000); });
+    var r = await Promise.race([
+      fetch('https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-clasificar', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({texto: val})
+      }),
+      _tout
+    ]);
+    var data = {};
+    try { data = await r.json(); } catch(_e) {}
     if (data.ok && data.oficio) {
       recOficioSelect(data.oficio);
       recShowErr('errRecOtroOficio', false);
-      if (btnSig) { btnSig.disabled = false; btnSig.textContent = 'Siguiente'; }
-      // Si ya hay tags, permitir avanzar en el próximo click de Siguiente
-      return;
     } else {
       recShowErr('errRecOtroOficio', true);
-      if (btnSig) { btnSig.disabled = false; btnSig.textContent = 'Siguiente'; }
-      document.getElementById('ofInputAuto').focus();
-      return;
+      document.getElementById('ofInputAuto') && document.getElementById('ofInputAuto').focus();
     }
   } catch(e) {
-    recOficioSelect(val);
-    recShowErr('errRecOtroOficio', false);
-    if (btnSig) { btnSig.disabled = false; btnSig.textContent = 'Siguiente'; }
-    return;
+    recShowErr('errRecOtroOficio', true);
+    document.getElementById('ofInputAuto') && document.getElementById('ofInputAuto').focus();
+  } finally {
+    if (btnSig) { btnSig.disabled = false; btnSig.textContent = 'Siguiente →'; }
   }
 }
 function recOficioAuto(val) {
