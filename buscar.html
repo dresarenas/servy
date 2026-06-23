@@ -1257,49 +1257,50 @@ async function wizNext() {
     wizState.descripcion = desc;
     wizState.oficio = detectOficio(desc) || null;
 
-    if (!wizState.oficio) {
-      // Diccionario local no reconoce → probar AI clasificador antes de bloquear
-      var _e0 = document.getElementById('wiz-err-0');
-      var _btn0 = document.getElementById('wizCtaBtn0');
-      if (_btn0) { _btn0.textContent = 'Identificando...'; _btn0.disabled = true; }
-      try {
-        var _ctrl0 = new AbortController();
-        var _t0 = setTimeout(function(){ _ctrl0.abort(); }, 6000);
-        var _aiRes = await fetch(WEBHOOK_CLASIFICAR, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ q: desc }), signal: _ctrl0.signal
-        });
-        clearTimeout(_t0);
-        if (_aiRes.ok) {
-          var _aiData = await _aiRes.json();
-          var _GENERIC2 = ['el servicio','servicio','los servicios','servicios'];
-          if (_aiData.ok && _aiData.oficios && _aiData.oficios.length) {
-            var _ofs = _aiData.oficios.map(normalizarOficio).filter(function(o){ return o && _GENERIC2.indexOf(o.toLowerCase().trim()) === -1; });
-            if (_ofs.length) {
-  wizState.oficio = _ofs[0]; wizState.oficios = _ofs.length > 1 ? _ofs : null;
-  if (wizState.oficios && wizState.oficios.length > 1) { showMultiOficios(wizState.oficios); }
-  else { var _ob=document.getElementById('wizOficioBadge'); if(_ob){document.getElementById('wizOficioText').textContent=wizState.oficio;_ob.style.display='flex';} }
-}
-          } else if (_aiData.ok && _aiData.oficio && _GENERIC2.indexOf(_aiData.oficio.toLowerCase().trim()) === -1) {
-            wizState.oficio = normalizarOficio(_aiData.oficio);
+    // Siempre llamar AI — detecta multi-oficio que el diccionario local no puede
+    var _e0 = document.getElementById('wiz-err-0');
+    var _btn0 = document.getElementById('wizCtaBtn0');
+    if (_btn0) { _btn0.textContent = 'Identificando...'; _btn0.disabled = true; }
+    try {
+      var _ctrl0 = new AbortController();
+      var _t0 = setTimeout(function(){ _ctrl0.abort(); }, 6000);
+      var _aiRes = await fetch(WEBHOOK_CLASIFICAR, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ q: desc }), signal: _ctrl0.signal
+      });
+      clearTimeout(_t0);
+      if (_aiRes.ok) {
+        var _aiData = await _aiRes.json();
+        var _GENERIC2 = ['el servicio','servicio','los servicios','servicios'];
+        if (_aiData.ok && _aiData.oficios && _aiData.oficios.length) {
+          var _ofs = _aiData.oficios.map(normalizarOficio).filter(function(o){ return o && _GENERIC2.indexOf(o.toLowerCase().trim()) === -1; });
+          if (_ofs.length) {
+            wizState.oficio = _ofs[0]; wizState.oficios = _ofs.length > 1 ? _ofs : null;
+            if (wizState.oficios && wizState.oficios.length > 1) {
+              if (_btn0) { _btn0.textContent = 'Siguiente'; _btn0.disabled = false; }
+              showMultiOficios(wizState.oficios);
+              return;
+            }
           }
+        } else if (_aiData.ok && _aiData.oficio && _GENERIC2.indexOf(_aiData.oficio.toLowerCase().trim()) === -1) {
+          wizState.oficio = normalizarOficio(_aiData.oficio);
         }
-      } catch(_err2) { /* AI no disponible */ }
-      if (_btn0) { _btn0.textContent = 'Siguiente'; _btn0.disabled = false; }
-
-      if (!wizState.oficio) {
-        // AI también falló → error + log fire-and-forget a Supabase
-        _e0.textContent = 'No identificamos ese servicio. Intentá con "plomero", "electricista", "pintor"...';
-        _e0.classList.add('visible');
-        try {
-          fetch('https://oupmslbpvtuszwkdcbvq.supabase.co/rest/v1/consultas', {
-            method: 'POST',
-            headers: { 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91cG1zbGJwdnR1c3p3a2RjYnZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3OTQ5NjIsImV4cCI6MjA5MDM3MDk2Mn0.6w3jb216pQ2UGfmCY6gSbpkBW9E_TnXvCskXNArctwI', 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-            body: JSON.stringify({ descripcion_problema: desc, estado: 'sin_resultado' })
-          });
-        } catch(_le) {}
-        return;
       }
+    } catch(_err2) { /* AI no disponible, usar deteccion local */ }
+    if (_btn0) { _btn0.textContent = 'Siguiente'; _btn0.disabled = false; }
+
+    if (!wizState.oficio) {
+      // AI tambien fallo → error + log fire-and-forget a Supabase
+      _e0.textContent = 'No identificamos ese servicio. Intentá con "plomero", "electricista", "pintor"...';
+      _e0.classList.add('visible');
+      try {
+        fetch('https://oupmslbpvtuszwkdcbvq.supabase.co/rest/v1/consultas', {
+          method: 'POST',
+          headers: { 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91cG1zbGJwdnR1c3p3a2RjYnZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3OTQ5NjIsImV4cCI6MjA5MDM3MDk2Mn0.6w3jb216pQ2UGfmCY6gSbpkBW9E_TnXvCskXNArctwI', 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+          body: JSON.stringify({ descripcion_problema: desc, estado: 'sin_resultado' })
+        });
+      } catch(_le) {}
+      return;
     }
 
     document.getElementById('wiz-err-0').classList.remove('visible');

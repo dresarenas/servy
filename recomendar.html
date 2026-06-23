@@ -758,7 +758,14 @@ function recRecomNombreInput(el) {
 }
 function recNombreInput(el) {
   recClearErr('errNombre');
-} else { badge.style.display = 'none'; }
+  var v = (el.value || '').trim();
+  if (v.length >= 3 && SERVY.validarNombre(v)) {
+    el.style.borderColor = 'var(--accent)';
+    el.style.boxShadow = '0 0 0 2px color-mix(in srgb,var(--accent) 20%,transparent)';
+  } else {
+    el.style.borderColor = '';
+    el.style.boxShadow = '';
+  }
 }
 
 /* ========== STEP VALIDATION ========== */
