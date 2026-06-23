@@ -419,7 +419,7 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
       <div class="rec-field" style="margin-bottom:28px;padding-bottom:24px;border-bottom:1px solid var(--line)">
         <label class="rec-label">Tu nombre <span style="color:var(--accent)">*</span></label>
         <input type="text" class="rec-input" id="recRecomendadorNombre" placeholder="Ej: Ana García"
-          autocomplete="name"
+          autocomplete="off"
           oninput="this.value=this.value.replace(/[0-9]/g,''); recRecomNombreInput(this)">
         <div class="rec-err" id="errRecomendadorNombre">Ingresá un nombre válido (ej: Ana García)</div>
       </div>

@@ -588,8 +588,8 @@
 [data-palette="bone"] .result-faja-verificado { background: #7B9C00 !important; color: #fff !important; }
 
 .no-results { padding: 20px 0; text-align: center; }
-.no-results-title { font-family: var(--f-display); font-weight: 700; font-size: 18px; color: var(--ink); margin-bottom: 8px; }
-.no-results-sub { font-family: var(--f-sans); font-size: 13px; color: var(--ink-dim); margin-bottom: 14px; line-height: 1.5; }
+.no-results-title { font-family: var(--f-display); font-weight: 700; font-size: 22px; color: var(--ink); margin-bottom: 8px; }
+.no-results-sub { font-family: var(--f-sans); font-size: 16px; color: var(--ink-dim); margin-bottom: 14px; line-height: 1.5; }
 .no-results-wa { display: flex; gap: 8px; margin-bottom: 10px; }
 .no-results-wa input { flex: 1; background: transparent; border: 1px solid var(--line-strong); border-radius: 8px; color: var(--ink); font-family: var(--f-mono); font-size: 12px; padding: 9px 12px; outline: none; transition: border-color 0.2s; }
 .no-results-wa input:focus { border-color: var(--accent); }
@@ -1069,9 +1069,10 @@
           <div class="no-results-title" id="wizNoResultsTitle">Todavía no tenemos prestadores en tu zona</div>
           <p class="no-results-sub">Dejanos tu WhatsApp y te avisamos cuando sumemos prestadores cerca tuyo.</p>
           <div class="no-results-wa">
-            <input id="wizNoResultsWA" type="tel" placeholder="Tu WhatsApp (ej: 351 123 4567)">
+            <input id="wizNoResultsWA" type="tel" autocomplete="off" placeholder="Tu WhatsApp (ej: 351 123 4567)">
             <button onclick="wizEnviarWA()">Avisar</button>
           </div>
+          <div id="wizNoResultsConfirm" style="display:none;margin-top:12px;color:var(--accent);font-size:14px;font-weight:600;text-align:center;"></div>
           <a href="recomendar.html" class="wiz-cta" style="display:inline-flex;align-items:center;gap:6px;margin-top:4px;font-size:14px;padding:10px 22px;text-decoration:none;">
             ¿Conocés a alguien? Recomendalo <span class="btn-arr"></span>
           </a>
@@ -1274,7 +1275,11 @@ async function wizNext() {
           var _GENERIC2 = ['el servicio','servicio','los servicios','servicios'];
           if (_aiData.ok && _aiData.oficios && _aiData.oficios.length) {
             var _ofs = _aiData.oficios.map(normalizarOficio).filter(function(o){ return o && _GENERIC2.indexOf(o.toLowerCase().trim()) === -1; });
-            if (_ofs.length) { wizState.oficio = _ofs[0]; wizState.oficios = _ofs.length > 1 ? _ofs : null; }
+            if (_ofs.length) {
+  wizState.oficio = _ofs[0]; wizState.oficios = _ofs.length > 1 ? _ofs : null;
+  if (wizState.oficios && wizState.oficios.length > 1) { showMultiOficios(wizState.oficios); }
+  else { var _ob=document.getElementById('wizOficioBadge'); if(_ob){document.getElementById('wizOficioText').textContent=wizState.oficio;_ob.style.display='flex';} }
+}
           } else if (_aiData.ok && _aiData.oficio && _GENERIC2.indexOf(_aiData.oficio.toLowerCase().trim()) === -1) {
             wizState.oficio = normalizarOficio(_aiData.oficio);
           }
@@ -1368,12 +1373,15 @@ function showMultiOficios(ofs) {
 var _wizDescTimer = null;
 function onWizInput(val) {
   wizState.descripcion = val.trim();
+  wizState.oficios = null;
   wizState.oficio = detectOficio(val);
   updateWizCta0();
   var _errEl = document.getElementById('wiz-err-0');
-  if (_errEl && _errEl.classList.contains('visible')) {
+  if (val.trim().length >= 3 && val.trim().length < 30 && !wizState.oficio && typeof SERVY !== 'undefined' && SERVY.validarNombre && SERVY.validarNombre(val.trim())) {
+    if (_errEl) { _errEl.textContent = 'Eso parece un nombre 😊 Contestános qué problema tenés'; _errEl.classList.add('visible'); }
+  } else if (_errEl && _errEl.classList.contains('visible')) {
     _errEl.classList.remove('visible');
-    _errEl.textContent = 'Contanos qué necesitás para continuar';
+    _errEl.textContent = 'Contestános qué necesitás para continuar';
   }
   clearTimeout(_wizDescTimer);
   document.getElementById('wizOficioBadge').style.display = 'none';
@@ -1564,7 +1572,7 @@ async function toggleWizMic() {
   } catch(e) {
     if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
       var ta = document.getElementById('wizDesc');
-      if (ta) { var _orig = ta.placeholder; ta.placeholder = 'Sin permiso de mic. En Android: Configuración → Apps → SERVY → Permisos → Micrófono'; setTimeout(function(){ ta.placeholder = _orig; }, 7000); }
+      if (ta) { var _orig = ta.placeholder; ta.placeholder = 'Sin permiso de mic. iOS: Ajustes → Safari → Micrófono → Permitir. Android: Ajustes → Apps → SERVY → Permisos'; setTimeout(function(){ ta.placeholder = _orig; }, 7000); }
     } else {
       alert('No se pudo acceder al micrófono. Verificá los permisos.');
     }
