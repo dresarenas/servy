@@ -373,7 +373,7 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
           <span class="prest-phone-prefix">+54 9</span>
           <input type="tel" class="prest-input" id="prestTel" placeholder="351 1234567"
             inputmode="numeric" autocomplete="off"
-            oninput="this.value=this.value.replace(/[^0-9 ]/g,''); prestClearErr('errPrestTel')"
+            oninput="prestTelInput(this)"
             onkeydown="if(event.key==='Enter'){event.preventDefault();}"></div>
         <div class="prest-hint">Sin el 0 ni el 15</div>
         <div class="prest-err" id="errPrestTel">Ingresá un número de WhatsApp válido</div>
@@ -664,6 +664,13 @@ function prestNombreInput(el) {
   } else { badge.style.display = 'none'; }
 }
 
+function prestTelInput(el) {
+  el.value = el.value.replace(/[^0-9 ]/g, '');
+  prestClearErr('errPrestTel');
+  var d = el.value.replace(/\s/g, '');
+  var ok = /^\d{10,11}$/.test(d) && !/^(\d)+$/.test(d);
+  document.getElementById('prestPhoneWrap').style.borderColor = ok ? 'var(--accent)' : (d ? 'rgba(255,80,80,0.5)' : '');
+}
 /* ========== VALIDATION ========== */
 async function prestValidStep0() {
   var nombre = document.getElementById('prestNombre').value.trim();

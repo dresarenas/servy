@@ -448,7 +448,7 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
             <span class="rec-phone-prefix">+54 9</span>
             <input type="tel" class="rec-input" id="recTel" placeholder="351 1234567"
               inputmode="numeric" autocomplete="off"
-              oninput="this.value=this.value.replace(/[^0-9 ]/g,''); recClearErr('errTel')"
+              oninput="recTelInput(this)"
               onkeydown="if(event.key==='Enter'){event.preventDefault();}"
           </div>
           <div class="rec-hint">Sin el 0 ni el 15</div>
@@ -768,6 +768,13 @@ function recNombreInput(el) {
   }
 }
 
+function recTelInput(el) {
+  el.value = el.value.replace(/[^0-9 ]/g, '');
+  recClearErr('errTel');
+  var d = el.value.replace(/\s/g, '');
+  var ok = /^\d{10,11}$/.test(d) && !/^(\d)+$/.test(d);
+  document.getElementById('recPhoneWrap').style.borderColor = ok ? 'var(--accent)' : (d ? 'rgba(255,80,80,0.5)' : '');
+}
 /* ========== STEP VALIDATION ========== */
 async function recValidStep0() {
   var recNombreOk = SERVY.validarNombre((document.getElementById('recRecomendadorNombre').value||'').trim());

@@ -1069,7 +1069,7 @@
           <div class="no-results-title" id="wizNoResultsTitle">Todavía no tenemos prestadores en tu zona</div>
           <p class="no-results-sub">Dejanos tu WhatsApp y te avisamos cuando sumemos prestadores cerca tuyo.</p>
           <div class="no-results-wa">
-            <input id="wizNoResultsWA" type="tel" autocomplete="off" placeholder="Tu WhatsApp (ej: 351 123 4567)">
+            <input id="wizNoResultsWA" type="tel" autocomplete="off" placeholder="Tu WhatsApp (ej: 351 123 4567)" oninput="this.value=this.value.replace(/[^0-9 ]/g,'')">
             <button onclick="wizEnviarWA()">Avisar</button>
           </div>
           <div id="wizNoResultsConfirm" style="display:none;margin-top:12px;color:var(--accent-2);font-size:14px;font-weight:600;text-align:center;"></div>
@@ -1865,19 +1865,24 @@ function mostrarToastFav() {
 }
 
 function wizEnviarWA() {
-  var wa = document.getElementById('wizNoResultsWA').value.trim(); if (!wa) return;
+  var inp = document.getElementById('wizNoResultsWA');
+  var conf = document.getElementById('wizNoResultsConfirm');
+  function _waErr(msg) {
+    if (conf) { conf.style.display='block'; conf.style.color='rgba(255,100,100,0.9)'; conf.textContent=msg; }
+    inp.style.borderColor='rgba(255,80,80,0.7)'; inp.focus();
+  }
+  var wa = inp.value.trim();
+  if (!wa) { _waErr('Ingresá tu número de WhatsApp para que te avisemos.'); return; }
   var digits = wa.replace(/\D/g,'');
   if (!/^\d{10,11}$/.test(digits) || /^(\d)\1+$/.test(digits)) {
-    var inp = document.getElementById('wizNoResultsWA');
-    inp.style.borderColor = 'rgba(255,80,80,0.7)';
-    setTimeout(function(){ inp.style.borderColor = ''; }, 2000);
-    return;
+    _waErr('Número inválido. Ingresá 10 u 11 dígitos sin el 0 ni el 15.'); return;
   }
+  if (conf) { conf.style.color=''; }
+  inp.style.borderColor='var(--accent)';
   var btn = document.querySelector('#wizNoResults .no-results-wa button');
   btn.textContent = '✓ Anotado'; btn.style.background = 'var(--ink-mute)'; btn.disabled = true;
   var oficioTexto = wizState.oficio || 'prestadores del hogar';
-  var conf = document.getElementById('wizNoResultsConfirm');
-  if (conf) { conf.textContent = '¡Listo! Te avisamos ni bien sumemos ' + oficioTexto + ' cerca tuyo.'; conf.style.display = ''; }
+  if (conf) { conf.textContent = '¡Listo! Te avisamos ni bien sumemos ' + oficioTexto + ' cerca tuyo.'; conf.style.display = ''; conf.style.color=''; }
 }
 
 /* ---- INIT ---- */
