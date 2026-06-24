@@ -589,7 +589,7 @@
 
 .no-results { padding: 20px 0; text-align: center; }
 .no-results-title { font-family: var(--f-display); font-weight: 700; font-size: 22px; color: var(--ink); margin-bottom: 8px; }
-.no-results-sub { font-family: var(--f-sans); font-size: 16px; color: var(--ink-dim); margin-bottom: 14px; line-height: 1.5; }
+.no-results-sub { font-family: var(--f-sans); font-size: 16px; color: var(--accent-2); margin-bottom: 14px; line-height: 1.5; }
 .no-results-wa { display: flex; gap: 8px; margin-bottom: 10px; }
 .no-results-wa input { flex: 1; background: transparent; border: 1px solid var(--line-strong); border-radius: 8px; color: var(--ink); font-family: var(--f-mono); font-size: 12px; padding: 9px 12px; outline: none; transition: border-color 0.2s; }
 .no-results-wa input:focus { border-color: var(--accent); }
@@ -1247,11 +1247,20 @@ function wizPrev() {
 }
 
 async function wizNext() {
+  if (wizNext._pending) return; wizNext._pending = true; setTimeout(function(){ wizNext._pending = false; }, 600);
   if (wizCurrent === 0) {
+    var _multiPanel = document.getElementById('wizMultiOficio');
+    if (_multiPanel && _multiPanel.style.display !== 'none') {
+      document.getElementById('wiz-err-0').classList.remove('visible');
+      wizNext._pending = false;
+      goToStep(1); if (!wizMapInited) setTimeout(wizInitMap, 80);
+      return;
+    }
     var desc = document.getElementById('wizDesc').value.trim();
     if (!desc) {
       document.getElementById('wiz-err-0').classList.add('visible');
       document.getElementById('wizDesc').focus();
+      wizNext._pending = false;
       return;
     }
     wizState.descripcion = desc;
@@ -1304,6 +1313,7 @@ async function wizNext() {
     }
 
     document.getElementById('wiz-err-0').classList.remove('visible');
+    wizNext._pending = false;
     goToStep(1);
     if (!wizMapInited) setTimeout(wizInitMap, 80);
   } else if (wizCurrent === 1) {
@@ -1698,7 +1708,7 @@ async function wizBuscar() {
   var sum = document.getElementById('wizResultsSummary');
   var ofStr = wizState.oficio || 'el servicio';
   var zoAddr = wizState.zonaText ? (wizState.zonaText.length > 28 ? wizState.zonaText.substring(0,28)+'…' : wizState.zonaText) : 'tu zona';
-  sum.innerHTML = 'Buscamos <strong>' + ofStr + '</strong> cerca de <strong>' + zoAddr + '</strong>';
+  sum.innerHTML = 'Buscamos <strong style="color:var(--accent-2)">' + ofStr + '</strong> cerca de <strong style="color:var(--accent-2)">' + zoAddr + '</strong>';
   var payload = { descripcion: wizState.descripcion, oficio: wizState.oficio, zona: wizState.zonaText, tiempo: wizState.tiempo };
   var prestadores = []; wizIsDemoData = false;
   var ctrl = new AbortController();
