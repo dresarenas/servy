@@ -775,6 +775,13 @@ function recTelInput(el) {
   el.value = el.value.replace(/[^0-9 ]/g, '');
   recClearErr('errTel');
   var d = el.value.replace(/\s/g, '');
+  if (d.length > 11) {
+    if (d.startsWith('5493')) d = d.slice(3);
+    else if (d.startsWith('549')) d = d.slice(3);
+    else if (d.startsWith('54')) d = d.slice(2);
+  }
+  if (d.startsWith('0')) d = d.slice(1);
+  el.value = d;
   var ok = /^\d{10,11}$/.test(d) && !/^(\d)+$/.test(d);
   document.getElementById('recPhoneWrap').style.borderColor = ok ? 'var(--accent)' : (d ? 'rgba(255,80,80,0.5)' : '');
 }

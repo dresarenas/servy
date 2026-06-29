@@ -1243,7 +1243,7 @@ function updateWizSteps() {
 }
 
 function wizPrev() {
-  history.back();
+  if (history.length <= 1) { location.href = './'; } else { history.back(); }
 }
 
 async function wizNext() {
@@ -1483,6 +1483,7 @@ var oficioMap = {
   'rajadura':'Albañilería','parquet':'Albañilería','porcelanato':'Albañilería',
   'cerraj':'Cerrajería','cerradura':'Cerrajería','candado':'Cerrajería',
   'me quede afuera':'Cerrajería','quedé afuera':'Cerrajería','no puedo entrar':'Cerrajería',
+  'instala aire':'Instalador de Aire Acond.','poner aire':'Instalador de Aire Acond.','colocar aire':'Instalador de Aire Acond.',
   'aire':'Aire Acondicionado','refriger':'Aire Acondicionado','split':'Aire Acondicionado',
   'no enfria':'Aire Acondicionado','no enfría':'Aire Acondicionado','calefacci':'Aire Acondicionado',
   'limpiez':'Limpieza','ordenar la casa':'Limpieza','mucama':'Limpieza',
@@ -1652,6 +1653,9 @@ function wizGeocode() {
   new google.maps.Geocoder().geocode({ address: dir + ', Córdoba, Argentina' }, function(results, status) {
     var st = document.getElementById('wizGeoStatus'); st.style.display = 'block';
     if (status === 'OK' && results[0]) {
+      var _comps = results[0].address_components || [];
+      var _inCba = _comps.some(function(comp) { return comp.types.indexOf('administrative_area_level_1') >= 0 && (comp.short_name === 'X' || comp.long_name === 'Córdoba'); });
+      if (!_inCba) { st.textContent = 'Por ahora solo buscamos en la provincia de Córdoba 🗺️'; return; }
       var loc = results[0].geometry.location;
       _wizMap.setCenter(loc); _wizMap.setZoom(14);
       if (_wizMarker) _wizMarker.setPosition(loc);
@@ -1663,11 +1667,13 @@ function wizGeocode() {
   });
 }
 
-function wizGeolocate() {
+async function wizGeolocate() {
   if (!navigator.geolocation) return;
   var btn = document.getElementById('wizGeoBtn');
+  var st = document.getElementById('wizGeoStatus'); st.style.display = 'block';
+  if (navigator.permissions) { try { var perm = await navigator.permissions.query({name:'geolocation'}); if (perm.state === 'denied') { st.textContent = 'Ubicación bloqueada. Habilitala en la configuración del navegador ⚙️'; return; } } catch(e) {} }
   btn.textContent = 'Detectando...';
-  var st = document.getElementById('wizGeoStatus'); st.style.display = 'block'; st.textContent = 'Detectando ubicación...';
+  st.textContent = 'Detectando ubicación...';
   navigator.geolocation.getCurrentPosition(function(pos) {
     var ll = { lat: pos.coords.latitude, lng: pos.coords.longitude };
     if (!wizMapInited) wizInitMap();

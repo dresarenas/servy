@@ -513,7 +513,7 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
       <div class="prest-field">
         <label class="prest-label">Email</label>
         <input type="text" class="prest-input" id="prestEmail" placeholder="tu@email.com"
-          autocomplete="off" inputmode="email">
+          autocomplete="new-password" inputmode="email">
       </div>
 
       <!-- BIO -->
@@ -596,6 +596,7 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
 /* ========== STATE ========== */
 var prestCurrent = 0;
 var prestSubmitRetries = 0;
+var prestSubmitted = false;
 
 /* ========== NAVIGATION ========== */
 function prestGoTo(n) {
@@ -816,6 +817,8 @@ async function prestEnviar() {
   var terminos = document.getElementById('prestTerminosCheck');
   if (!terminos || !terminos.checked) { prestShowErr('errPrestTerminos', true); return; }
   prestShowErr('errPrestTerminos', false);
+  if (prestSubmitted) return;
+  prestSubmitted = true;
 
   var btn = document.getElementById('prestEnviarBtn');
   if (btn) { btn.disabled = true; btn.textContent = 'Enviando tus datos...'; }
@@ -877,6 +880,7 @@ async function prestEnviar() {
       prestGoTo(4);
       return;
     }
+    prestSubmitted = false;
     if (btn) { btn.disabled = false; btn.textContent = 'Verificar mi perfil'; }
     prestShowErr('errPrestSubmit', true);
     return;
@@ -894,8 +898,9 @@ async function prestEnviar() {
 
 
 /* ========== GEOLOCATE ========== */
-function prestGeolocate() {
+async function prestGeolocate() {
   if (!navigator.geolocation) return;
+  if (navigator.permissions) { try { var perm = await navigator.permissions.query({name:'geolocation'}); if (perm.state === 'denied') { prestShowErr('errPrestGeo', true); var _ge = document.getElementById('errPrestGeo'); if (_ge) _ge.textContent = 'Ubicación bloqueada. Habilitala en la configuración del navegador ⚙️'; return; } } catch(e) {} }
   navigator.geolocation.getCurrentPosition(function(pos) {
     prestShowErr('errPrestGeo', false);
     var lat = pos.coords.latitude, lng = pos.coords.longitude;
@@ -922,7 +927,7 @@ var prestFotoData = null;
 function prestFotoChange(input) {
   var file = input.files[0];
   if (!file) return;
-  if (file.size > 500000) { alert('La foto no puede superar 500 KB.'); return; }
+  if (file.size > 5000000) { alert('La foto no puede superar 5 MB.'); return; }
   var reader = new FileReader();
   reader.onload = function(e) {
     prestFotoData = e.target.result;
