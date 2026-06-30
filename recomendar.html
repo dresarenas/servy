@@ -352,6 +352,7 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
 }
 .nombre-badge{display:flex;align-items:center;gap:10px;background:color-mix(in srgb,var(--accent) 10%,transparent);border:1px solid color-mix(in srgb,var(--accent) 25%,transparent);border-radius:10px;padding:8px 14px;margin-top:8px;font-size:14px;color:var(--ink-dim);font-family:var(--f-sans);}
 .nombre-badge-icon{width:20px;height:20px;border-radius:50%;background:var(--accent);color:#0B1A2B;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+@media (max-width: 768px) { #recZonaWrap { display: none; } }
 </style>
 </head>
 <body class="loaded">
@@ -423,7 +424,7 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
           oninput="this.value=this.value.replace(/[0-9]/g,''); recRecomNombreInput(this)">
         <div class="rec-err" id="errRecomendadorNombre">Ingresá un nombre válido (ej: Ana García)</div>
 <span id="recNombreOk" style="display:none;color:var(--accent);font-size:13px;margin-top:4px">✓ Nombre válido</span>
-        <div class="rec-field" style="margin-top:14px;">
+        <div class="rec-field" id="recZonaWrap" style="margin-top:14px;">
           <label class="rec-label">¿De qué barrio o zona sos? <span style="color:var(--ink-mute);font-size:11px;font-weight:400;">(opcional)</span></label>
           <input type="text" class="rec-input" id="recZonaRecomendador" placeholder="Ej: Nueva Córdoba, Argüello..." autocomplete="off">
         </div>
