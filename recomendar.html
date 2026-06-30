@@ -440,7 +440,7 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
           <label class="rec-label">¿Cómo se llama el prestador? <span style="color:var(--accent)">*</span></label>
           <input type="text" class="rec-input" id="recNombre" placeholder="Ej: Mario Rodríguez" autocomplete="off"
             oninput="this.value=this.value.replace(/[0-9]/g,''); recNombreInput(this)"
-            onkeydown="if(event.key==='Enter'){event.preventDefault();}"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();}">
         </div>
 
         <div class="rec-field">
@@ -450,7 +450,7 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
             <input type="tel" class="rec-input" id="recTel" placeholder="351 1234567"
               inputmode="numeric" autocomplete="off"
               oninput="recTelInput(this)"
-              onkeydown="if(event.key==='Enter'){event.preventDefault();}"
+              onkeydown="if(event.key==='Enter'){event.preventDefault();}">
           </div>
           <div class="rec-hint">Sin el 0 ni el 15</div>
           <div class="rec-err" id="errTel">Ingresá un número de WhatsApp válido</div>
