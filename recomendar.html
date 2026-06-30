@@ -1076,6 +1076,10 @@ async function recEnviar() {
     document.getElementById('recGraciasSub').textContent = '¡Tu aporte es muy valioso para otros usuarios!';
   }
   recGoTo(3);
+  // Limpiar inputs para que Chrome no ofrezca guardar "credenciales"
+  ['recNombre','recTel','recRecomendadorNombre','recZonaRecomendador'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.value = '';
+  });
 }
 
 /* init inert on non-active steps */
