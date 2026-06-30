@@ -1027,7 +1027,8 @@ async function recEnviar() {
   var esDuplicado = false;
   try {
     var ctrl = new AbortController();
-    setTimeout(function() { ctrl.abort(); }, 12000);
+    setTimeout(function() { ctrl.abort(); }, 28000);
+    if (btn) btn.textContent = 'Enviando...';
     var res = await fetch(WEBHOOK, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1052,10 +1053,11 @@ async function recEnviar() {
       esDuplicado = !!data.duplicado;
     }
   } catch(e) {
-    recSubmitRetries++;
-    if (recSubmitRetries >= 3) {
-      recSubmitRetries = 0;
+    // Timeout (AbortError): n8n probablemente procesó pero tardó — avanzar igual
+    if (e && e.name === 'AbortError') {
+      // fall through to recGoTo(3)
     } else {
+      // Error de red real
       if (btn) { btn.disabled = false; btn.textContent = 'Enviar recomendación'; }
       recShowErr('errRecSubmit', true);
       return;
