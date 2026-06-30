@@ -423,6 +423,10 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
           oninput="this.value=this.value.replace(/[0-9]/g,''); recRecomNombreInput(this)">
         <div class="rec-err" id="errRecomendadorNombre">Ingresá un nombre válido (ej: Ana García)</div>
 <span id="recNombreOk" style="display:none;color:var(--accent);font-size:13px;margin-top:4px">✓ Nombre válido</span>
+        <div class="rec-field" style="margin-top:14px;">
+          <label class="rec-label">¿De qué barrio o zona sos? <span style="color:var(--ink-mute);font-size:11px;font-weight:400;">(opcional)</span></label>
+          <input type="text" class="rec-input" id="recZonaRecomendador" placeholder="Ej: Nueva Córdoba, Argüello..." autocomplete="off">
+        </div>
       </div>
 
       <div id="mobileWASection">
@@ -525,7 +529,7 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
       <h1 class="rec-title">¿Querés agregar<br><span>más info</span>? <small class="rec-title-opcional">(OPCIONAL)</small></h1>
       <p class="rec-sub">Tu dato puede ser justo lo que alguien más está buscando.</p>
 
-      <div class="rec-opt-label" style="margin-top:0;margin-bottom:8px;">Tu experiencia</div>
+      <div class="rec-opt-label" style="margin-top:4px;margin-bottom:8px;">Tu experiencia</div>
       <div class="rec-chips" id="expChips">
         <button class="rec-chip" data-value="puntual">Es puntual</button>
         <button class="rec-chip" data-value="prolijo">Trabaja prolijo</button>
@@ -548,22 +552,7 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
         <div style="font-family:var(--f-mono);font-size:11px;color:var(--ink-mute);text-align:right;margin-top:4px;" id="recCharCount">0 / 280</div>
       </div>
 
-      <div class="rec-opt-label" style="margin-top:20px;">Zona donde trabaja<span class="rec-opcional-badge">OPCIONAL</span></div>
-      <div class="rec-chips" id="zonaChips">
-        <button class="rec-chip" data-value="nueva-cordoba">Nueva Córdoba</button>
-        <button class="rec-chip" data-value="alta-cordoba">Alta Córdoba</button>
-        <button class="rec-chip" data-value="cerro">Cerro de las Rosas</button>
-        <button class="rec-chip" data-value="arguello">Argüello</button>
-        <button class="rec-chip" data-value="villa-carlos-paz">Villa Carlos Paz</button>
-        <button class="rec-chip" data-value="villa-allende">Villa Allende</button>
-        <button class="rec-chip" data-value="toda-ciudad">📍 Toda la ciudad</button>
-        <button class="rec-chip" data-value="otra-zona">+ Otra zona</button>
-      </div>
-      <div id="otraZonaWrap" style="display:none; margin-top:10px;">
-        <input type="text" class="rec-input" id="otraZonaInput" autocomplete="off" placeholder="¿Cuál zona o localidad?">
-      </div>
-
-      <div class="rec-opt-label" style="margin-top:24px;">¿Cómo lo conocés?<span class="rec-opcional-badge">OPCIONAL</span></div>
+      <div class="rec-opt-label" style="margin-top:20px;">¿Cómo lo conocés?<span class="rec-opcional-badge">OPCIONAL</span></div>
       <div class="rec-chips" id="relacionChips">
         <button class="rec-chip" data-value="recomendaron">Me lo recomendaron</button>
         <button class="rec-chip" data-value="contrate">Lo contraté</button>
@@ -825,8 +814,8 @@ function recReset() {
   document.querySelectorAll('.rec-chip.sel').forEach(function(ch) { ch.classList.remove('sel'); });
   var resena = document.getElementById('recReseña');
   if (resena) { resena.value = ''; resena.style.height = 'auto'; }
-  var otraZona = document.getElementById('otraZonaWrap');
-  if (otraZona) otraZona.style.display = 'none';
+  var zonaRec = document.getElementById('recZonaRecomendador');
+  if (zonaRec) zonaRec.value = '';
   var otroOficio = document.getElementById('oficioOtroWrap');
   if (otroOficio) otroOficio.style.display = 'none';
   var importOk = document.getElementById('importOk');
@@ -965,18 +954,9 @@ function initRecChips(id, maxSel) {
   });
 }
 SERVY.getCategorias().then(function(cats) { _recCats = cats; });
-initRecChips('zonaChips', 5);
 initRecChips('relacionChips', 1);
 initRecChips('expChips', 6);
 (function() {
-  document.querySelectorAll('#zonaChips .rec-chip').forEach(function(chip) {
-    if (chip.getAttribute('data-value') === 'otra-zona') {
-      chip.addEventListener('click', function() {
-        var wrap = document.getElementById('otraZonaWrap');
-        if (wrap) wrap.style.display = chip.classList.contains('sel') ? '' : 'none';
-      });
-    }
-  });
 })();
 /* ========== INIT DOTS ========== */
 document.querySelectorAll('.rec-dots').forEach(function(bar) {
@@ -1037,11 +1017,7 @@ async function recEnviar() {
   var expEls = document.querySelectorAll('#expChips .rec-chip.sel');
   var experiencia = Array.from(expEls).map(function(c) { return c.getAttribute('data-value'); }).join(', ');
 
-  var zonaEls = document.querySelectorAll('#zonaChips .rec-chip.sel');
-  var zonaArr = Array.from(zonaEls).map(function(c) { return c.getAttribute('data-value'); });
-  var otraZonaEl = document.getElementById('otraZonaInput');
-  var otraZonaVal = otraZonaEl ? otraZonaEl.value.trim() : '';
-  var zona = zonaArr.map(function(v) { return v === 'otra-zona' ? (otraZonaVal || 'otra zona') : v; }).join(', ');
+  var zona = (document.getElementById('recZonaRecomendador') ? document.getElementById('recZonaRecomendador').value.trim() : '');
 
   var resenya = document.getElementById('recReseña').value.trim();
   var relChip = document.querySelector('#relacionChips .rec-chip.sel');
