@@ -711,6 +711,7 @@ function recOficioAuto(val) {
 }
 function recOficioSelect(val) {
   if (recOficioFinal.indexOf(val) !== -1) return; // ya seleccionado
+  if (recOficioFinal.length >= 3) return; // max 3 rubros
   recOficioFinal.push(val);
   document.getElementById('ofInputAuto').value = '';
   document.getElementById('recOficioSugg').style.display = 'none';
@@ -791,7 +792,7 @@ function recTelInput(el) {
 /* ========== STEP VALIDATION ========== */
 async function recValidStep0() {
   var recNombreOk = SERVY.validarNombre((document.getElementById('recRecomendadorNombre').value||'').trim());
-  if (!recNombreOk) { recShowErr('errRecomendadorNombre', true); } else recShowErr('errRecomendadorNombre', false);
+  if (!recNombreOk) { recShowErr('errRecomendadorNombre', true); document.getElementById('recRecomendadorNombre').focus(); } else recShowErr('errRecomendadorNombre', false);
   var nombre = document.getElementById('recNombre').value.trim();
   var tel = document.getElementById('recTel').value.replace(/\s/g, '');
   var ok = recNombreOk;
@@ -935,9 +936,9 @@ function _recFillImport(nombre, rawTel) {
 
 function _recShowFormFields() {
   var ff = document.getElementById('recFormFields');
-  if (ff) ff.style.display = '';
+  if (ff) ff.style.display = 'block';
   var zw = document.getElementById('recZonaWrap');
-  if (zw) zw.style.display = '';
+  if (zw) zw.style.display = 'block';
 }
 
 function parseTelArg(raw) {

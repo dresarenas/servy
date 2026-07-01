@@ -120,7 +120,7 @@ S.validarNombre = function(val) {
   if (words.length > 5) return false;
   if (words.some(function(w) { return w.length < 2 || !/[aeiouáéíóúü]/i.test(w); })) return false;
   // Stop words del español que nunca aparecen en nombres propios
-  var SW = /\b(yo|me|te|se|nos|les|lo|la|le|él|ella|ellos|ellas|nosotros|vosotros|usted|ustedes|mi|tu|su|mis|tus|sus|un|una|unos|unas|este|esta|estos|estas|ese|esa|esos|esas|aquel|aquella|es|son|era|fue|ser|estar|hay|haber|tener|hacer|ir|ver|dar|poder|querer|saber|deber|poner|volver|venir|salir|decir|llamar|tomar|hola|gracias|bueno|bien|mal|muy|más|menos|tan|tanto|ya|si|sí|no|ni|porque|pero|aunque|sino|que|qué|cómo|como|dónde|donde|cuándo|cuando|cuál|cual|hoy|ayer|mañana|ahora|antes|después|aquí|ahí|allí|acá|allá|algo|nada|nadie|todo|nombre|dni|número|numero|poner|pongo|tomo|como|tengo|vivo|quiero|puedo|soy|sé)\b/i;
+  var SW = /\b(yo|me|te|se|nos|les|lo|la|le|él|ella|ellos|ellas|nosotros|vosotros|usted|ustedes|mi|tu|su|mis|tus|sus|un|una|unos|unas|este|esta|estos|estas|ese|esa|esos|esas|aquel|aquella|es|son|era|fue|ser|estar|hay|haber|tener|hacer|ir|ver|dar|poder|querer|saber|deber|poner|volver|venir|salir|decir|llamar|tomar|hola|gracias|bueno|bien|mal|muy|más|menos|tan|tanto|ya|si|sí|no|ni|porque|pero|aunque|sino|que|qué|cómo|como|dónde|donde|cuándo|cuando|cuál|cual|hoy|ayer|mañana|ahora|antes|después|aquí|ahí|allí|acá|allá|algo|nada|nadie|todo|nombre|dni|número|numero|poner|pongo|tomo|como|tengo|vivo|quiero|puedo|soy|sé|las|los|les|del|al|por|para|con|sin|sobre|bajo|tras|ante|las|cel|celu|tel|pus|ano|ley|ley|gas|luz|sal|pan|rio|dia|mes|via|pie|fin|rol|van|bus|mix|url|cbu|cvu|iva|app|web|info|hm|mm|eh|ah|oh|uy|ay|oy|hey|sos|dos|vos|ros)\b/i;
   if (SW.test(val)) return false;
   return true;
 };
