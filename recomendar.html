@@ -353,6 +353,9 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
 .nombre-badge{display:flex;align-items:center;gap:10px;background:color-mix(in srgb,var(--accent) 10%,transparent);border:1px solid color-mix(in srgb,var(--accent) 25%,transparent);border-radius:10px;padding:8px 14px;margin-top:8px;font-size:14px;color:var(--ink-dim);font-family:var(--f-sans);}
 .nombre-badge-icon{width:20px;height:20px;border-radius:50%;background:var(--accent);color:#0B1A2B;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 @media (max-width: 768px) { #recZonaWrap { display: none; } }
+.rec-quick-chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+.rec-quick-chip { font-family:var(--f-sans); font-size:13px; padding:6px 14px; border-radius:20px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.06); color:var(--ink-dim); cursor:pointer; transition:all .15s; }
+.rec-quick-chip:hover, .rec-quick-chip:active { background:rgba(0,201,167,0.15); border-color:var(--accent); color:var(--accent); }
 </style>
 </head>
 <body class="loaded">
@@ -503,6 +506,16 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
         <div class="rec-oficio-sugg" id="recOficioSugg" style="display:none;"></div>
       </div>
       <div style="font-size:12px;color:var(--ink-mute);font-family:var(--f-sans);margin-top:4px;">Podés agregar más de un rubro</div>
+      <div class="rec-quick-chips">
+        <button type="button" class="rec-quick-chip" onclick="recOficioSelect('Plomero')">Plomero</button>
+        <button type="button" class="rec-quick-chip" onclick="recOficioSelect('Electricista')">Electricista</button>
+        <button type="button" class="rec-quick-chip" onclick="recOficioSelect('Pintor')">Pintor</button>
+        <button type="button" class="rec-quick-chip" onclick="recOficioSelect('Gasista')">Gasista</button>
+        <button type="button" class="rec-quick-chip" onclick="recOficioSelect('Carpintero')">Carpintero</button>
+        <button type="button" class="rec-quick-chip" onclick="recOficioSelect('Albañil')">Albañil</button>
+        <button type="button" class="rec-quick-chip" onclick="recOficioSelect('Aire acondicionado')">Aire acondicionado</button>
+        <button type="button" class="rec-quick-chip" onclick="recOficioSelect('Cerrajero')">Cerrajero</button>
+      </div>
       <div class="rec-err" id="errRecOtroOficio" style="margin-top:6px;">Rubro no reconocido. Intentá ser más específico (ej: plomero, carpintero).</div>
       <div class="rec-err" id="errOficio" style="margin-top:8px;">Ingresá el rubro del prestador</div>
 
@@ -533,7 +546,7 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
       <div class="rec-opt-label" style="margin-top:4px;margin-bottom:8px;">Tu experiencia</div>
       <div class="rec-chips" id="expChips">
         <button class="rec-chip" data-value="puntual">Es puntual</button>
-        <button class="rec-chip" data-value="prolijo">Trabaja prolijo</button>
+        <button class="rec-chip" data-value="prolijo">Trabajo prolijo</button>
         <button class="rec-chip" data-value="buen-precio">Buen precio</button>
         <button class="rec-chip" data-value="confiable">Muy confiable</button>
         <button class="rec-chip" data-value="rapido">Rápido</button>
@@ -802,6 +815,9 @@ async function recValidStep0() {
 
 function recReset() {
   document.getElementById('recRecomendadorNombre').value = '';
+  var _nomOk = document.getElementById('recNombreOk'); if (_nomOk) _nomOk.style.display = 'none';
+  document.getElementById('recRecomendadorNombre').style.borderColor = '';
+  document.getElementById('recRecomendadorNombre').style.boxShadow = '';
   document.getElementById('recNombre').value = '';
   document.getElementById('recTel').value = '';
   document.getElementById('recNombre').style.borderColor = '';
@@ -920,6 +936,8 @@ function _recFillImport(nombre, rawTel) {
 function _recShowFormFields() {
   var ff = document.getElementById('recFormFields');
   if (ff) ff.style.display = '';
+  var zw = document.getElementById('recZonaWrap');
+  if (zw) zw.style.display = '';
 }
 
 function parseTelArg(raw) {
