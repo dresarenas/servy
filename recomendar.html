@@ -425,7 +425,7 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
         <label class="rec-label">Tu nombre <span style="color:var(--accent)">*</span></label>
         <input type="text" class="rec-input" id="recRecomendadorNombre" placeholder="Ej: Ana García"
           autocomplete="off"
-          oninput="this.value=this.value.replace(/[0-9]/g,''); recRecomNombreInput(this)">
+          oninput="this.value=this.value.replace(/[0-9]/g,''); recRecomNombreInput(this)" onblur="recRecomNombreBlur(this)">
         <div class="rec-err" id="errRecomendadorNombre">Ingresá un nombre válido (ej: Ana García)</div>
 <span id="recNombreOk" style="display:none;color:var(--accent);font-size:13px;margin-top:4px">✓ Nombre válido</span>
         <div class="rec-field" id="recZonaWrap" style="margin-top:14px;">
@@ -754,14 +754,27 @@ function recRecomNombreInput(el) {
   recClearErr('errRecomendadorNombre');
   var val = (el.value || '').trim();
   var ok = document.getElementById('recNombreOk');
+  if (ok) ok.style.display = 'none';
   if (val.length >= 3 && SERVY.validarNombre(val)) {
     el.style.borderColor = 'var(--accent)';
     el.style.boxShadow = '0 0 0 2px color-mix(in srgb,var(--accent) 20%,transparent)';
-    if (ok) ok.style.display = 'block';
   } else {
     el.style.borderColor = '';
     el.style.boxShadow = '';
-    if (ok) ok.style.display = 'none';
+  }
+}
+async function recRecomNombreBlur(el) {
+  var val = (el.value || '').trim();
+  var ok = document.getElementById('recNombreOk');
+  if (!ok) return;
+  if (val.length < 3 || !SERVY.validarNombre(val)) { ok.style.display = 'none'; return; }
+  var res = await SERVY.validarNombreIA(val);
+  if (!SERVY.nombreRechazadoIA(res)) {
+    ok.style.display = 'block';
+  } else {
+    ok.style.display = 'none';
+    el.style.borderColor = '';
+    el.style.boxShadow = '';
   }
 }
 function recNombreInput(el) {
