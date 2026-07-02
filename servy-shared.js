@@ -119,6 +119,9 @@ S.validarNombre = function(val) {
   var words = val.split(/\s+/).filter(Boolean);
   if (words.length > 5) return false;
   if (words.some(function(w) { return w.length < 2 || !/[aeiouáéíóúü]/i.test(w); })) return false;
+  // Palabras que nunca son nombres: artículos, pronombres, preposiciones, abreviaturas
+  var SW = /^(el|la|las|los|un|una|unos|unas|yo|me|te|se|nos|les|lo|le|él|ella|ellos|ellas|mi|tu|su|de|del|al|por|para|con|sin|que|qué|y|o|ni|pero|sino|cel|celu|tel|num|url|app|web|cbu|cvu|iva|dni|pus|ano|ley|gas|luz|sal|pan|río|día|mes|vía|pie|fin|rol|van|bus|dos|vos|ros|sos|gel|mar|sol|rey|red|hoy|sí|no|ya|acá|ahí|allá)$/i;
+  if (words.length === 1 && SW.test(words[0])) return false;
   return true;
 };
 
