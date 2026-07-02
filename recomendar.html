@@ -815,9 +815,9 @@ async function recValidStep0() {
   if (!telOk) { recShowErr('errTel', true); ok = false; } else recShowErr('errTel', false);
   if (!recStars) { recShowErr('errEstrellas', true); ok = false; } else recShowErr('errEstrellas', false);
   if (!ok) {
-    if (!recNombreOk) { var _rn = document.getElementById('recRecomendadorNombre'); _rn.focus(); _rn.scrollIntoView({behavior:'smooth',block:'center'}); }
-    else if (!SERVY.validarNombre(nombre)) { var _nn = document.getElementById('recNombre'); _nn.focus(); _nn.scrollIntoView({behavior:'smooth',block:'center'}); }
-    else if (!telOk) { var _tt = document.getElementById('recTel'); _tt.focus(); _tt.scrollIntoView({behavior:'smooth',block:'center'}); }
+    if (!recNombreOk) { var _rn = document.getElementById('recRecomendadorNombre'); _rn.focus(); document.getElementById('errRecomendadorNombre').scrollIntoView({behavior:'smooth',block:'center'}); }
+    else if (!SERVY.validarNombre(nombre)) { var _nn = document.getElementById('recNombre'); _nn.focus(); document.getElementById('errNombre').scrollIntoView({behavior:'smooth',block:'center'}); }
+    else if (!telOk) { var _tt = document.getElementById('recTel'); _tt.focus(); document.getElementById('errTel').scrollIntoView({behavior:'smooth',block:'center'}); }
     return;
   }
   var _recOmb = (document.getElementById('recRecomendadorNombre').value||'').trim();
@@ -1106,7 +1106,7 @@ async function recEnviar() {
   }
   recGoTo(3);
   // Limpiar inputs para que Chrome no ofrezca guardar "credenciales"
-  ['recNombre','recTel','recRecomendadorNombre','recZonaRecomendador'].forEach(function(id){
+  ['recNombre','recTel'].forEach(function(id){
     var el = document.getElementById(id); if(el) el.value = '';
   });
 }
