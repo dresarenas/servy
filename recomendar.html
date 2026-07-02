@@ -815,9 +815,9 @@ async function recValidStep0() {
   if (!telOk) { recShowErr('errTel', true); ok = false; } else recShowErr('errTel', false);
   if (!recStars) { recShowErr('errEstrellas', true); ok = false; } else recShowErr('errEstrellas', false);
   if (!ok) {
-    if (!nombre) document.getElementById('recNombre').focus();
-    else if (!telOk) document.getElementById('recTel').focus();
-    else { var sr = document.getElementById('recStarsRow'); if (sr) sr.scrollIntoView({behavior:'smooth',block:'center'}); }
+    if (!recNombreOk) { var _rn = document.getElementById('recRecomendadorNombre'); _rn.focus(); _rn.scrollIntoView({behavior:'smooth',block:'center'}); }
+    else if (!SERVY.validarNombre(nombre)) { var _nn = document.getElementById('recNombre'); _nn.focus(); _nn.scrollIntoView({behavior:'smooth',block:'center'}); }
+    else if (!telOk) { var _tt = document.getElementById('recTel'); _tt.focus(); _tt.scrollIntoView({behavior:'smooth',block:'center'}); }
     return;
   }
   var _recOmb = (document.getElementById('recRecomendadorNombre').value||'').trim();
@@ -829,10 +829,6 @@ async function recValidStep0() {
 }
 
 function recReset() {
-  document.getElementById('recRecomendadorNombre').value = '';
-  var _nomOk = document.getElementById('recNombreOk'); if (_nomOk) _nomOk.style.display = 'none';
-  document.getElementById('recRecomendadorNombre').style.borderColor = '';
-  document.getElementById('recRecomendadorNombre').style.boxShadow = '';
   document.getElementById('recNombre').value = '';
   document.getElementById('recTel').value = '';
   document.getElementById('recNombre').style.borderColor = '';
@@ -846,8 +842,7 @@ function recReset() {
   document.querySelectorAll('.rec-chip.sel').forEach(function(ch) { ch.classList.remove('sel'); });
   var resena = document.getElementById('recReseña');
   if (resena) { resena.value = ''; resena.style.height = 'auto'; }
-  var zonaRec = document.getElementById('recZonaRecomendador');
-  if (zonaRec) zonaRec.value = '';
+  // zona del recomendante se preserva entre recomendaciones
   var otroOficio = document.getElementById('oficioOtroWrap');
   if (otroOficio) otroOficio.style.display = 'none';
   var importOk = document.getElementById('importOk');
