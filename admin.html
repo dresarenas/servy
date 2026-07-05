@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>SERVY — Tablero de control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --accent:#00C9A7; --accent-hover:#00E4BD; --accent-2:#B8E986;
+  --ink:#E8EFF8; --ink-dim:rgba(232,239,248,0.55);
+  --bg:#0B1A2B; --bg-elev:rgba(15,34,55,0.75);
+  --line:rgba(255,255,255,0.08);
+  --f-display:'Space Grotesk',sans-serif; --f-sans:'Plus Jakarta Sans',sans-serif;
+  --bad:#FF6B7A; --warn:#FFC66B;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-sans);min-height:100vh;font-size:15px}
+a{color:var(--accent);text-decoration:none}
+a:hover{color:var(--accent-hover)}
+
+/* ---- Login ---- */
+#loginView{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.login-card{width:100%;max-width:380px;background:var(--bg-elev);border:1px solid var(--line);border-radius:20px;padding:32px}
+.login-card h1{font-family:var(--f-display);font-size:1.5rem;margin-bottom:4px}
+.login-card p{color:var(--ink-dim);font-size:.85rem;margin-bottom:22px}
+.login-card label{display:block;font-size:.78rem;color:var(--ink-dim);margin:14px 0 6px}
+.login-card input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--line);border-radius:12px;padding:12px 14px;color:var(--ink);font-family:var(--f-sans);font-size:.95rem}
+.login-card input:focus{outline:none;border-color:var(--accent)}
+#loginBtn{width:100%;margin-top:22px;background:var(--accent);color:#04241C;border:none;border-radius:12px;padding:13px;font-weight:700;font-size:.95rem;cursor:pointer;font-family:var(--f-sans)}
+#loginBtn:hover{background:var(--accent-hover)}
+#loginBtn:disabled{opacity:.5;cursor:wait}
+#loginErr{color:var(--bad);font-size:.82rem;margin-top:12px;display:none}
+
+/* ---- App shell ---- */
+#appView{display:none}
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:14px 20px;background:rgba(11,26,43,0.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.topbar .brand{font-family:var(--f-display);font-weight:700;font-size:1.05rem}
+.topbar .brand span{color:var(--accent)}
+.topbar .spacer{flex:1}
+.topbar button{background:rgba(255,255,255,0.06);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:8px 14px;font-size:.8rem;cursor:pointer;font-family:var(--f-sans)}
+.topbar button:hover{border-color:var(--accent);color:var(--accent)}
+#lastUpd{color:var(--ink-dim);font-size:.72rem}
+
+.tabs{display:flex;gap:6px;padding:12px 20px 0;overflow-x:auto;border-bottom:1px solid var(--line)}
+.tab-btn{flex-shrink:0;background:none;border:none;border-bottom:2px solid transparent;color:var(--ink-dim);padding:10px 14px;font-size:.86rem;font-weight:600;cursor:pointer;font-family:var(--f-sans);white-space:nowrap}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-btn:hover{color:var(--ink)}
+
+main{padding:20px;max-width:1100px;margin:0 auto}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.card{background:var(--bg-elev);border:1px solid var(--line);border-radius:16px;padding:16px}
+.card .v{font-family:var(--f-display);font-size:1.7rem;font-weight:700;line-height:1.1}
+.card .v small{font-size:.9rem;color:var(--ink-dim);font-weight:500}
+.card .k{color:var(--ink-dim);font-size:.75rem;margin-top:4px}
+.card.click{cursor:pointer}
+.card.click:hover{border-color:var(--accent)}
+
+.panel-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+@media(max-width:820px){.panel-grid{grid-template-columns:1fr}}
+.box{background:var(--bg-elev);border:1px solid var(--line);border-radius:16px;padding:18px}
+.box h3{font-family:var(--f-display);font-size:.95rem;margin-bottom:12px}
+.box .chart-wrap{position:relative;height:220px}
+
+table{width:100%;border-collapse:collapse;font-size:.8rem}
+th{text-align:left;color:var(--ink-dim);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line);font-size:.72rem;text-transform:uppercase;letter-spacing:.04em}
+td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:none}
+.pill{display:inline-block;padding:2px 9px;border-radius:99px;font-size:.7rem;font-weight:600;background:rgba(0,201,167,0.12);color:var(--accent)}
+.pill.warn{background:rgba(255,198,107,0.12);color:var(--warn)}
+.pill.bad{background:rgba(255,107,122,0.12);color:var(--bad)}
+.muted{color:var(--ink-dim)}
+.empty{color:var(--ink-dim);font-size:.85rem;padding:18px 4px;text-align:center}
+
+.links-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.links-row a{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.05);border:1px solid var(--line);border-radius:10px;padding:7px 12px;font-size:.76rem;color:var(--ink)}
+.links-row a:hover{border-color:var(--accent);color:var(--accent)}
+.links-row a .tag{font-size:.62rem;font-weight:700;padding:1px 6px;border-radius:6px;background:rgba(0,201,167,0.15);color:var(--accent)}
+.links-row a .tag.n8n{background:rgba(255,107,122,0.14);color:#ff8c9a}
+.links-row a .tag.ext{background:rgba(184,233,134,0.14);color:var(--accent-2)}
+.links-row a.off{opacity:.5}
+
+.rank{list-style:none}
+.rank li{display:flex;justify-content:space-between;padding:7px 4px;border-bottom:1px solid var(--line);font-size:.84rem}
+.rank li:last-child{border-bottom:none}
+.rank li b{font-family:var(--f-display)}
+
+.note{background:rgba(255,198,107,0.07);border:1px solid rgba(255,198,107,0.25);border-radius:12px;padding:12px 14px;font-size:.8rem;color:var(--ink-dim);margin-bottom:20px}
+.note b{color:var(--warn)}
+
+/* Form redes */
+.social-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;align-items:end}
+.social-form label{display:block;font-size:.7rem;color:var(--ink-dim);margin-bottom:4px}
+.social-form input,.social-form select{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--line);border-radius:10px;padding:9px 10px;color:var(--ink);font-family:var(--f-sans);font-size:.85rem}
+.social-form input:focus,.social-form select:focus{outline:none;border-color:var(--accent)}
+.social-form button{background:var(--accent);color:#04241C;border:none;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer;font-family:var(--f-sans);font-size:.85rem}
+#socialMsg{font-size:.78rem;margin-top:8px}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div id="loginView">
+  <div class="login-card">
+    <h1>SERVY <span style="color:var(--accent)">· Tablero</span></h1>
+    <p>Panel de control interno. Solo administración.</p>
+    <label for="logEmail">Email</label>
+    <input type="email" id="logEmail" autocomplete="username">
+    <label for="logPass">Contraseña</label>
+    <input type="password" id="logPass" autocomplete="current-password">
+    <button id="loginBtn">Entrar</button>
+    <div id="loginErr"></div>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="appView">
+  <div class="topbar">
+    <div class="brand">SERVY <span>· Tablero</span></div>
+    <div class="spacer"></div>
+    <span id="lastUpd"></span>
+    <button id="btnRefresh">↻ Actualizar</button>
+    <button id="btnLogout">Salir</button>
+  </div>
+  <div class="tabs" id="tabsBar"></div>
+  <main id="mainContent"></main>
+</div>
+
+<script>
+'use strict';
+/* ================= CONFIG ================= */
+const SB = 'https://oupmslbpvtuszwkdcbvq.supabase.co';
+const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91cG1zbGJwdnR1c3p3a2RjYnZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3OTQ5NjIsImV4cCI6MjA5MDM3MDk2Mn0.6w3jb216pQ2UGfmCY6gSbpkBW9E_TnXvCskXNArctwI';
+const N8N_URL = 'https://n8n-n8n.8wg7if.easypanel.host/workflow/';
+const SUPA_ED = 'https://supabase.com/dashboard/project/oupmslbpvtuszwkdcbvq/editor/';
+const SESSION_KEY = 'servyAdminSession';
+
+/* Mapa de módulos → tablas Supabase (OID) + workflows n8n + links externos.
+   REGLA: cualquier cambio en módulos/tablas/workflows de SERVY se refleja acá
+   y en la RPC admin_dashboard_stats. */
+const MODULES = {
+  busquedas: {
+    label: 'Búsquedas',
+    tables: [ {n:'busquedas',oid:34330}, {n:'consultas',oid:22404} ],
+    wfs: [
+      {id:'NPlj8aCkd3GKmm76',n:'Buscar Prestadores'},
+      {id:'F8I23efNpH2Mppg9',n:'Clasificar Oficio IA'},
+      {id:'x1RevDpdj7Ck5mk5',n:'Whisper (audio)'}
+    ],
+    ext: []
+  },
+  propuestas: {
+    label: 'Propuestas',
+    tables: [ {n:'propuestas',oid:17693}, {n:'resenas',oid:25434} ],
+    wfs: [
+      {id:'0qQtuLQtXWHEW8p8',n:'Guardar Propuesta Web'},
+      {id:'3PezVWvX3hi5iwsq',n:'WA Flow Recomendar'},
+      {id:'FmL65k0HQwyyhD5P',n:'Migrar Propuesta→Prestador'},
+      {id:'NXHiQWjsulG6PoTe',n:'Contactar Prestadores',off:true}
+    ],
+    ext: []
+  },
+  prestadores: {
+    label: 'Prestadores',
+    tables: [ {n:'prestadores',oid:17597}, {n:'prestador_categorias',oid:17636}, {n:'prestador_fotos',oid:34233} ],
+    wfs: [
+      {id:'GdjOoM5JH8ePLHvD',n:'Registro Prestador'},
+      {id:'FmL65k0HQwyyhD5P',n:'Migrar Propuesta→Prestador'}
+    ],
+    ext: []
+  },
+  bot: {
+    label: 'Bot WA',
+    tables: [ {n:'conversaciones',oid:33960}, {n:'bot_logs',oid:34265}, {n:'bot_learnings',oid:34253} ],
+    wfs: [
+      {id:'mu6Nty4delTRioRx',n:'YCloud AI Bot'},
+      {id:'wyzx8SOqGHe0Kbmi',n:'Timeout Inactividad'},
+      {id:'TCPXKoZvfzuR0S3h',n:'Analizar Conversaciones'},
+      {id:'QAawCZvKMKttevJm',n:'Resumen Semanal'}
+    ],
+    ext: [ {n:'YCloud consola',url:'https://www.ycloud.com/console/'} ]
+  },
+  visitas: {
+    label: 'Visitas',
+    tables: [ {n:'web_metrics',oid:34357} ],
+    wfs: [],
+    ext: [
+      {n:'Google Analytics 4',url:'https://analytics.google.com/'},
+      {n:'Search Console',url:'https://search.google.com/search-console'}
+    ]
+  },
+  redes: {
+    label: 'Redes',
+    tables: [ {n:'social_metrics',oid:34342} ],
+    wfs: [],
+    ext: [
+      {n:'IG Insights (Business Suite)',url:'https://business.facebook.com/latest/insights'},
+      {n:'TikTok Analytics',url:'https://www.tiktok.com/tiktokstudio/analytics'}
+    ]
+  }
+};
+
+/* ================= AUTH ================= */
+function getSession(){ try{ return JSON.parse(localStorage.getItem(SESSION_KEY)); }catch(e){ return null; } }
+function setSession(s){ localStorage.setItem(SESSION_KEY, JSON.stringify(s)); }
+function clearSession(){ localStorage.removeItem(SESSION_KEY); }
+
+async function authFetch(path, body){
+  const res = await fetch(SB + path, {
+    method:'POST',
+    headers:{ 'apikey':ANON, 'Content-Type':'application/json' },
+    body: JSON.stringify(body)
+  });
+  const d = await res.json().catch(()=>({}));
+  return { ok: res.ok, d };
+}
+
+async function login(email, pass){
+  const r = await authFetch('/auth/v1/token?grant_type=password', { email, password: pass });
+  if(!r.ok) throw new Error(r.d.error_description || r.d.msg || 'Login inválido');
+  setSession({ at:r.d.access_token, rt:r.d.refresh_token, exp: Date.now() + (r.d.expires_in||3600)*1000, email });
+}
+
+async function freshToken(){
+  let s = getSession();
+  if(!s) return null;
+  if(Date.now() > s.exp - 60000){
+    const r = await authFetch('/auth/v1/token?grant_type=refresh_token', { refresh_token: s.rt });
+    if(!r.ok){ clearSession(); return null; }
+    s = { at:r.d.access_token, rt:r.d.refresh_token, exp: Date.now() + (r.d.expires_in||3600)*1000, email:s.email };
+    setSession(s);
+  }
+  return s.at;
+}
+
+async function rpc(name, args){
+  const tk = await freshToken();
+  if(!tk){ showLogin(); throw new Error('sin sesión'); }
+  const res = await fetch(SB + '/rest/v1/rpc/' + name, {
+    method:'POST',
+    headers:{ 'apikey':ANON, 'Authorization':'Bearer '+tk, 'Content-Type':'application/json' },
+    body: JSON.stringify(args||{})
+  });
+  if(res.status===401 || res.status===403){ clearSession(); showLogin(); throw new Error('sesión vencida o sin permisos'); }
+  if(!res.ok){ const e = await res.json().catch(()=>({})); throw new Error(e.message||('Error '+res.status)); }
+  return res.json();
+}
+
+/* ================= HELPERS ================= */
+const $ = s => document.querySelector(s);
+const nf = n => (n==null?'—':Number(n).toLocaleString('es-AR'));
+function fdt(x){ if(!x) return '—'; const d=new Date(x); return d.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}); }
+function fd(x){ if(!x) return '—'; return new Date(x+'T00:00:00').toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'2-digit'}); }
+function esc(x){ const d=document.createElement('div'); d.textContent = x==null?'':String(x); return d.innerHTML; }
+function pill(estado){
+  const bad = ['rechazo','baja','opt_out','sin_estado','inactivo'];
+  const warn = ['sin_respuesta','dudas','contactado','nueva','nuevo','pendiente'];
+  const cls = bad.includes(estado)?'bad':(warn.includes(estado)?'warn':'');
+  return '<span class="pill '+cls+'">'+esc(estado)+'</span>';
+}
+function linksRow(mod){
+  const m = MODULES[mod]; let h = '<div class="links-row">';
+  m.tables.forEach(t=>{ h += '<a href="'+SUPA_ED+t.oid+'" target="_blank" rel="noopener"><span class="tag">DB</span>'+esc(t.n)+'</a>'; });
+  m.wfs.forEach(w=>{ h += '<a class="'+(w.off?'off':'')+'" href="'+N8N_URL+w.id+'" target="_blank" rel="noopener"><span class="tag n8n">n8n</span>'+esc(w.n)+(w.off?' (inactivo)':'')+'</a>'; });
+  m.ext.forEach(x=>{ h += '<a href="'+x.url+'" target="_blank" rel="noopener"><span class="tag ext">↗</span>'+esc(x.n)+'</a>'; });
+  return h + '</div>';
+}
+const charts = {};
+function mkChart(id, cfg){
+  if(charts[id]) charts[id].destroy();
+  const el = document.getElementById(id);
+  if(!el) return;
+  Chart.defaults.color = 'rgba(232,239,248,0.55)';
+  Chart.defaults.borderColor = 'rgba(255,255,255,0.08)';
+  Chart.defaults.font.family = "'Plus Jakarta Sans',sans-serif";
+  charts[id] = new Chart(el, cfg);
+}
+function rankList(arr){
+  if(!arr || !arr.length) return '<div class="empty">Sin datos todavía</div>';
+  return '<ul class="rank">'+arr.map(x=>'<li><span>'+esc(x.k)+'</span><b>'+nf(x.n)+'</b></li>').join('')+'</ul>';
+}
+function objToRank(obj){ return Object.entries(obj||{}).map(([k,n])=>({k,n})).sort((a,b)=>b.n-a.n); }
+
+/* ================= SHELL ================= */
+const TABS = [ ['resumen','Resumen'], ['busquedas','Búsquedas'], ['propuestas','Propuestas'], ['prestadores','Prestadores'], ['bot','Bot WA'], ['visitas','Visitas'], ['redes','Redes'] ];
+const loadedEvents = {};
+
+function buildShell(){
+  $('#tabsBar').innerHTML = TABS.map(([id,lb])=>'<button class="tab-btn" data-tab="'+id+'">'+lb+'</button>').join('');
+  $('#mainContent').innerHTML = TABS.map(([id])=>'<section class="tab-panel" id="tab-'+id+'"></section>').join('');
+  document.querySelectorAll('.tab-btn').forEach(b=> b.addEventListener('click', ()=> openTab(b.dataset.tab)) );
+}
+function openTab(id){
+  document.querySelectorAll('.tab-btn').forEach(b=> b.classList.toggle('active', b.dataset.tab===id));
+  document.querySelectorAll('.tab-panel').forEach(p=> p.classList.toggle('active', p.id==='tab-'+id));
+  if(!loadedEvents[id]) loadEvents(id);
+}
+
+/* ================= RENDER ================= */
+let STATS = null;
+
+function renderAll(){
+  const s = STATS;
+  renderResumen(s);
+  renderBusquedas(s);
+  renderPropuestas(s);
+  renderPrestadores(s);
+  renderBot(s);
+  renderVisitas(s);
+  renderRedes(s);
+  $('#lastUpd').textContent = 'Actualizado ' + new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+}
+
+function card(v, k, tab, sub){
+  return '<div class="card '+(tab?'click':'')+'" '+(tab?'data-go="'+tab+'"':'')+'><div class="v">'+v+(sub?' <small>'+sub+'</small>':'')+'</div><div class="k">'+k+'</div></div>';
+}
+
+function renderResumen(s){
+  const ig = s.redes.ultimo_ig;
+  const vDias = s.visitas.dias;
+  const ult = vDias.length ? vDias[vDias.length-1] : null;
+  $('#tab-resumen').innerHTML =
+    '<div class="cards">'
+    + card(nf(s.prestadores.activos), 'Prestadores activos', 'prestadores', '/ '+nf(s.prestadores.total))
+    + card(nf((s.propuestas.por_estado||{}).nueva||0), 'Propuestas nuevas', 'propuestas', '/ '+nf(s.propuestas.total))
+    + card(nf(s.busquedas.hoy), 'Búsquedas hoy', 'busquedas', '· sem '+nf(s.busquedas.semana))
+    + card(nf(s.bot.conversaciones), 'Conversaciones bot', 'bot', '· '+nf(s.bot.msgs_hoy)+' msgs hoy')
+    + card(nf(s.bot.opt_outs), 'Opt-outs', 'bot')
+    + card(ult?nf(ult.usuarios):'—', 'Visitas (último día)', 'visitas')
+    + card(ig?nf(ig.seguidores):'—', 'Seguidores IG', 'redes')
+    + '</div>'
+    + '<div class="note"><b>Regla del tablero:</b> cada cambio en módulos, tablas o workflows de SERVY se refleja acá (config MODULES + RPC admin_dashboard_stats).</div>';
+  document.querySelectorAll('#tab-resumen .card.click').forEach(c=> c.addEventListener('click', ()=> openTab(c.dataset.go)) );
+}
+
+function renderBusquedas(s){
+  const b = s.busquedas;
+  $('#tab-busquedas').innerHTML =
+    '<div class="cards">'
+    + card(nf(b.total),'Total registradas') + card(nf(b.hoy),'Hoy') + card(nf(b.semana),'Últimos 7 días')
+    + card(nf(b.sin_resultado),'Sin resultado') + card(nf(b.consultas_legacy),'Consultas (legacy)')
+    + '</div>'
+    + linksRow('busquedas')
+    + '<div class="panel-grid">'
+    + '<div class="box"><h3>Búsquedas por día (14d)</h3><div class="chart-wrap"><canvas id="chBus"></canvas></div></div>'
+    + '<div class="box"><h3>Top oficios</h3>'+rankList(b.top_oficios)+'<h3 style="margin-top:16px">Top zonas</h3>'+rankList(b.top_zonas)+'</div>'
+    + '</div>'
+    + '<div class="box"><h3>Últimas búsquedas</h3><div id="ev-busquedas"><div class="empty">Cargando…</div></div></div>';
+  mkChart('chBus', { type:'bar',
+    data:{ labels:b.por_dia.map(x=>fd(x.dia)), datasets:[{ data:b.por_dia.map(x=>x.n), backgroundColor:'rgba(0,201,167,0.6)', borderRadius:4 }] },
+    options:{ plugins:{legend:{display:false}}, maintainAspectRatio:false, scales:{y:{beginAtZero:true,ticks:{precision:0}}} } });
+}
+
+function renderPropuestas(s){
+  const p = s.propuestas, est = p.por_estado||{};
+  $('#tab-propuestas').innerHTML =
+    '<div class="cards">'
+    + card(nf(p.total),'Total') + card(nf(est.nueva||0),'Nuevas') + card(nf(est.acepto||0),'Aceptadas')
+    + card(nf(est.contactado||0),'Contactadas') + card(nf(p.semana),'Últimos 7 días')
+    + '</div>'
+    + linksRow('propuestas')
+    + '<div class="panel-grid">'
+    + '<div class="box"><h3>Por estado</h3><div class="chart-wrap"><canvas id="chProp"></canvas></div></div>'
+    + '<div class="box"><h3>Detalle estados</h3>'+rankList(objToRank(est))+'</div>'
+    + '</div>'
+    + '<div class="box"><h3>Últimas propuestas</h3><div id="ev-propuestas"><div class="empty">Cargando…</div></div></div>';
+  const entries = objToRank(est);
+  mkChart('chProp', { type:'doughnut',
+    data:{ labels:entries.map(x=>x.k), datasets:[{ data:entries.map(x=>x.n),
+      backgroundColor:['#00C9A7','#FFC66B','#B8E986','#FF6B7A','#7FB3FF','#C792EA','#FF9E64'] }] },
+    options:{ maintainAspectRatio:false, plugins:{legend:{position:'right'}} } });
+}
+
+function renderPrestadores(s){
+  const p = s.prestadores;
+  $('#tab-prestadores').innerHTML =
+    '<div class="cards">'
+    + card(nf(p.total),'Total') + card(nf(p.activos),'Activos') + card(nf(p.con_panel),'Con panel/login')
+    + card(nf(p.verificados),'Verificados') + card(nf(p.resenas),'Reseñas') + card(nf(p.fotos),'Fotos subidas')
+    + '</div>'
+    + linksRow('prestadores')
+    + '<div class="panel-grid">'
+    + '<div class="box"><h3>Por categoría</h3><div class="chart-wrap"><canvas id="chPrest"></canvas></div></div>'
+    + '<div class="box"><h3>Pipeline por estado</h3>'+rankList(objToRank(p.por_estado))+'</div>'
+    + '</div>'
+    + '<div class="box"><h3>Últimos prestadores</h3><div id="ev-prestadores"><div class="empty">Cargando…</div></div></div>';
+  mkChart('chPrest', { type:'bar',
+    data:{ labels:p.por_categoria.map(x=>x.k), datasets:[{ data:p.por_categoria.map(x=>x.n), backgroundColor:'rgba(184,233,134,0.6)', borderRadius:4 }] },
+    options:{ indexAxis:'y', plugins:{legend:{display:false}}, maintainAspectRatio:false, scales:{x:{beginAtZero:true,ticks:{precision:0}}} } });
+}
+
+function renderBot(s){
+  const b = s.bot;
+  $('#tab-bot').innerHTML =
+    '<div class="cards">'
+    + card(nf(b.conversaciones),'Conversaciones') + card(nf(b.msgs_hoy),'Mensajes hoy')
+    + card(nf(b.opt_outs),'Opt-outs') + card(nf(b.pausadas),'Bot pausado')
+    + '</div>'
+    + linksRow('bot')
+    + '<div class="panel-grid">'
+    + '<div class="box"><h3>Mensajes por día (14d)</h3><div class="chart-wrap"><canvas id="chBot"></canvas></div></div>'
+    + '<div class="box"><h3>Conversaciones por estado</h3>'+rankList(objToRank(b.por_estado))
+    + '<h3 style="margin-top:16px">Lecciones activas por bot</h3>'+rankList(objToRank(b.learnings_activas))+'</div>'
+    + '</div>'
+    + '<div class="box"><h3>Últimos mensajes del bot</h3><div id="ev-bot"><div class="empty">Cargando…</div></div></div>';
+  mkChart('chBot', { type:'line',
+    data:{ labels:b.msgs_por_dia.map(x=>fd(x.dia)), datasets:[{ data:b.msgs_por_dia.map(x=>x.n), borderColor:'#00C9A7', backgroundColor:'rgba(0,201,167,0.15)', fill:true, tension:.3 }] },
+    options:{ plugins:{legend:{display:false}}, maintainAspectRatio:false, scales:{y:{beginAtZero:true,ticks:{precision:0}}} } });
+}
+
+function renderVisitas(s){
+  const v = s.visitas;
+  const hasData = v.dias.length > 0;
+  $('#tab-visitas').innerHTML =
+    (hasData ? '' : '<div class="note"><b>Sin datos todavía.</b> Falta crear la propiedad GA4 e instalar el tag en las páginas. Cuando el workflow n8n "GA4 Snapshot" cargue <code>web_metrics</code>, esta pestaña muestra usuarios y vistas por día. Mientras tanto, usá los links de abajo.</div>')
+    + linksRow('visitas')
+    + '<div class="panel-grid">'
+    + '<div class="box"><h3>Usuarios y vistas por día (30d)</h3><div class="chart-wrap"><canvas id="chVis"></canvas></div></div>'
+    + '<div class="box"><h3>Páginas más vistas (30d)</h3>'+rankList(v.paginas)+'</div>'
+    + '</div>';
+  mkChart('chVis', { type:'line',
+    data:{ labels:v.dias.map(x=>fd(x.dia)), datasets:[
+      { label:'Usuarios', data:v.dias.map(x=>x.usuarios), borderColor:'#00C9A7', tension:.3 },
+      { label:'Vistas', data:v.dias.map(x=>x.vistas), borderColor:'#B8E986', tension:.3 }
+    ]},
+    options:{ maintainAspectRatio:false, scales:{y:{beginAtZero:true,ticks:{precision:0}}} } });
+}
+
+function renderRedes(s){
+  const r = s.redes;
+  const ig = r.ultimo_ig, tk = r.ultimo_tiktok;
+  $('#tab-redes').innerHTML =
+    '<div class="cards">'
+    + card(ig?nf(ig.seguidores):'—','Seguidores IG', null, ig?('al '+fd(ig.fecha)):'')
+    + card(ig?nf(ig.alcance):'—','Alcance IG')
+    + card(tk?nf(tk.seguidores):'—','Seguidores TikTok', null, tk?('al '+fd(tk.fecha)):'')
+    + card(tk?nf(tk.interacciones):'—','Interacciones TikTok')
+    + '</div>'
+    + linksRow('redes')
+    + '<div class="panel-grid">'
+    + '<div class="box"><h3>Evolución seguidores (90d)</h3><div class="chart-wrap"><canvas id="chRed"></canvas></div></div>'
+    + '<div class="box"><h3>Cargar medición manual</h3>'
+    + '<form class="social-form" id="socialForm">'
+    + '<div><label>Fecha</label><input type="date" id="sfFecha"></div>'
+    + '<div><label>Red</label><select id="sfRed"><option value="tiktok">TikTok</option><option value="instagram">Instagram</option></select></div>'
+    + '<div><label>Seguidores</label><input type="number" id="sfSeg" min="0"></div>'
+    + '<div><label>Alcance</label><input type="number" id="sfAlc" min="0"></div>'
+    + '<div><label>Interacciones</label><input type="number" id="sfInt" min="0"></div>'
+    + '<div><label>Posts</label><input type="number" id="sfPosts" min="0"></div>'
+    + '<div style="grid-column:1/-1"><button type="submit">Guardar medición</button><div id="socialMsg"></div></div>'
+    + '</form></div>'
+    + '</div>'
+    + '<div class="box"><h3>Últimas mediciones</h3><div id="ev-redes"><div class="empty">Cargando…</div></div></div>';
+
+  const igS = r.series.filter(x=>x.red==='instagram');
+  const tkS = r.series.filter(x=>x.red==='tiktok');
+  const labels = [...new Set(r.series.map(x=>x.fecha))].sort();
+  mkChart('chRed', { type:'line',
+    data:{ labels: labels.map(fd), datasets:[
+      { label:'Instagram', data: labels.map(l=>{ const f=igS.filter(x=>x.fecha===l).pop(); return f?f.seguidores:null; }), borderColor:'#C792EA', tension:.3, spanGaps:true },
+      { label:'TikTok', data: labels.map(l=>{ const f=tkS.filter(x=>x.fecha===l).pop(); return f?f.seguidores:null; }), borderColor:'#7FB3FF', tension:.3, spanGaps:true }
+    ]},
+    options:{ maintainAspectRatio:false, scales:{y:{beginAtZero:true,ticks:{precision:0}}} } });
+
+  $('#sfFecha').value = new Date().toISOString().slice(0,10);
+  $('#socialForm').addEventListener('submit', async ev=>{
+    ev.preventDefault();
+    const msg = $('#socialMsg'); msg.textContent = 'Guardando…'; msg.style.color = 'var(--ink-dim)';
+    const num = id => { const v = $(id).value; return v===''?null:parseInt(v,10); };
+    try{
+      await rpc('admin_social_insert', {
+        p_fecha: $('#sfFecha').value || null, p_red: $('#sfRed').value,
+        p_seguidores: num('#sfSeg'), p_alcance: num('#sfAlc'),
+        p_interacciones: num('#sfInt'), p_posts: num('#sfPosts'), p_notas: null
+      });
+      msg.textContent = 'Guardado ✓'; msg.style.color = 'var(--accent)';
+      delete loadedEvents.redes;
+      await refresh();
+      openTab('redes');
+    }catch(e){ msg.textContent = 'Error: '+e.message; msg.style.color = 'var(--bad)'; }
+  });
+}
+
+/* ---- Tablas de últimos eventos por pestaña ---- */
+const EV_DEFS = {
+  busquedas: { rpcMod:'busquedas', cols:[['oficio','Oficio'],['zona','Zona'],['resultados_count','Result.'],['canal','Canal'],['created_at','Cuándo','dt']] },
+  propuestas: { rpcMod:'propuestas', cols:[['nombre_propuesto','Nombre'],['categoria_sugerida','Rubro'],['zona_sugerida','Zona'],['estado','Estado','pill'],['source','Origen'],['created_at','Cuándo','dt']] },
+  prestadores: { rpcMod:'prestadores', cols:[['nombre','Nombre'],['estado','Estado','pill'],['slug','Slug'],['con_panel','Panel','bool'],['created_at','Alta','dt']] },
+  bot: { rpcMod:'bot', cols:[['telefono','Teléfono'],['mensaje','Mensaje'],['respuesta_bot','Respuesta'],['flujo','Flujo'],['created_at','Cuándo','dt']] },
+  redes: { rpcMod:'redes', cols:[['fecha','Fecha','d'],['red','Red'],['seguidores','Seguidores'],['alcance','Alcance'],['interacciones','Interac.'],['fuente','Fuente']] }
+};
+
+async function loadEvents(tab){
+  const def = EV_DEFS[tab];
+  if(!def) { loadedEvents[tab]=true; return; }
+  const holder = document.getElementById('ev-'+tab);
+  if(!holder) return;
+  try{
+    const rows = await rpc('admin_ultimos_eventos', { p_modulo: def.rpcMod, p_limite: 15 });
+    loadedEvents[tab] = true;
+    if(!rows || !rows.length){ holder.innerHTML = '<div class="empty">Sin registros todavía</div>'; return; }
+    let h = '<div style="overflow-x:auto"><table><thead><tr>'+def.cols.map(c=>'<th>'+c[1]+'</th>').join('')+'</tr></thead><tbody>';
+    rows.forEach(r=>{
+      h += '<tr>'+def.cols.map(c=>{
+        const v = r[c[0]];
+        if(c[2]==='dt') return '<td class="muted">'+fdt(v)+'</td>';
+        if(c[2]==='d') return '<td class="muted">'+fd(v)+'</td>';
+        if(c[2]==='pill') return '<td>'+pill(v||'—')+'</td>';
+        if(c[2]==='bool') return '<td>'+(v?'✓':'—')+'</td>';
+        return '<td>'+esc(v==null?'—':v)+'</td>';
+      }).join('')+'</tr>';
+    });
+    holder.innerHTML = h + '</tbody></table></div>';
+  }catch(e){ holder.innerHTML = '<div class="empty">Error: '+esc(e.message)+'</div>'; }
+}
+
+/* ================= FLOW ================= */
+function showLogin(){ $('#appView').style.display='none'; $('#loginView').style.display='flex'; }
+function showApp(){ $('#loginView').style.display='none'; $('#appView').style.display='block'; }
+
+async function refresh(){
+  $('#btnRefresh').disabled = true;
+  try{
+    STATS = await rpc('admin_dashboard_stats');
+    Object.keys(loadedEvents).forEach(k=> delete loadedEvents[k]);
+    renderAll();
+    const active = document.querySelector('.tab-btn.active');
+    loadEvents(active ? active.dataset.tab : 'resumen');
+  } finally { $('#btnRefresh').disabled = false; }
+}
+
+async function boot(){
+  buildShell();
+  const tk = await freshToken();
+  if(!tk){ showLogin(); return; }
+  try{
+    STATS = await rpc('admin_dashboard_stats');
+    showApp(); renderAll(); openTab('resumen');
+  }catch(e){ showLogin(); }
+}
+
+$('#loginBtn').addEventListener('click', async ()=>{
+  const btn = $('#loginBtn'), err = $('#loginErr');
+  btn.disabled = true; err.style.display = 'none';
+  try{
+    await login($('#logEmail').value.trim(), $('#logPass').value);
+    STATS = await rpc('admin_dashboard_stats');
+    showApp(); renderAll(); openTab('resumen');
+  }catch(e){
+    err.textContent = /forbidden|permis/i.test(e.message) ? 'Usuario sin permisos de administración.' : e.message;
+    err.style.display = 'block';
+  } finally { btn.disabled = false; }
+});
+$('#logPass').addEventListener('keydown', e=>{ if(e.key==='Enter') $('#loginBtn').click(); });
+$('#btnRefresh').addEventListener('click', refresh);
+$('#btnLogout').addEventListener('click', ()=>{ clearSession(); location.reload(); });
+
+boot();
+</script>
+</body>
+</html>
