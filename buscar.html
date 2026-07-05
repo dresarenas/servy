@@ -1174,7 +1174,7 @@ var WEBHOOK_WHISPER    = 'https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-wh
 var WEBHOOK_CLASIFICAR = 'https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-clasificar';
 
 /* ---- STATE ---- */
-var wizState = { descripcion: null, oficio: null, oficios: null, zonaText: '', tiempo: null, prestadores: [] };
+var wizState = { descripcion: null, oficio: null, oficios: null, zonaText: '', zonaLat: null, zonaLng: null, tiempo: null, prestadores: [] };
 var wizIsDemoData = false;
 var wizCurrent = 0;
 history.replaceState({wizStep: 0}, '');
@@ -1339,7 +1339,7 @@ function wizGoTo(n) {
 
 
 function wizReset() {
-  wizState = { descripcion: null, oficio: null, zonaText: '', tiempo: null, prestadores: [] };
+  wizState = { descripcion: null, oficio: null, zonaText: '', zonaLat: null, zonaLng: null, tiempo: null, prestadores: [] };
   var desc = document.getElementById('wizDesc');
   desc.value = ''; desc.style.height = 'auto';
   document.getElementById('wizAddr').value = '';
@@ -1631,7 +1631,7 @@ function _wizCreateMap() {
     if (_wizCircle) _wizCircle.setCenter({ lat: ll.lat(), lng: ll.lng() });
     new google.maps.Geocoder().geocode({ location: { lat: ll.lat(), lng: ll.lng() } }, function(results, status) {
       var addr = (status === 'OK' && results && results.length) ? wizBestAddress(results) : ll.lat().toFixed(5) + ', ' + ll.lng().toFixed(5);
-      setWizZona(addr);
+      setWizZona(addr, ll.lat(), ll.lng());
     });
   }
   _wizMarker.addListener('dragend', function(e) { pick(e.latLng); });
@@ -1660,7 +1660,7 @@ function wizGeocode() {
       _wizMap.setCenter(loc); _wizMap.setZoom(14);
       if (_wizMarker) _wizMarker.setPosition(loc);
       if (_wizCircle) _wizCircle.setCenter({ lat: loc.lat(), lng: loc.lng() });
-      setWizZona(results[0].formatted_address);
+      setWizZona(results[0].formatted_address, loc.lat(), loc.lng());
     } else {
       st.textContent = 'No se encontró la dirección';
     }
@@ -1684,7 +1684,7 @@ async function wizGeolocate() {
       if (_wizCircle) _wizCircle.setCenter(ll);
       new google.maps.Geocoder().geocode({ location: ll }, function(results, status2) {
         var addr = (status2 === 'OK' && results && results.length) ? (function(res){var p=(res||[]).filter(function(r){return r.types&&r.types.some(function(t){return['street_address','premise','route','establishment'].indexOf(t)>=0;});});if(p.length)return p[0].formatted_address;var n=(res||[]).filter(function(r){return!(r.types&&r.types.indexOf('plus_code')>=0);});return n.length?n[0].formatted_address:res[0].formatted_address;})(results) : ll.lat.toFixed(5) + ', ' + ll.lng.toFixed(5);
-        setWizZona(addr);
+        setWizZona(addr, ll.lat, ll.lng);
         btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" opacity="0.3"/></svg> Usar mi ubicación';
       });
     }
@@ -1695,8 +1695,10 @@ async function wizGeolocate() {
   });
 }
 
-function setWizZona(text) {
+function setWizZona(text, lat, lng) {
   wizState.zonaText = text;
+  wizState.zonaLat = (typeof lat === 'number') ? lat : null;
+  wizState.zonaLng = (typeof lng === 'number') ? lng : null;
   var addrEl = document.getElementById('wizAddr');
   if (addrEl) addrEl.value = text;
   var st = document.getElementById('wizGeoStatus');
@@ -1715,7 +1717,7 @@ async function wizBuscar() {
   var ofStr = wizState.oficio || 'el servicio';
   var zoAddr = wizState.zonaText ? (wizState.zonaText.length > 28 ? wizState.zonaText.substring(0,28)+'…' : wizState.zonaText) : 'tu zona';
   sum.innerHTML = 'Buscamos <strong style="color:var(--accent-2)">' + ofStr + '</strong> cerca de <strong style="color:var(--accent-2)">' + zoAddr + '</strong>';
-  var payload = { descripcion: wizState.descripcion, oficio: wizState.oficio, zona: wizState.zonaText, tiempo: wizState.tiempo };
+  var payload = { descripcion: wizState.descripcion, oficio: wizState.oficio, zona: wizState.zonaText, zona_lat: wizState.zonaLat, zona_lng: wizState.zonaLng, tiempo: wizState.tiempo };
   var prestadores = []; wizIsDemoData = false;
   var ctrl = new AbortController();
   var aiMsgTimer = setTimeout(function() { if (loadTxt) loadTxt.textContent = 'Analizando tu consulta con IA…'; }, 2500);
