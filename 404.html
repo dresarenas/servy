@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>SERVY</title>
+<script>
+// GitHub Pages no tiene routing de servidor: /p/{slug} llega acá y redirige a perfil.html?p={slug}
+(function () {
+  var m = location.pathname.match(/^(.*?)\/p\/([^\/]+)\/?$/);
+  if (m) {
+    location.replace((m[1] || '') + '/perfil.html?p=' + encodeURIComponent(m[2]));
+  } else {
+    location.replace('/');
+  }
+})();
+</script>
+<style>
+body{background:#0B1A2B;color:#E8EFF8;font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;}
+</style>
+</head>
+<body>
+<p>Redirigiendo…</p>
+</body>
+</html>

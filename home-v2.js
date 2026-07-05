@@ -311,6 +311,39 @@
   document.body.appendChild(nav);
 })();
 
+/* ============ AUTH PRESTADOR (Supabase) ============ */
+var SERVY_SB = 'https://oupmslbpvtuszwkdcbvq.supabase.co';
+var SERVY_SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91cG1zbGJwdnR1c3p3a2RjYnZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3OTQ5NjIsImV4cCI6MjA5MDM3MDk2Mn0.6w3jb216pQ2UGfmCY6gSbpkBW9E_TnXvCskXNArctwI';
+
+function servyTelNorm(raw) {
+  var d = String(raw || '').replace(/\D/g, '').replace(/^0+/, '');
+  if (d.indexOf('549') === 0 && d.length === 13) return d;
+  if (d.indexOf('54') === 0 && d.length === 12) return '549' + d.slice(2);
+  if (d.length === 10) return '549' + d;
+  if (d.indexOf('9') === 0 && d.length === 11) return '54' + d;
+  return null;
+}
+
+window.servyAuth = {
+  get: function () { try { return JSON.parse(localStorage.getItem('servy_session')); } catch (e) { return null; } },
+  set: function (s) { localStorage.setItem('servy_session', JSON.stringify(s)); },
+  clear: function () { localStorage.removeItem('servy_session'); },
+  token: function () {
+    var self = this, s = this.get();
+    if (!s) return Promise.resolve(null);
+    if (Date.now() < (s.expires_at || 0) - 60000) return Promise.resolve(s.access_token);
+    return fetch(SERVY_SB + '/auth/v1/token?grant_type=refresh_token', {
+      method: 'POST',
+      headers: { apikey: SERVY_SB_ANON, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: s.refresh_token })
+    }).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+      if (!d || !d.access_token) { self.clear(); return null; }
+      self.set({ access_token: d.access_token, refresh_token: d.refresh_token, expires_at: Date.now() + (d.expires_in || 3600) * 1000, user: d.user });
+      return d.access_token;
+    }).catch(function () { return null; });
+  }
+};
+
 /* ============ LOGIN MODAL ============ */
 (function () {
   var overlay = document.createElement('div');
@@ -320,17 +353,39 @@
     '<div class="servy-login-box">',
     '  <button class="servy-login-close" onclick="servyCloseLogin()">✕</button>',
     '  <img src="assets/servy-full.png" alt="SERVY" class="servy-login-logo-img">',
-    '  <div class="servy-login-sub">Accedé a tu panel de prestador</div>',
-    '  <div class="servy-login-demo-badge">',
-    '    ◈ Modo demo — credenciales precargadas',
+    '  <div id="servyViewLogin">',
+    '    <div class="servy-login-sub">Accedé a tu panel de prestador</div>',
+    '    <input class="servy-login-field" id="servyLoginTel" type="tel" placeholder="Tu WhatsApp (ej: 351 555-1234)" autocomplete="off">',
+    '    <input class="servy-login-field" id="servyLoginPass" type="password" placeholder="Contraseña" autocomplete="current-password">',
+    '    <div class="servy-login-err" id="servyLoginErr"></div>',
+    '    <button class="servy-login-btn" id="servyLoginBtn" onclick="servyDoLogin()">Ingresar al panel →</button>',
+    '    <div class="servy-login-links">',
+    '      <a href="#" onclick="servyShowCodigo(event, \'olvide\')">Olvidé mi contraseña</a>',
+    '      <a href="#" onclick="servyShowCodigo(event, \'primera\')">Primer acceso: crear contraseña</a>',
+    '    </div>',
     '  </div>',
-    '  <input class="servy-login-field" id="servyLoginEmail" type="email" value="demo@servy.ar" placeholder="Email" autocomplete="off">',
-    '  <input class="servy-login-field" id="servyLoginPass" type="password" value="demo123" placeholder="Contraseña" autocomplete="new-password">',
-    '  <button class="servy-login-btn" onclick="servyDoLogin()">Ingresar al panel →</button>',
+    '  <div id="servyViewCodigo" style="display:none;">',
+    '    <div class="servy-login-sub" id="servyCodigoTitulo">Te mandamos un código por WhatsApp</div>',
+    '    <input class="servy-login-field" id="servyCodigoTel" type="tel" placeholder="Tu WhatsApp (ej: 351 555-1234)" autocomplete="off">',
+    '    <button class="servy-login-btn" id="servyCodigoEnviarBtn" onclick="servySolicitarCodigo()">Enviarme el código →</button>',
+    '    <div id="servyCodigoPaso2" style="display:none;">',
+    '      <input class="servy-login-field" id="servyCodigoInput" type="text" inputmode="numeric" maxlength="6" placeholder="Código de 6 dígitos">',
+    '      <input class="servy-login-field" id="servyCodigoPass" type="password" placeholder="Nueva contraseña (mín. 6)" autocomplete="new-password">',
+    '      <button class="servy-login-btn" id="servyCodigoConfirmarBtn" onclick="servyConfirmarCodigo()">Guardar y entrar →</button>',
+    '    </div>',
+    '    <div class="servy-login-err" id="servyCodigoErr"></div>',
+    '    <div class="servy-login-links"><a href="#" onclick="servyShowLogin(event)">← Volver al login</a></div>',
+    '  </div>',
     '</div>'
   ].join('');
   overlay.addEventListener('click', function (e) { if (e.target === overlay) servyCloseLogin(); });
   document.body.appendChild(overlay);
+  var st = document.createElement('style');
+  st.textContent = '.servy-login-err{color:#ff7a7a;font-size:12px;min-height:16px;margin:4px 0 6px;text-align:center;}' +
+    '.servy-login-links{display:flex;flex-direction:column;gap:6px;margin-top:12px;text-align:center;}' +
+    '.servy-login-links a{color:rgba(60,230,197,.85);font-size:12.5px;text-decoration:none;}' +
+    '.servy-login-links a:hover{text-decoration:underline;}';
+  document.head.appendChild(st);
 })();
 
 window.servyOpenLogin = function (e) {
@@ -342,8 +397,103 @@ window.servyCloseLogin = function () {
   document.getElementById('servyLoginOverlay').classList.remove('open');
   document.body.style.overflow = '';
 };
+window.servyShowLogin = function (e) {
+  if (e) e.preventDefault();
+  document.getElementById('servyViewCodigo').style.display = 'none';
+  document.getElementById('servyViewLogin').style.display = '';
+};
+window.servyShowCodigo = function (e, modo) {
+  if (e) e.preventDefault();
+  document.getElementById('servyViewLogin').style.display = 'none';
+  document.getElementById('servyViewCodigo').style.display = '';
+  document.getElementById('servyCodigoTitulo').textContent = modo === 'primera'
+    ? 'Creá tu contraseña: te mandamos un código por WhatsApp'
+    : 'Recuperá tu acceso: te mandamos un código por WhatsApp';
+  var telLogin = document.getElementById('servyLoginTel').value;
+  if (telLogin) document.getElementById('servyCodigoTel').value = telLogin;
+};
+
 window.servyDoLogin = function () {
-  window.location.href = 'panel.html';
+  var err = document.getElementById('servyLoginErr');
+  var btn = document.getElementById('servyLoginBtn');
+  err.textContent = '';
+  var tel = servyTelNorm(document.getElementById('servyLoginTel').value);
+  var pass = document.getElementById('servyLoginPass').value;
+  if (!tel) { err.textContent = 'Revisá el número de teléfono.'; return; }
+  if (!pass) { err.textContent = 'Ingresá tu contraseña.'; return; }
+  btn.disabled = true; btn.textContent = 'Ingresando…';
+  fetch(SERVY_SB + '/auth/v1/token?grant_type=password', {
+    method: 'POST',
+    headers: { apikey: SERVY_SB_ANON, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: tel + '@prestador.servy.ar', password: pass })
+  }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+    .then(function (res) {
+      if (!res.ok || !res.d.access_token) {
+        err.textContent = 'Teléfono o contraseña incorrectos.';
+        btn.disabled = false; btn.textContent = 'Ingresar al panel →';
+        return;
+      }
+      servyAuth.set({ access_token: res.d.access_token, refresh_token: res.d.refresh_token, expires_at: Date.now() + (res.d.expires_in || 3600) * 1000, user: res.d.user });
+      window.location.href = 'panel.html';
+    }).catch(function () {
+      err.textContent = 'Error de conexión. Probá de nuevo.';
+      btn.disabled = false; btn.textContent = 'Ingresar al panel →';
+    });
+};
+
+window.servySolicitarCodigo = function () {
+  var err = document.getElementById('servyCodigoErr');
+  var btn = document.getElementById('servyCodigoEnviarBtn');
+  err.textContent = '';
+  var tel = servyTelNorm(document.getElementById('servyCodigoTel').value);
+  if (!tel) { err.textContent = 'Revisá el número de teléfono.'; return; }
+  btn.disabled = true; btn.textContent = 'Enviando…';
+  fetch(SERVY_SB + '/functions/v1/servy-auth', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'solicitar_codigo', telefono: tel })
+  }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+    .then(function (res) {
+      btn.disabled = false; btn.textContent = 'Reenviar código';
+      if (!res.ok) { err.textContent = (res.d && res.d.msg) || 'No pudimos enviar el código.'; return; }
+      document.getElementById('servyCodigoPaso2').style.display = '';
+      err.textContent = '';
+    }).catch(function () {
+      btn.disabled = false; btn.textContent = 'Enviarme el código →';
+      err.textContent = 'Error de conexión. Probá de nuevo.';
+    });
+};
+
+window.servyConfirmarCodigo = function () {
+  var err = document.getElementById('servyCodigoErr');
+  var btn = document.getElementById('servyCodigoConfirmarBtn');
+  err.textContent = '';
+  var tel = servyTelNorm(document.getElementById('servyCodigoTel').value);
+  var codigo = document.getElementById('servyCodigoInput').value.trim();
+  var pass = document.getElementById('servyCodigoPass').value;
+  if (!tel) { err.textContent = 'Revisá el número de teléfono.'; return; }
+  if (codigo.length !== 6) { err.textContent = 'El código tiene 6 dígitos.'; return; }
+  if (pass.length < 6) { err.textContent = 'La contraseña debe tener al menos 6 caracteres.'; return; }
+  btn.disabled = true; btn.textContent = 'Guardando…';
+  fetch(SERVY_SB + '/functions/v1/servy-auth', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'confirmar_codigo', telefono: tel, codigo: codigo, nueva_password: pass })
+  }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+    .then(function (res) {
+      if (!res.ok || !res.d.ok) {
+        err.textContent = (res.d && res.d.msg) || 'Código incorrecto o vencido.';
+        btn.disabled = false; btn.textContent = 'Guardar y entrar →';
+        return;
+      }
+      document.getElementById('servyLoginTel').value = tel;
+      document.getElementById('servyLoginPass').value = pass;
+      servyShowLogin();
+      servyDoLogin();
+    }).catch(function () {
+      err.textContent = 'Error de conexión. Probá de nuevo.';
+      btn.disabled = false; btn.textContent = 'Guardar y entrar →';
+    });
 };
 
 if ('serviceWorker' in navigator) {

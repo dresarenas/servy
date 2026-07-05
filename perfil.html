@@ -382,14 +382,17 @@ body{
 .reviews-track{animation:reviewScroll 18s linear infinite;}
 .reviews-carousel:hover .reviews-track{animation-play-state:paused;}
 @keyframes reviewScroll{0%{transform:translateY(0)}100%{transform:translateY(-50%)}}
+body.cargando>*{visibility:hidden}
+body.cargando::after{content:"";position:fixed;inset:0;margin:auto;width:34px;height:34px;border-radius:50%;border:3px solid rgba(60,230,197,.2);border-top-color:#3CE6C5;animation:perfSpin .8s linear infinite;visibility:visible;}
+@keyframes perfSpin{to{transform:rotate(360deg)}}
 </style>
 </head>
-<body>
+<body class="cargando">
 
 <!-- TOP NAV -->
 <nav class="topnav">
   <a class="back-btn" onclick="history.back()">← Volver</a>
-  <div class="topnav-title">Carlos García · Plomero</div>
+  <div class="topnav-title" id="topTitle">Cargando…</div>
   <span class="nav-role-badge">PERFIL</span>
   <img src="assets/servy-full.png" alt="SERVY" style="height:22px;display:block;flex-shrink:0;">
 </nav>
@@ -398,32 +401,21 @@ body{
 <div class="hero">
   <div class="faja faja-recomendado faja-hero">⭐ Recomendado</div>
   <div class="hero-top">
-    <div class="hero-avatar">
-      CG
-      <div class="hero-verified">✓</div>
-    </div>
+    <div class="hero-avatar" id="heroAvatar"></div>
     <div class="hero-info">
-      <div class="hero-name">Carlos García</div>
-      <div class="hero-oficio">Plomero &amp; Gasista</div>
-      <div class="hero-badges">
-        <span class="hbadge hbadge-teal">⭐ Recomendado</span>
-        <span class="hbadge hbadge-lime">⚡ Urgencias 24hs</span>
-        <span class="hbadge hbadge-mute">📍 Nueva Córdoba</span>
-      </div>
+      <div class="hero-name" id="heroName"></div>
+      <div class="hero-oficio" id="heroOficio"></div>
+      <div class="hero-badges" id="heroBadges"></div>
     </div>
   </div>
 
   <div class="hero-rating">
-    <div class="rating-big">4.8</div>
+    <div class="rating-big" id="ratingBig"></div>
     <div class="rating-right">
-      <div class="stars-row">
-        <span class="star">★</span><span class="star">★</span>
-        <span class="star">★</span><span class="star">★</span>
-        <span class="star">★</span>
-      </div>
-      <div class="rating-count">12 reseñas verificadas</div>
+      <div class="stars-row" id="starsRow"></div>
+      <div class="rating-count" id="ratingCount"></div>
     </div>
-    <div class="hero-stats">
+    <div class="hero-stats" id="heroStats" style="display:none;">
       <div class="stat-item">
         <div class="stat-num">8</div>
         <div class="stat-label">años de<br>experiencia</div>
@@ -446,59 +438,44 @@ body{
     <span class="isi-icon">📍</span>
     <div class="isi-body">
       <div class="isi-label">ZONA</div>
-      <div class="isi-val">Nueva Córdoba<br>y alrededores</div>
+      <div class="isi-val" id="zonaVal"></div>
     </div>
   </div>
   <div class="info-strip-item">
     <span class="isi-icon">🕐</span>
     <div class="isi-body">
       <div class="isi-label">HORARIOS</div>
-      <div class="isi-val">Lun–Vie 8–18<br>Sáb 8–13</div>
+      <div class="isi-val" id="horariosVal"></div>
     </div>
   </div>
   <div class="info-strip-item">
     <span class="isi-icon">💳</span>
     <div class="isi-body">
       <div class="isi-label">COBRO</div>
-      <div class="isi-val">Efectivo<br>Transferencia</div>
+      <div class="isi-val" id="cobroVal"></div>
     </div>
   </div>
 </div>
 
 <!-- SOBRE MÍ -->
 <div class="section">
-  <div class="sec-title"><span class="st-icon">👋</span> Sobre Carlos</div>
-  <p class="desc-text">
-    Plomero matriculado con 8 años de experiencia en instalaciones, reparaciones y urgencias en Córdoba Capital. Me especializo en detección de pérdidas, arreglo de termotanques, instalaciones de gas y destape.
-  </p>
-  <p class="desc-text" style="margin-top:10px;">
-    Trabajo con garantía en mano de obra. Respondo rápido por WhatsApp y coordino visitas sin costo de diagnóstico previo.
-  </p>
+  <div class="sec-title" id="sobreTitle"><span class="st-icon">👋</span> Sobre el prestador</div>
+  <p class="desc-text" id="descText1"></p>
 </div>
 <div class="divider"></div>
 
 <!-- SERVICIOS -->
 <div class="section">
   <div class="sec-title"><span class="st-icon">🔧</span> Servicios</div>
-  <div class="tag-row">
-    <span class="tag yes">Plomería general</span>
-    <span class="tag yes">Gasista matriculado</span>
-    <span class="tag yes">Urgencias 24hs</span>
-    <span class="tag">Termotanques</span>
-    <span class="tag">Calefacción</span>
-    <span class="tag">Destape de cañerías</span>
-    <span class="tag">Instalaciones</span>
-    <span class="tag">Obras en curso</span>
-    <span class="tag">Detección de pérdidas</span>
-    <span class="tag">Calefones</span>
-  </div>
+  <div class="tag-row" id="tagRow"></div>
 </div>
 <div class="divider"></div>
 
 <!-- FOTOS DE TRABAJOS -->
 <div class="section">
   <div class="sec-title"><span class="st-icon">📷</span> Trabajos realizados</div>
-  <a href="#" style="display:inline-flex;align-items:center;gap:6px;color:var(--ac);font-size:14px;font-family:var(--fm);">Ver fotos de trabajos →</a>
+  <div class="foto-grid" id="fotoGrid"></div>
+  <div id="fotosEmpty" style="font-size:13px;color:var(--ink-m);">Este prestador todavía no subió fotos.</div>
 </div>
 <div class="divider"></div>
 
@@ -506,11 +483,11 @@ body{
 <div class="section">
   <div class="sec-title" style="justify-content:space-between;">
     <span style="display:flex;align-items:center;gap:8px;"><span class="st-icon">⭐</span> Reseñas</span>
-    <span style="font-size:12px;font-family:var(--fm);color:var(--ink-m);">4.8 · 12 total</span>
+    <span style="font-size:12px;font-family:var(--fm);color:var(--ink-m);" id="resenasTotal"></span>
   </div>
 
-  <div class="reviews-carousel">
-    <div class="reviews-track">
+  <div class="reviews-carousel" id="reviewsCarousel">
+    <div class="reviews-track" id="reviewsTrack">
   <div class="review-card">
     <div class="rc-header">
       <div class="rc-avatar" style="background:linear-gradient(135deg,#2a1a3a,#1a0f22);">MR</div>
@@ -634,7 +611,7 @@ body{
 
   <!-- CTA dejar reseña -->
   <div class="reviews-cta">
-    <div class="reviews-cta-text">¿Trabajaste con Carlos? Dejá tu experiencia</div>
+    <div class="reviews-cta-text" id="ctaResenaText">Dejá tu experiencia</div>
     <div class="reviews-cta-btn" onclick="openModal()">✏️ Dejar reseña</div>
   </div>
 </div>
@@ -655,7 +632,7 @@ body{
       <span class="verif-icon">✅</span>
       <div class="verif-text">
         <div class="verif-label">EN SERVY</div>
-        <div class="verif-val">15 meses</div>
+        <div class="verif-val" id="verifServy">—</div>
       </div>
     </div>
     <div class="verif-item">
@@ -669,7 +646,7 @@ body{
       <span class="verif-icon">✅</span>
       <div class="verif-text">
         <div class="verif-label">RESPUESTA</div>
-        <div class="verif-val">&lt; 15 min</div>
+        <div class="verif-val" id="verifResp"></div>
       </div>
     </div>
   </div>
@@ -677,10 +654,10 @@ body{
 <div class="divider"></div>
 
 <!-- SIMILARES -->
-<div class="section" style="padding-bottom:8px;">
+<div class="section" style="padding-bottom:8px;" id="simSection">
   <div class="sec-title"><span class="st-icon">🔍</span> También en tu zona</div>
 </div>
-<div class="similar-scroll" style="padding-bottom:20px;">
+<div class="similar-scroll" style="padding-bottom:20px;" id="simScroll">
   <div class="similar-card">
     <div class="faja faja-recomendado">⭐ Reco.</div>
     <div class="sc-avatar" style="background:linear-gradient(135deg,#1a2a3a,#0f1822);">RM</div>
@@ -737,7 +714,7 @@ body{
   <div class="wa-mini-btn" onclick="shareProfile()" title="Compartir perfil">📤</div>
   <button class="wa-main-btn" onclick="contactWA()">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
-    Contactar a Carlos
+    <span id="waLabel">Contactar por WhatsApp</span>
   </button>
 </div>
 
@@ -754,64 +731,171 @@ body{
       <span class="sp-star" onclick="setStar(4)">★</span>
       <span class="sp-star" onclick="setStar(5)">★</span>
     </div>
-    <input class="modal-input" placeholder="Tu nombre (opcional)" style="height:44px;">
-    <textarea class="modal-input" rows="3" placeholder="Contanos tu experiencia con Carlos..."></textarea>
+    <input class="modal-input" id="resNombre" placeholder="Tu nombre (opcional)" style="height:44px;">
+    <textarea class="modal-input" id="resTexto" rows="3" placeholder="Contanos tu experiencia..."></textarea>
     <button class="modal-send" onclick="submitReview()">Publicar reseña</button>
     <button class="modal-cancel" onclick="closeModal()">Cancelar</button>
   </div>
 </div>
 
 <script>
+const SB = 'https://oupmslbpvtuszwkdcbvq.supabase.co';
+const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91cG1zbGJwdnR1c3p3a2RjYnZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3OTQ5NjIsImV4cCI6MjA5MDM3MDk2Mn0.6w3jb216pQ2UGfmCY6gSbpkBW9E_TnXvCskXNArctwI';
+const HDR = { apikey: SB_ANON, 'Authorization': 'Bearer ' + SB_ANON, 'Content-Type': 'application/json' };
+let P = null;
 let selectedStar = 0;
+
+function el(id) { return document.getElementById(id); }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function waNum(t) {
+  t = (t || '').replace(/\D/g, '');
+  if (t.startsWith('549')) return t;
+  if (t.startsWith('54') && t.length >= 12) return '549' + t.slice(2);
+  if (t.length === 10) return '549' + t;
+  return t;
+}
 
 function setStar(n) {
   selectedStar = n;
-  document.querySelectorAll('.sp-star').forEach((s, i) => {
-    s.classList.toggle('sel', i < n);
-  });
+  document.querySelectorAll('.sp-star').forEach((s, i) => s.classList.toggle('sel', i < n));
 }
-
 function openModal() {
-  document.getElementById('overlay').classList.add('open');
+  el('overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
-
 function closeModal(e) {
-  if (!e || e.target === document.getElementById('overlay')) {
-    document.getElementById('overlay').classList.remove('open');
+  if (!e || e.target === el('overlay')) {
+    el('overlay').classList.remove('open');
     document.body.style.overflow = '';
   }
 }
-
-function submitReview() {
-  if (selectedStar === 0) {
-    alert('Elegí una calificación primero');
-    return;
-  }
-  document.getElementById('overlay').classList.remove('open');
-  document.body.style.overflow = '';
-  setTimeout(() => {
-    alert('¡Gracias por tu reseña! La publicaremos en breve.');
-  }, 200);
-}
-
-function contactWA() {
-  const msg = encodeURIComponent('Hola Carlos! Te encontré en SERVY. Quisiera consultar por un trabajo de plomería.');
-  window.open('https://wa.me/5493515550123?text=' + msg, '_blank');
-}
-
-function shareProfile() {
-  if (navigator.share) {
-    navigator.share({
-      title: 'Carlos García · Plomero en Córdoba',
-      text: '⭐ 4.8 · Plomero y Gasista · Nueva Córdoba · Urgencias 24hs',
-      url: 'https://servy.ar/carlos-plomero-cba'
+async function submitReview() {
+  if (selectedStar === 0) { alert('Elegí una calificación primero'); return; }
+  const nombre = el('resNombre').value.trim();
+  const texto = el('resTexto').value.trim();
+  try {
+    await fetch(SB + '/rest/v1/rpc/guardar_resena_publica', {
+      method: 'POST', headers: HDR,
+      body: JSON.stringify({ p_slug: P ? P.slug : '', p_estrellas: selectedStar, p_comentario: texto || null, p_nombre: nombre || null })
     });
+  } catch (e) {}
+  el('overlay').classList.remove('open');
+  document.body.style.overflow = '';
+  setTimeout(() => { alert('¡Gracias por tu reseña!'); location.reload(); }, 200);
+}
+function contactWA() {
+  if (!P || !P.telefono_wa) return;
+  const msg = encodeURIComponent('Hola ' + P.nombre.split(' ')[0] + '! Te encontré en SERVY. Quisiera hacer una consulta.');
+  window.open('https://wa.me/' + waNum(P.telefono_wa) + '?text=' + msg, '_blank');
+}
+function shareProfile() {
+  const url = 'https://servy.ar/p/' + (P ? P.slug : '');
+  if (navigator.share && P) {
+    navigator.share({ title: P.nombre + ' · SERVY', text: (P.oficios || []).join(' y ') + ' en Córdoba', url: url });
   } else {
-    navigator.clipboard?.writeText('https://servy.ar/carlos-plomero-cba');
+    navigator.clipboard && navigator.clipboard.writeText(url);
     alert('Link copiado al portapapeles');
   }
 }
+
+function notFound() {
+  document.body.classList.remove('cargando');
+  document.body.innerHTML = '<div style="min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;text-align:center;font-family:var(--fs);color:var(--ink);">' +
+    '<div style="font-size:40px;">🔍</div>' +
+    '<div style="font-family:var(--ff);font-weight:800;font-size:22px;">Perfil no encontrado</div>' +
+    '<div style="color:var(--ink-dim);font-size:14px;max-width:280px;">El perfil que buscás no existe o todavía no está publicado.</div>' +
+    '<a href="buscar.html" style="margin-top:8px;padding:12px 28px;border-radius:100px;background:var(--accent);color:#0A0A0A;font-weight:700;text-decoration:none;">Buscar prestadores</a></div>';
+}
+
+function render(d) {
+  const nombre = d.nombre || 'Prestador';
+  const primer = nombre.split(' ')[0];
+  const oficios = d.oficios || [];
+  const ofStr = oficios.join(' & ') || 'Prestador de servicios';
+  const iniciales = nombre.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  document.title = nombre + ' · ' + (oficios[0] || 'Prestador') + ' en Córdoba · SERVY';
+  el('topTitle').textContent = nombre + (oficios[0] ? ' · ' + oficios[0] : '');
+  const av = el('heroAvatar');
+  const verifBadge = d.verificado ? '<div class="hero-verified">✓</div>' : '';
+  if (d.foto_url) {
+    av.innerHTML = '<img src="' + esc(d.foto_url) + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">' + verifBadge;
+  } else {
+    av.innerHTML = esc(iniciales) + verifBadge;
+  }
+  el('heroName').textContent = nombre;
+  el('heroOficio').textContent = ofStr;
+  let badges = '';
+  if ((d.total_resenas || 0) > 0) badges += '<span class="hbadge hbadge-teal">⭐ Recomendado</span>';
+  if (d.zona) badges += '<span class="hbadge hbadge-mute">📍 ' + esc(d.zona) + '</span>';
+  el('heroBadges').innerHTML = badges;
+  const cal = d.calificacion_promedio, tot = d.total_resenas || 0;
+  el('ratingBig').textContent = cal ? Number(cal).toFixed(1) : '—';
+  const full = Math.round(cal || 0);
+  el('starsRow').innerHTML = Array.from({ length: 5 }, (_, i) => '<span class="star" style="' + (i < full ? '' : 'opacity:.25;') + '">★</span>').join('');
+  el('ratingCount').textContent = tot ? (tot + (tot === 1 ? ' reseña verificada' : ' reseñas verificadas')) : 'Sin reseñas todavía';
+  el('zonaVal').textContent = d.zona || 'Consultar';
+  el('horariosVal').textContent = d.horarios || 'Consultar';
+  el('cobroVal').textContent = d.cobro || 'Consultar';
+  el('sobreTitle').innerHTML = '<span class="st-icon">👋</span> Sobre ' + esc(primer);
+  el('descText1').textContent = d.descripcion || (ofStr + ' en Córdoba. Contactalo por WhatsApp para más información.');
+  const servs = d.servicios || [];
+  el('tagRow').innerHTML = servs.length
+    ? servs.map((s, i) => '<span class="tag' + (i < 3 ? ' yes' : '') + '">' + esc(s) + '</span>').join('')
+    : '<span class="tag yes">' + esc(ofStr) + '</span>';
+  const fotos = (d.fotos || []).filter(f => f.tipo !== 'perfil');
+  if (fotos.length) {
+    el('fotoGrid').innerHTML = fotos.map(f =>
+      '<div class="foto-item" onclick="window.open(\'' + esc(f.url) + '\')"><img src="' + esc(f.url) + '" loading="lazy" alt="Trabajo realizado" style="width:100%;height:100%;object-fit:cover;"></div>').join('');
+    el('fotosEmpty').style.display = 'none';
+  }
+  el('resenasTotal').textContent = (cal ? Number(cal).toFixed(1) : '—') + ' · ' + tot + ' total';
+  const rs = d.resenas || [];
+  if (rs.length) {
+    const card = r => {
+      const ini = (r.nombre || 'V').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+      const stars = '★'.repeat(Math.max(1, Math.min(5, r.estrellas || 5)));
+      return '<div class="review-card"><div class="rc-header"><div class="rc-avatar">' + esc(ini) + '</div>' +
+        '<div style="flex:1;"><div class="rc-name">' + esc(r.nombre || 'Vecino de Córdoba') + '</div>' +
+        '<div class="rc-meta"><div class="rc-stars"><span class="rc-star">' + stars + '</span></div>' +
+        '<span class="rc-date">' + esc(r.fecha || '') + '</span></div></div></div>' +
+        (r.comentario ? '<div class="rc-text">' + esc(r.comentario) + '</div>' : '') +
+        '<div class="rc-verified">✓ Reseña verificada por SERVY</div></div>';
+    };
+    const html = rs.map(card).join('');
+    if (rs.length >= 4) {
+      el('reviewsTrack').innerHTML = html + html;
+    } else {
+      el('reviewsTrack').innerHTML = html;
+      el('reviewsTrack').style.animation = 'none';
+      el('reviewsCarousel').style.height = 'auto';
+    }
+  } else {
+    el('reviewsTrack').innerHTML = '<div style="color:var(--ink-m);font-size:13px;padding:8px 0;">Todavía no hay reseñas. ¡Sé el primero!</div>';
+    el('reviewsTrack').style.animation = 'none';
+    el('reviewsCarousel').style.height = 'auto';
+  }
+  el('ctaResenaText').textContent = '¿Trabajaste con ' + primer + '? Dejá tu experiencia';
+  el('verifServy').closest('.verif-item').style.display = 'none';
+  if (d.tiempo_respuesta) { el('verifResp').textContent = d.tiempo_respuesta; }
+  else { el('verifResp').closest('.verif-item').style.display = 'none'; }
+  el('simSection').style.display = 'none';
+  el('simScroll').style.display = 'none';
+  el('waLabel').textContent = 'Contactar a ' + primer;
+  el('resTexto').placeholder = 'Contanos tu experiencia con ' + primer + '...';
+}
+
+(async function () {
+  const slug = new URLSearchParams(location.search).get('p');
+  if (!slug) { notFound(); return; }
+  try {
+    const r = await fetch(SB + '/rest/v1/rpc/perfil_publico', { method: 'POST', headers: HDR, body: JSON.stringify({ p_slug: slug }) });
+    const d = await r.json();
+    if (!r.ok || !d || d.error) { notFound(); return; }
+    P = d;
+    render(d);
+    document.body.classList.remove('cargando');
+  } catch (e) { notFound(); }
+})();
 </script>
 <script src="home-v2.js"></script>
 <script src="servy-shared.js"></script>

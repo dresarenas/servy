@@ -545,6 +545,10 @@ body{
   color:rgba(60,230,197,.7);
   margin-top:8px;margin-right:4px;
 }
+body.panel-lock .tab-content,body.panel-lock .topbar,body.panel-lock .panel-tabs{filter:blur(6px);pointer-events:none;user-select:none;}
+.foto-thumb{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;}
+.foto-thumb img{width:100%;height:100%;object-fit:cover;}
+.foto-thumb .foto-x{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.65);color:#fff;border:none;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 </style>
 </head>
 <body>
@@ -555,12 +559,12 @@ body{
   <a href="index.html" style="text-decoration:none;display:flex;align-items:center;" class="topbar-logo"><img src="assets/servy-full.png" alt="SERVY" style="height:20px;display:block;"></a>
   <div class="topbar-sep"></div>
   <div class="topbar-user">
-    <div class="topbar-name">Carlos García</div>
+    <div class="topbar-name" id="tbName"></div>
     <div class="topbar-level">
       <span class="topbar-badge">⭐ Recomendado</span>
     </div>
   </div>
-  <div class="topbar-avatar">CG</div>
+  <div class="topbar-avatar" id="tbAvatar"></div>
 </div>
 
 <!-- TOP TABS -->
@@ -590,7 +594,7 @@ body{
     <div class="level-icon">⭐</div>
     <div>
       <div class="level-name">Recomendado</div>
-      <div class="level-desc">Tenés 4 reseñas con promedio 4.8 · Visible en búsquedas prioritarias</div>
+      <div class="level-desc" id="levelDesc"></div>
       <div class="level-next">Siguiente: 🛡 Verificado — <span>completá tu DNI</span></div>
     </div>
   </div>
@@ -654,24 +658,24 @@ body{
   <div class="sec-label">Actividad — últimos 30 días</div>
   <div class="card-row">
     <div class="card-half">
-      <div class="metric-val">247</div>
+      <div class="metric-val" id="mVistas">—</div>
       <div class="metric-label">👁 Vistas de perfil</div>
-      <div class="metric-delta">↑ +18% vs. mes anterior</div>
+      <div class="metric-delta">Disponible próximamente</div>
     </div>
     <div class="card-half">
-      <div class="metric-val">34</div>
+      <div class="metric-val" id="mClicks">—</div>
       <div class="metric-label">💬 Clicks WhatsApp</div>
-      <div class="metric-delta">↑ +8 vs. mes anterior</div>
+      <div class="metric-delta">Disponible próximamente</div>
     </div>
   </div>
   <div class="card-row">
     <div class="card-half">
-      <div class="metric-val">4.8</div>
+      <div class="metric-val" id="mProm">—</div>
       <div class="metric-label">⭐ Promedio reseñas</div>
-      <div class="metric-delta">12 reseñas totales</div>
+      <div class="metric-delta" id="mTot"></div>
     </div>
     <div class="card-half">
-      <div class="metric-val">6</div>
+      <div class="metric-val" id="mRecom">—</div>
       <div class="metric-label">🔁 Recomendaciones</div>
       <div class="metric-delta">Recibidas este mes</div>
     </div>
@@ -720,10 +724,10 @@ body{
   <!-- Acciones rápidas -->
   <div class="sec-label">Acciones rápidas</div>
   <div class="qa-grid">
-    <a class="qa-btn" href="perfil.html" target="_blank">
+    <a class="qa-btn" href="perfil.html" target="_blank" id="qaPerfil">
       <div class="qa-icon">👤</div>
       <div class="qa-label">Ver mi perfil público</div>
-      <div class="qa-url">servy.ar/carlos-plomero-cba</div>
+      <div class="qa-url" id="qaUrl"></div>
     </a>
     <div class="qa-btn" onclick="switchTab('kit')">
       <div class="qa-icon">📤</div>
@@ -751,10 +755,11 @@ body{
   <div style="height:16px"></div>
 
   <div class="card" style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
-    <div class="topbar-avatar" style="width:56px;height:56px;font-size:20px;flex-shrink:0;">CG</div>
+    <div class="topbar-avatar" style="width:56px;height:56px;font-size:20px;flex-shrink:0;overflow:hidden;" id="pfAvatar"></div>
     <div style="flex:1;">
-      <div style="font-family:var(--ff);font-weight:700;font-size:17px;">Carlos García</div>
-      <div style="font-size:13px;color:var(--ac);margin-top:1px;">Plomero &amp; Gasista</div>
+      <div style="font-family:var(--ff);font-weight:700;font-size:17px;" id="pfNombreHdr"></div>
+      <div style="font-size:13px;color:var(--ac);margin-top:1px;" id="pfOficioHdr"></div>
+      <button class="kit-btn" style="font-size:11px;margin-top:6px;" onclick="document.getElementById('fotoPerfilFile').click()">📷 Cambiar foto de perfil</button>
       <div style="display:flex;align-items:center;gap:8px;margin-top:6px;">
         <div style="height:5px;background:var(--bg-e3);border-radius:100px;flex:1;overflow:hidden;">
           <div style="width:68%;height:100%;background:linear-gradient(90deg,#3CE6C5,#C6FF3C);border-radius:100px;"></div>
@@ -769,19 +774,19 @@ body{
     <div class="field-section-title"><span class="fst-icon">👤</span> Datos básicos</div>
     <div class="field-row">
       <div class="field-key">Nombre</div>
-      <div class="field-val"><input class="perf-input" type="text" value="Carlos García" placeholder="Tu nombre"></div>
+      <div class="field-val"><input class="perf-input" type="text" value="" id="pfNombre" placeholder="Tu nombre"></div>
     </div>
     <div class="field-row">
       <div class="field-key">WhatsApp</div>
-      <div class="field-val" style="color:var(--ac);">+54 9 351 555-0123 <span style="font-size:10px;color:var(--ink-m);">(via SERVY)</span></div>
+      <div class="field-val" style="color:var(--ac);" id="pfTel"></div>
     </div>
     <div class="field-row">
       <div class="field-key">Email</div>
-      <div class="field-val"><input class="perf-input" type="email" value="carlos.garcia@gmail.com" placeholder="tu@email.com"></div>
+      <div class="field-val"><input class="perf-input" type="email" value="" id="pfEmail" placeholder="tu@email.com"></div>
     </div>
     <div class="field-row">
       <div class="field-key">En SERVY desde</div>
-      <div class="field-val">Febrero 2024 (15 meses)</div>
+      <div class="field-val" id="pfDesde"></div>
     </div>
     <div class="field-row">
       <div class="field-key">DNI</div>
@@ -795,27 +800,18 @@ body{
     <div class="field-row">
       <div class="field-key">Rubros</div>
       <div class="field-val">
-        <div class="field-chip-group">
-          <span class="fc yes">Plomero</span>
-          <span class="fc yes">Gasista</span>
-          <span class="fc yes">Urgencias 24h</span>
-        </div>
+        <div class="field-chip-group" id="pfRubros"></div>
       </div>
     </div>
     <div class="field-row">
       <div class="field-key">Servicios</div>
       <div class="field-val">
-        <div class="field-chip-group">
-          <span class="fc">Calefacción</span>
-          <span class="fc">Termotanques</span>
-          <span class="fc">Destape</span>
-          <span class="fc">Obras</span>
-        </div>
+        <div class="field-chip-group" id="pfServicios"></div>
       </div>
     </div>
     <div class="field-row">
       <div class="field-key">Descripción</div>
-      <div class="field-val"><textarea class="perf-input perf-area" placeholder="Contá quién sos y qué hacés...">Plomero matriculado con 8 años de experiencia en instalaciones, reparaciones y urgencias. Trabajo en toda Córdoba Capital. Garantía en mano de obra.</textarea></div>
+      <div class="field-val"><textarea class="perf-input perf-area" id="pfBio" placeholder="Contá quién sos y qué hacés..."></textarea></div>
     </div>
     <div class="field-row">
       <div class="field-key">Años exp.</div>
@@ -828,15 +824,15 @@ body{
     <div class="field-section-title"><span class="fst-icon">📍</span> Zonas y horarios</div>
     <div class="field-row">
       <div class="field-key">Zona base</div>
-      <div class="field-val"><input class="perf-input" type="text" value="Nueva Córdoba, Córdoba" placeholder="Tu barrio o zona principal"></div>
+      <div class="field-val"><input class="perf-input" type="text" value="" id="pfZona" placeholder="Tu barrio o zona principal"></div>
     </div>
     <div class="field-row">
       <div class="field-key">Radio</div>
-      <div class="field-val" style="display:flex;align-items:center;gap:8px;"><input class="perf-input" type="number" value="15" min="1" max="100" style="width:64px;"> km desde tu zona base</div>
+      <div class="field-val" style="display:flex;align-items:center;gap:8px;"><input class="perf-input" type="number" value="" id="pfRadio" min="1" max="100" style="width:64px;"> km desde tu zona base</div>
     </div>
     <div class="field-row">
       <div class="field-key">Horarios</div>
-      <div class="field-val"><input class="perf-input" type="text" value="Lun–Vie: 8:00–18:00 · Sáb: 8:00–13:00" placeholder="Ej: Lun–Vie 8–18hs"></div>
+      <div class="field-val"><input class="perf-input" type="text" value="" id="pfHorarios" placeholder="Ej: Lun–Vie 8–18hs"></div>
     </div>
     <div class="field-row">
       <div class="field-key">Urgencias</div>
@@ -844,22 +840,20 @@ body{
     </div>
     <div class="field-row">
       <div class="field-key">Formas de pago</div>
-      <div class="field-val"><input class="perf-input" type="text" value="Efectivo, Transferencia, MercadoPago" placeholder="Ej: Efectivo, Transferencia"></div>
+      <div class="field-val"><input class="perf-input" type="text" value="" id="pfCobro" placeholder="Ej: Efectivo, Transferencia"></div>
     </div>
   </div>
 
   <div class="sec-label">Fotos de trabajos</div>
   <div class="card">
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;">
-      <div style="aspect-ratio:1;background:linear-gradient(135deg,#1a3a2e,#0f2218);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;">🔧</div>
-      <div style="aspect-ratio:1;background:linear-gradient(135deg,#1a2a3a,#0f1822);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;">🚰</div>
-      <div style="aspect-ratio:1;background:linear-gradient(135deg,#2a1a1a,#180f0f);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;">🔩</div>
-    </div>
-    <div style="font-size:12px;color:var(--ink-m);text-align:center;margin-bottom:10px;">3 fotos cargadas · Máximo 12</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;" id="fotosGrid"></div>
+    <div style="font-size:12px;color:var(--ink-m);text-align:center;margin-bottom:10px;" id="fotosCount">0 fotos cargadas · Máximo 12</div>
     <div style="margin-bottom:10px;padding:10px 12px;background:rgba(60,230,197,.06);border:1px solid rgba(60,230,197,.15);border-radius:8px;font-size:12px;color:var(--ink-d);">
       💡 Perfiles con 6+ fotos reciben <strong style="color:var(--ac2);">2x más contactos</strong>
     </div>
-    <button class="kit-btn" style="width:100%;font-size:12px;">📷 Agregar fotos</button>
+    <button class="kit-btn" style="width:100%;font-size:12px;" id="btnAgregarFotos" onclick="document.getElementById('fotoFile').click()">📷 Agregar fotos</button>
+    <input type="file" id="fotoFile" accept="image/*" multiple style="display:none;">
+    <input type="file" id="fotoPerfilFile" accept="image/*" style="display:none;">
   </div>
 
   <div class="sec-label">Redes sociales</div>
@@ -867,23 +861,24 @@ body{
     <div class="field-section-title"><span class="fst-icon">📱</span> Presencia digital</div>
     <div class="field-row">
       <div class="field-key">Instagram</div>
-      <div class="field-val"><input class="perf-input" type="text" placeholder="@tu_usuario" value=""></div>
+      <div class="field-val"><input class="perf-input" type="text" placeholder="@tu_usuario" value="" id="pfIg"></div>
     </div>
     <div class="field-row">
       <div class="field-key">Facebook</div>
-      <div class="field-val"><input class="perf-input" type="text" placeholder="facebook.com/tu-página" value=""></div>
+      <div class="field-val"><input class="perf-input" type="text" placeholder="facebook.com/tu-página" value="" id="pfFb"></div>
     </div>
     <div class="field-row">
       <div class="field-key">Web propia</div>
       <div class="field-val">
-        <input class="perf-input" type="url" placeholder="https://tu-web.com" value="">
+        <input class="perf-input" type="url" placeholder="https://tu-web.com" value="" id="pfWeb">
         <div style="font-size:11px;color:var(--ac);margin-top:4px;">💡 Tu perfil SERVY ES tu web</div>
       </div>
     </div>
   </div>
 
   <div style="padding:16px;padding-bottom:8px;">
-    <button class="kit-btn primary" style="width:100%;padding:14px;font-size:14px;" onclick="guardarCambios()">Guardar cambios</button>
+    <button class="kit-btn primary" style="width:100%;padding:14px;font-size:14px;" id="btnGuardar" onclick="guardarCambios()">Guardar cambios</button>
+    <button class="kit-btn" style="width:100%;padding:12px;font-size:13px;margin-top:10px;" onclick="servyLogout()">Cerrar sesión</button>
   </div>
   <div style="height:8px;"></div>
 
@@ -897,29 +892,11 @@ body{
 
   <!-- Resumen -->
   <div class="review-summary">
-    <div class="rs-big">4.8</div>
+    <div class="rs-big" id="repBig">—</div>
     <div class="rs-right">
-      <div class="rs-stars stars">
-        <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
-      </div>
-      <div class="rs-count" style="margin-top:4px;">12 reseñas · Nivel Recomendado ⭐</div>
-      <div style="margin-top:10px;">
-        <div class="prog-row" style="margin-bottom:4px;">
-          <div style="font-size:11px;color:var(--ink-m);width:12px;">5★</div>
-          <div class="prog-bg" style="width:80px;"><div class="prog-fill" style="width:83%"></div></div>
-          <div style="font-size:11px;color:var(--ink-m);width:16px;text-align:right;">10</div>
-        </div>
-        <div class="prog-row" style="margin-bottom:4px;">
-          <div style="font-size:11px;color:var(--ink-m);width:12px;">4★</div>
-          <div class="prog-bg" style="width:80px;"><div class="prog-fill" style="width:17%"></div></div>
-          <div style="font-size:11px;color:var(--ink-m);width:16px;text-align:right;">2</div>
-        </div>
-        <div class="prog-row">
-          <div style="font-size:11px;color:var(--ink-m);width:12px;">3★</div>
-          <div class="prog-bg" style="width:80px;"><div class="prog-fill" style="width:0%"></div></div>
-          <div style="font-size:11px;color:var(--ink-m);width:16px;text-align:right;">0</div>
-        </div>
-      </div>
+      <div class="rs-stars stars" id="repStars"></div>
+      <div class="rs-count" style="margin-top:4px;" id="repCount"></div>
+      <div style="margin-top:10px;" id="repDist"></div>
     </div>
   </div>
 
@@ -937,74 +914,14 @@ body{
   <div class="card" style="background:linear-gradient(135deg,rgba(198,255,60,.06),rgba(60,230,197,.04));border-color:rgba(198,255,60,.2);">
     <div style="font-weight:600;font-size:14px;margin-bottom:6px;">📨 Pedir reseña a un cliente</div>
     <div style="font-size:12px;color:var(--ink-d);margin-bottom:12px;line-height:1.5;">Mandá este link a clientes satisfechos. Con 3 reseñas más llegás a <strong style="color:var(--ac2);">Destacado 🏆</strong>.</div>
-    <div style="background:var(--bg-e2);border:1px solid var(--line-s);border-radius:8px;padding:10px 12px;font-family:var(--fm);font-size:12px;color:var(--ac);margin-bottom:10px;">
-      servy.ar/recomendar/carlos-garcia
-    </div>
+    <div style="background:var(--bg-e2);border:1px solid var(--line-s);border-radius:8px;padding:10px 12px;font-family:var(--fm);font-size:12px;color:var(--ac);margin-bottom:10px;" id="repLink"></div>
     <button class="kit-btn primary" onclick="copyReview()">📋 Copiar link</button>
   </div>
 
   <!-- Reseñas -->
   <div class="sec-label">Reseñas recientes</div>
 
-  <div class="review-card">
-    <div class="review-header">
-      <div class="review-avatar" style="background:linear-gradient(135deg,#2a1a3a,#1a0f22);color:#9966cc;">MR</div>
-      <div class="review-meta">
-        <div class="review-name">Marcela Rodríguez</div>
-        <div class="stars review-date" style="display:flex;align-items:center;gap:6px;">
-          <div style="display:flex;gap:1px;"><span style="font-size:12px;color:var(--star);">★★★★★</span></div>
-          <span style="font-size:11px;color:var(--ink-m);">hace 3 días</span>
-        </div>
-      </div>
-    </div>
-    <div class="review-text">Excelente trabajo. Vino al día siguiente de llamarlo, resolvió el problema de la cañería rota sin romper nada extra. Muy profesional y dejó todo limpio. Ya lo tengo agendado para el próximo trabajo.</div>
-    <div style="margin-top:4px;"><span class="motivo-chip">Puntual</span><span class="motivo-chip">Dejó todo limpio</span><span class="motivo-chip">Profesional</span></div>
-  </div>
-
-  <div class="review-card">
-    <div class="review-header">
-      <div class="review-avatar" style="background:linear-gradient(135deg,#1a2a1a,#0f1f0f);color:#5aab5a;">JP</div>
-      <div class="review-meta">
-        <div class="review-name">Juan Pablo Ferreira</div>
-        <div class="stars review-date" style="display:flex;align-items:center;gap:6px;">
-          <div style="display:flex;gap:1px;"><span style="font-size:12px;color:var(--star);">★★★★★</span></div>
-          <span style="font-size:11px;color:var(--ink-m);">hace 1 semana</span>
-        </div>
-      </div>
-    </div>
-    <div class="review-text">Carlos es de los que quedan. Lo llamo para urgencias y siempre responde. Me arregló el termotanque un domingo a la noche sin problema. Precio justo, trabajo garantizado.</div>
-    <div style="margin-top:4px;"><span class="motivo-chip">Urgencia atendida</span><span class="motivo-chip">Precio justo</span><span class="motivo-chip">Garantía</span></div>
-  </div>
-
-  <div class="review-card">
-    <div class="review-header">
-      <div class="review-avatar" style="background:linear-gradient(135deg,#2a2a1a,#1f1f0f);color:#aaaa44;">SL</div>
-      <div class="review-meta">
-        <div class="review-name">Sofía López</div>
-        <div class="stars review-date" style="display:flex;align-items:center;gap:6px;">
-          <div style="display:flex;gap:1px;"><span style="font-size:12px;color:var(--star);">★★★★</span><span style="font-size:12px;color:var(--bg-e3);">★</span></div>
-          <span style="font-size:11px;color:var(--ink-m);">hace 2 semanas</span>
-        </div>
-      </div>
-    </div>
-    <div class="review-text">Muy buen trabajo, cumplió en tiempo y forma. Tardó un poco más de lo estimado pero avisó con anticipación. Lo recomiendo sin dudas.</div>
-    <div style="margin-top:4px;"><span class="motivo-chip">Trabajo prolijo</span><span class="motivo-chip">Avisó demoras</span></div>
-  </div>
-
-  <div class="review-card">
-    <div class="review-header">
-      <div class="review-avatar" style="background:linear-gradient(135deg,#1a1a2a,#0f0f1f);color:#6666bb;">DM</div>
-      <div class="review-meta">
-        <div class="review-name">Diego Morales</div>
-        <div class="stars review-date" style="display:flex;align-items:center;gap:6px;">
-          <div style="display:flex;gap:1px;"><span style="font-size:12px;color:var(--star);">★★★★★</span></div>
-          <span style="font-size:11px;color:var(--ink-m);">hace 1 mes</span>
-        </div>
-      </div>
-    </div>
-    <div class="review-text">Resolvió un problema de gas que tenía hace meses y que otros no pudieron diagnosticar. Llegó puntual, con todas las herramientas, y en 2 horas estaba listo. Muy conforme.</div>
-    <div style="margin-top:4px;"><span class="motivo-chip">Diagnóstico correcto</span><span class="motivo-chip">Puntual</span><span class="motivo-chip">Equipado</span></div>
-  </div>
+  <div id="resenasList"><div style="color:var(--ink-m);font-size:13px;padding:12px;">Cargando reseñas…</div></div>
 
 </div><!-- /tab-reputacion -->
 
@@ -1017,10 +934,10 @@ body{
   <!-- URL pública -->
   <div class="kit-url-box">
     <div class="kit-url-label">Tu perfil público en SERVY</div>
-    <div class="kit-url-val">servy.ar/carlos-plomero-cba</div>
+    <div class="kit-url-val" id="kitUrl"></div>
     <div class="kit-url-actions">
       <button class="kit-btn" onclick="copyURL()">📋 Copiar</button>
-      <a class="kit-btn primary" href="perfil.html" target="_blank" style="text-decoration:none;">👁 Ver perfil</a>
+      <a class="kit-btn primary" href="perfil.html" target="_blank" style="text-decoration:none;" id="kitVerPerfil">👁 Ver perfil</a>
     </div>
   </div>
 
@@ -1028,15 +945,12 @@ body{
   <div class="kit-card-preview">
     <div class="kit-card-label">Tu tarjeta digital · Para compartir</div>
     <div class="digital-card">
-      <div class="dc-avatar">CG</div>
+      <div class="dc-avatar" id="dcAvatar"></div>
       <div class="dc-info">
-        <div class="dc-name">Carlos García</div>
-        <div class="dc-oficio">Plomero &amp; Gasista</div>
-        <div class="dc-stars">
-          <span style="font-size:13px;color:var(--star);">★★★★★</span>
-          <span style="font-size:11px;color:var(--ink-m);">4.8 · 12 reseñas</span>
-        </div>
-        <div class="dc-zona">📍 Nueva Córdoba, Córdoba</div>
+        <div class="dc-name" id="dcName"></div>
+        <div class="dc-oficio" id="dcOficio"></div>
+        <div class="dc-stars" id="dcStars"></div>
+        <div class="dc-zona" id="dcZona"></div>
       </div>
       <div class="dc-badge">⭐ Recomendado</div>
       <div class="dc-servy">SERVY</div>
@@ -1050,11 +964,7 @@ body{
   <!-- Bio texto -->
   <div class="sec-label" style="margin-top:4px;">Texto para bio o estado WA</div>
   <div class="card" style="margin-top:0;">
-    <div style="background:var(--bg-e2);border:1px solid var(--line-s);border-radius:8px;padding:12px;font-size:13px;color:var(--ink-d);line-height:1.6;margin-bottom:10px;">
-      Soy Carlos García, plomero y gasista en Córdoba 🔧<br>
-      Mi perfil con reseñas verificadas: <strong style="color:var(--ac);">servy.ar/carlos-plomero-cba</strong><br>
-      ⭐ 4.8/5 · 12 reseñas · Urgencias 24hs
-    </div>
+    <div style="background:var(--bg-e2);border:1px solid var(--line-s);border-radius:8px;padding:12px;font-size:13px;color:var(--ink-d);line-height:1.6;margin-bottom:10px;" id="bioBox"></div>
     <button class="kit-btn" style="width:100%;" onclick="copiarBio()">📋 Copiar texto</button>
   </div>
   <div style="height:4px;"></div>
@@ -1062,12 +972,7 @@ body{
   <!-- Compartir por WhatsApp -->
   <div class="wa-share-box">
     <div style="font-size:12px;color:rgba(37,211,102,.8);font-family:var(--fm);margin-bottom:8px;">COMPARTIR POR WHATSAPP</div>
-    <div class="wa-share-preview">
-      Hola! Soy Carlos García, plomero y gasista en Nueva Córdoba 🔧<br><br>
-      Podés ver mi perfil con reseñas de clientes en SERVY:<br>
-      <strong>servy.ar/carlos-plomero-cba</strong><br><br>
-      ⭐ 4.8/5 · 12 reseñas · Urgencias 24hs
-    </div>
+    <div class="wa-share-preview" id="waPrev"></div>
     <button class="wa-share-btn" onclick="shareWA()">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
       Enviar por WhatsApp
@@ -1077,125 +982,17 @@ body{
   <!-- QR code -->
   <div class="qr-section">
     <div class="qr-box">
-      <!-- QR SVG visual placeholder -->
-      <svg viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
-        <rect width="21" height="21" fill="white"/>
-        <!-- Top-left finder -->
-        <rect x="0" y="0" width="7" height="7" fill="#000"/>
-        <rect x="1" y="1" width="5" height="5" fill="#fff"/>
-        <rect x="2" y="2" width="3" height="3" fill="#000"/>
-        <!-- Top-right finder -->
-        <rect x="14" y="0" width="7" height="7" fill="#000"/>
-        <rect x="15" y="1" width="5" height="5" fill="#fff"/>
-        <rect x="16" y="2" width="3" height="3" fill="#000"/>
-        <!-- Bottom-left finder -->
-        <rect x="0" y="14" width="7" height="7" fill="#000"/>
-        <rect x="1" y="15" width="5" height="5" fill="#fff"/>
-        <rect x="2" y="16" width="3" height="3" fill="#000"/>
-        <!-- Data bits (patrón demo) -->
-        <rect x="8" y="0" width="1" height="1" fill="#000"/>
-        <rect x="10" y="0" width="1" height="1" fill="#000"/>
-        <rect x="12" y="0" width="1" height="1" fill="#000"/>
-        <rect x="9" y="1" width="1" height="1" fill="#000"/>
-        <rect x="11" y="1" width="1" height="1" fill="#000"/>
-        <rect x="8" y="2" width="1" height="1" fill="#000"/>
-        <rect x="10" y="2" width="1" height="1" fill="#000"/>
-        <rect x="12" y="2" width="1" height="1" fill="#000"/>
-        <rect x="9" y="3" width="1" height="1" fill="#000"/>
-        <rect x="8" y="4" width="2" height="1" fill="#000"/>
-        <rect x="11" y="4" width="2" height="1" fill="#000"/>
-        <rect x="8" y="5" width="1" height="1" fill="#000"/>
-        <rect x="10" y="5" width="1" height="1" fill="#000"/>
-        <rect x="12" y="5" width="1" height="1" fill="#000"/>
-        <rect x="9" y="6" width="2" height="1" fill="#000"/>
-        <rect x="8" y="7" width="1" height="1" fill="#000"/>
-        <rect x="11" y="7" width="2" height="1" fill="#000"/>
-        <rect x="0" y="8" width="1" height="1" fill="#000"/>
-        <rect x="2" y="8" width="2" height="1" fill="#000"/>
-        <rect x="5" y="8" width="1" height="1" fill="#000"/>
-        <rect x="7" y="8" width="2" height="1" fill="#000"/>
-        <rect x="10" y="8" width="1" height="1" fill="#000"/>
-        <rect x="12" y="8" width="1" height="1" fill="#000"/>
-        <rect x="14" y="8" width="2" height="1" fill="#000"/>
-        <rect x="17" y="8" width="1" height="1" fill="#000"/>
-        <rect x="20" y="8" width="1" height="1" fill="#000"/>
-        <rect x="1" y="9" width="1" height="1" fill="#000"/>
-        <rect x="3" y="9" width="1" height="1" fill="#000"/>
-        <rect x="6" y="9" width="1" height="1" fill="#000"/>
-        <rect x="9" y="9" width="1" height="1" fill="#000"/>
-        <rect x="11" y="9" width="1" height="1" fill="#000"/>
-        <rect x="13" y="9" width="1" height="1" fill="#000"/>
-        <rect x="16" y="9" width="1" height="1" fill="#000"/>
-        <rect x="18" y="9" width="1" height="1" fill="#000"/>
-        <rect x="0" y="10" width="2" height="1" fill="#000"/>
-        <rect x="4" y="10" width="1" height="1" fill="#000"/>
-        <rect x="7" y="10" width="1" height="1" fill="#000"/>
-        <rect x="10" y="10" width="1" height="1" fill="#000"/>
-        <rect x="12" y="10" width="2" height="1" fill="#000"/>
-        <rect x="15" y="10" width="1" height="1" fill="#000"/>
-        <rect x="17" y="10" width="2" height="1" fill="#000"/>
-        <rect x="20" y="10" width="1" height="1" fill="#000"/>
-        <rect x="1" y="11" width="1" height="1" fill="#000"/>
-        <rect x="3" y="11" width="2" height="1" fill="#000"/>
-        <rect x="6" y="11" width="1" height="1" fill="#000"/>
-        <rect x="8" y="11" width="1" height="1" fill="#000"/>
-        <rect x="11" y="11" width="1" height="1" fill="#000"/>
-        <rect x="14" y="11" width="1" height="1" fill="#000"/>
-        <rect x="16" y="11" width="1" height="1" fill="#000"/>
-        <rect x="19" y="11" width="1" height="1" fill="#000"/>
-        <rect x="0" y="12" width="1" height="1" fill="#000"/>
-        <rect x="2" y="12" width="1" height="1" fill="#000"/>
-        <rect x="5" y="12" width="2" height="1" fill="#000"/>
-        <rect x="9" y="12" width="1" height="1" fill="#000"/>
-        <rect x="12" y="12" width="1" height="1" fill="#000"/>
-        <rect x="15" y="12" width="2" height="1" fill="#000"/>
-        <rect x="18" y="12" width="1" height="1" fill="#000"/>
-        <rect x="20" y="12" width="1" height="1" fill="#000"/>
-        <rect x="8" y="14" width="2" height="1" fill="#000"/>
-        <rect x="11" y="14" width="1" height="1" fill="#000"/>
-        <rect x="13" y="14" width="2" height="1" fill="#000"/>
-        <rect x="16" y="14" width="1" height="1" fill="#000"/>
-        <rect x="18" y="14" width="2" height="1" fill="#000"/>
-        <rect x="8" y="15" width="1" height="1" fill="#000"/>
-        <rect x="10" y="15" width="2" height="1" fill="#000"/>
-        <rect x="14" y="15" width="1" height="1" fill="#000"/>
-        <rect x="17" y="15" width="1" height="1" fill="#000"/>
-        <rect x="19" y="15" width="1" height="1" fill="#000"/>
-        <rect x="9" y="16" width="1" height="1" fill="#000"/>
-        <rect x="12" y="16" width="1" height="1" fill="#000"/>
-        <rect x="15" y="16" width="2" height="1" fill="#000"/>
-        <rect x="18" y="16" width="1" height="1" fill="#000"/>
-        <rect x="20" y="16" width="1" height="1" fill="#000"/>
-        <rect x="8" y="17" width="2" height="1" fill="#000"/>
-        <rect x="11" y="17" width="1" height="1" fill="#000"/>
-        <rect x="13" y="17" width="1" height="1" fill="#000"/>
-        <rect x="16" y="17" width="1" height="1" fill="#000"/>
-        <rect x="19" y="17" width="2" height="1" fill="#000"/>
-        <rect x="9" y="18" width="1" height="1" fill="#000"/>
-        <rect x="12" y="18" width="2" height="1" fill="#000"/>
-        <rect x="15" y="18" width="1" height="1" fill="#000"/>
-        <rect x="17" y="18" width="1" height="1" fill="#000"/>
-        <rect x="20" y="18" width="1" height="1" fill="#000"/>
-        <rect x="8" y="19" width="1" height="1" fill="#000"/>
-        <rect x="10" y="19" width="2" height="1" fill="#000"/>
-        <rect x="14" y="19" width="2" height="1" fill="#000"/>
-        <rect x="18" y="19" width="1" height="1" fill="#000"/>
-        <rect x="9" y="20" width="1" height="1" fill="#000"/>
-        <rect x="11" y="20" width="1" height="1" fill="#000"/>
-        <rect x="13" y="20" width="1" height="1" fill="#000"/>
-        <rect x="16" y="20" width="2" height="1" fill="#000"/>
-        <rect x="19" y="20" width="1" height="1" fill="#000"/>
-      </svg>
+      <div id="qrBox" style="width:100%;display:flex;align-items:center;justify-content:center;"></div>
     </div>
     <div class="qr-info">
-      <div class="qr-title">QR de reseñas</div>
-      <div class="qr-desc">Imprimilo y pegalo donde quieras. Tus clientes lo escanean y dejan su reseña directamente.</div>
-      <div class="qr-dl">⬇ Descargar PDF</div>
+      <div class="qr-title">QR de tu perfil</div>
+      <div class="qr-desc">Imprimilo y pegalo donde quieras. Tus clientes lo escanean y ven tu ficha con reseñas.</div>
+      <div class="qr-dl" style="cursor:pointer;" onclick="descargarQR()">⬇ Descargar QR (PNG)</div>
     </div>
   </div>
 
   <!-- Ver perfil -->
-  <a class="view-public" href="perfil.html">
+  <a class="view-public" href="perfil.html" id="verPublico">
     👁 Ver cómo te ven tus clientes →
   </a>
 
@@ -1223,31 +1020,64 @@ function switchTab(name) {
   window.scrollTo(0, 0);
 }
 function copyURL() {
-  navigator.clipboard?.writeText('servy.ar/carlos-plomero-cba');
+  navigator.clipboard?.writeText(PD ? 'https://servy.ar/p/' + PD.slug : 'https://servy.ar');
   showToast('✓ Link copiado', 'ok');
 }
 function copyReview() {
-  navigator.clipboard?.writeText('servy.ar/recomendar/carlos-garcia');
-  showToast('✓ Link de reseña copiado', 'ok');
+  navigator.clipboard?.writeText(PD ? 'https://servy.ar/p/' + PD.slug : 'https://servy.ar/recomendar.html');
+  showToast('✓ Link copiado', 'ok');
 }
 function copiarBio() {
-  var txt = 'Soy Carlos García, plomero y gasista en Córdoba 🔧
-Mi perfil con reseñas verificadas: servy.ar/carlos-plomero-cba
-⭐ 4.8/5 · 12 reseñas · Urgencias 24hs';
-  navigator.clipboard?.writeText(txt);
+  navigator.clipboard?.writeText(panelBioTexto());
   showToast('✓ Texto copiado', 'ok');
 }
 function shareWA() {
-  var txt = encodeURIComponent('Hola! Soy Carlos García, plomero y gasista en Nueva Córdoba 🔧
-
-Podés ver mi perfil con reseñas de clientes en SERVY:
-servy.ar/carlos-plomero-cba
-
-⭐ 4.8/5 · 12 reseñas · Urgencias 24hs');
-  window.open('https://wa.me/?text=' + txt, '_blank');
+  window.open('https://wa.me/?text=' + encodeURIComponent(panelWaTexto()), '_blank');
 }
-function guardarCambios() {
-  showToast('✓ Cambios guardados', 'ok');
+async function guardarCambios() {
+  if (!PD) return;
+  var btn = document.getElementById('btnGuardar');
+  btn.disabled = true; btn.textContent = 'Guardando…';
+  try {
+    var token = await servyAuth.token();
+    if (!token) throw new Error('sin sesión');
+    var body = {
+      nombre: v('pfNombre') || PD.nombre,
+      email: v('pfEmail') || null,
+      descripcion: v('pfBio') || null,
+      direccion_base: v('pfZona') || null,
+      radio_km: parseInt(v('pfRadio')) || null,
+      horarios: v('pfHorarios') || null,
+      cobro: v('pfCobro') || null,
+      url_web: v('pfWeb') || null
+    };
+    var r = await fetch(PSB + '/rest/v1/prestadores?id=eq.' + PD.id, {
+      method: 'PATCH', headers: authHdr(token, { Prefer: 'return=minimal' }), body: JSON.stringify(body)
+    });
+    if (!r.ok) throw new Error('patch fallo');
+    await guardarRedes(token);
+    Object.assign(PD, body);
+    renderPanel();
+    showToast('✓ Cambios guardados', 'ok');
+  } catch (e) {
+    showToast('No se pudo guardar. Probá de nuevo.', 'err');
+  }
+  btn.disabled = false; btn.textContent = 'Guardar cambios';
+}
+async function guardarRedes(token) {
+  var redes = [['instagram', v('pfIg')], ['facebook', v('pfFb')]];
+  for (var i = 0; i < redes.length; i++) {
+    var red = redes[i][0], val = redes[i][1];
+    await fetch(PSB + '/rest/v1/prestador_redes?prestador_id=eq.' + PD.id + '&red=eq.' + red, {
+      method: 'DELETE', headers: authHdr(token, { Prefer: 'return=minimal' })
+    });
+    if (val) {
+      await fetch(PSB + '/rest/v1/prestador_redes', {
+        method: 'POST', headers: authHdr(token, { Prefer: 'return=minimal' }),
+        body: JSON.stringify({ prestador_id: PD.id, red: red, url: val })
+      });
+    }
+  }
 }
 function roundRect(ctx, x, y, w, h, r) {
   ctx.beginPath();
@@ -1265,6 +1095,7 @@ function roundRect(ctx, x, y, w, h, r) {
 function descargarFlyer() {
   var btn = document.getElementById('btnDescargarFlyer');
   if (btn) { btn.textContent = '⏳ Generando...'; btn.disabled = true; }
+  var FD = panelFlyerData();
   var canvas = document.createElement('canvas');
   canvas.width = 1080; canvas.height = 1080;
   var ctx = canvas.getContext('2d');
@@ -1295,16 +1126,16 @@ function descargarFlyer() {
   ctx.font = 'bold 84px sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText('CG', 540, 300);
+  ctx.fillText(FD.iniciales, 540, 300);
 
   ctx.fillStyle = '#F2EEE6';
   ctx.font = 'bold 68px sans-serif';
   ctx.textBaseline = 'alphabetic';
-  ctx.fillText('Carlos García', 540, 490);
+  ctx.fillText(FD.nombre, 540, 490);
 
   ctx.fillStyle = '#3CE6C5';
   ctx.font = '36px sans-serif';
-  ctx.fillText('Plomero · Gasista · Urgencias 24hs', 540, 548);
+  ctx.fillText(FD.oficios, 540, 548);
 
   ctx.strokeStyle = 'rgba(242,238,230,0.1)';
   ctx.lineWidth = 1;
@@ -1316,11 +1147,11 @@ function descargarFlyer() {
 
   ctx.fillStyle = '#F2EEE6';
   ctx.font = '32px sans-serif';
-  ctx.fillText('4.8 / 5  ·  12 reseñas verificadas', 540, 734);
+  ctx.fillText(FD.rating, 540, 734);
 
   ctx.fillStyle = 'rgba(242,238,230,0.5)';
   ctx.font = '26px sans-serif';
-  ctx.fillText('📍 Nueva Córdoba, Córdoba', 540, 790);
+  ctx.fillText(FD.zona, 540, 790);
 
   ctx.strokeStyle = 'rgba(242,238,230,0.08)';
   ctx.lineWidth = 1;
@@ -1328,7 +1159,7 @@ function descargarFlyer() {
 
   ctx.fillStyle = '#3CE6C5';
   ctx.font = 'bold 34px sans-serif';
-  ctx.fillText('servy.ar/carlos-plomero-cba', 540, 910);
+  ctx.fillText(FD.url, 540, 910);
 
   ctx.fillStyle = 'rgba(60,230,197,0.55)';
   ctx.font = '22px sans-serif';
@@ -1345,7 +1176,7 @@ function descargarFlyer() {
   ctx.fillText('⭐ Recomendado', 165, 80);
 
   var link = document.createElement('a');
-  link.download = 'carlos-garcia-servy.png';
+  link.download = FD.slug + '-servy.png';
   link.href = canvas.toDataURL('image/png');
   link.click();
 
@@ -1357,5 +1188,320 @@ function descargarFlyer() {
 </script>
 <script src="home-v2.js"></script>
 <script src="servy-shared.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<script>
+var PSB = 'https://oupmslbpvtuszwkdcbvq.supabase.co';
+var PANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91cG1zbGJwdnR1c3p3a2RjYnZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3OTQ5NjIsImV4cCI6MjA5MDM3MDk2Mn0.6w3jb216pQ2UGfmCY6gSbpkBW9E_TnXvCskXNArctwI';
+var PD = null;
+
+function v(id) { var e = document.getElementById(id); return e ? e.value.trim() : ''; }
+function txt(id, val) { var e = document.getElementById(id); if (e) e.textContent = val; }
+function pesc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]; }); }
+function authHdr(token, extra) {
+  var h = { apikey: PANON, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
+  if (extra) for (var k in extra) h[k] = extra[k];
+  return h;
+}
+function servyLogout() { servyAuth.clear(); window.location.href = 'index.html'; }
+
+function panelOficios() {
+  if (!PD) return [];
+  return (PD.prestador_categorias || [])
+    .sort(function (a, b) { return (b.es_principal ? 1 : 0) - (a.es_principal ? 1 : 0); })
+    .map(function (pc) { return pc.categorias ? pc.categorias.nombre : null; })
+    .filter(Boolean);
+}
+function panelIniciales() {
+  return (PD && PD.nombre ? PD.nombre : 'P').split(' ').map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase();
+}
+function panelBioTexto() {
+  var of = panelOficios().join(' y ').toLowerCase() || 'prestador de servicios';
+  var cal = PD && PD.calificacion_promedio ? Number(PD.calificacion_promedio).toFixed(1) : null;
+  var tot = PD ? (PD.total_resenas || 0) : 0;
+  var t = 'Soy ' + (PD ? PD.nombre : '') + ', ' + of + ' en Córdoba 🔧\n' +
+    'Mi perfil con reseñas verificadas: servy.ar/p/' + (PD ? PD.slug : '');
+  if (cal && tot) t += '\n⭐ ' + cal + '/5 · ' + tot + ' reseñas';
+  return t;
+}
+function panelWaTexto() {
+  var of = panelOficios().join(' y ').toLowerCase() || 'prestador de servicios';
+  var cal = PD && PD.calificacion_promedio ? Number(PD.calificacion_promedio).toFixed(1) : null;
+  var tot = PD ? (PD.total_resenas || 0) : 0;
+  var t = 'Hola! Soy ' + (PD ? PD.nombre : '') + ', ' + of + (PD && PD.direccion_base ? ' en ' + PD.direccion_base : ' en Córdoba') + ' 🔧\n\n' +
+    'Podés ver mi perfil con reseñas de clientes en SERVY:\nservy.ar/p/' + (PD ? PD.slug : '');
+  if (cal && tot) t += '\n\n⭐ ' + cal + '/5 · ' + tot + ' reseñas';
+  return t;
+}
+function panelFlyerData() {
+  var cal = PD && PD.calificacion_promedio ? Number(PD.calificacion_promedio).toFixed(1) : null;
+  var tot = PD ? (PD.total_resenas || 0) : 0;
+  return {
+    iniciales: panelIniciales(),
+    nombre: PD ? PD.nombre : '',
+    oficios: panelOficios().join(' · ') || 'Prestador de servicios',
+    rating: cal && tot ? (cal + ' / 5  ·  ' + tot + ' reseñas verificadas') : 'Perfil verificado por SERVY',
+    zona: '📍 ' + (PD && PD.direccion_base ? PD.direccion_base : 'Córdoba'),
+    url: 'servy.ar/p/' + (PD ? PD.slug : ''),
+    slug: PD ? PD.slug : 'servy'
+  };
+}
+
+function renderPanel() {
+  var nombre = PD.nombre || 'Prestador';
+  var ini = panelIniciales();
+  var oficios = panelOficios();
+  var ofStr = oficios.join(' & ') || 'Prestador de servicios';
+  var cal = PD.calificacion_promedio ? Number(PD.calificacion_promedio).toFixed(1) : null;
+  var tot = PD.total_resenas || 0;
+  var url = 'servy.ar/p/' + PD.slug;
+  var perfilHref = 'perfil.html?p=' + encodeURIComponent(PD.slug);
+
+  txt('tbName', nombre);
+  var avImg = PD.foto_url ? '<img src="' + pesc(PD.foto_url) + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="">' : pesc(ini);
+  document.getElementById('tbAvatar').innerHTML = avImg;
+  document.getElementById('pfAvatar').innerHTML = avImg;
+  txt('pfNombreHdr', nombre);
+  txt('pfOficioHdr', ofStr);
+  txt('levelDesc', tot ? ('Tenés ' + tot + ' reseña' + (tot === 1 ? '' : 's') + (cal ? ' con promedio ' + cal : '')) : 'Todavía sin reseñas — compartí tu perfil para conseguir las primeras');
+  txt('mProm', cal || '—');
+  txt('mTot', tot + ' reseña' + (tot === 1 ? '' : 's') + ' totales');
+  txt('qaUrl', url);
+  document.getElementById('qaPerfil').href = perfilHref;
+
+  document.getElementById('pfNombre').value = nombre;
+  var telRow = (PD.prestador_telefonos || []).sort(function (a, b) { return (b.es_principal ? 1 : 0) - (a.es_principal ? 1 : 0); })[0];
+  txt('pfTel', telRow ? ('+' + (telRow.codigo_pais || '54') + ' ' + telRow.numero) : '—');
+  document.getElementById('pfEmail').value = PD.email || '';
+  var d = new Date(PD.created_at);
+  var meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  txt('pfDesde', meses[d.getMonth()] + ' ' + d.getFullYear());
+  document.getElementById('pfRubros').innerHTML = oficios.length
+    ? oficios.map(function (o) { return '<span class="fc yes">' + pesc(o) + '</span>'; }).join('')
+    : '<span class="fc">Sin rubro asignado</span>';
+  var servs = (PD.prestador_servicios || []).sort(function (a, b) { return (a.orden || 0) - (b.orden || 0); });
+  document.getElementById('pfServicios').innerHTML = servs.length
+    ? servs.map(function (s) { return '<span class="fc">' + pesc(s.nombre) + '</span>'; }).join('')
+    : '<span class="fc">Agregalos por WhatsApp</span>';
+  document.getElementById('pfBio').value = PD.descripcion || '';
+  document.getElementById('pfZona').value = PD.direccion_base || '';
+  document.getElementById('pfRadio').value = PD.radio_km || '';
+  document.getElementById('pfHorarios').value = PD.horarios || '';
+  document.getElementById('pfCobro').value = PD.cobro || '';
+  document.getElementById('pfWeb').value = PD.url_web || '';
+  var redes = PD.prestador_redes || [];
+  redes.forEach(function (r) {
+    if (r.red === 'instagram') document.getElementById('pfIg').value = r.url || '';
+    if (r.red === 'facebook') document.getElementById('pfFb').value = r.url || '';
+  });
+
+  renderFotos();
+
+  txt('kitUrl', url);
+  document.getElementById('kitVerPerfil').href = perfilHref;
+  document.getElementById('verPublico').href = perfilHref;
+  document.getElementById('dcAvatar').innerHTML = avImg;
+  txt('dcName', nombre);
+  txt('dcOficio', ofStr);
+  document.getElementById('dcStars').innerHTML = cal
+    ? '<span style="font-size:13px;color:var(--star);">' + '★'.repeat(Math.round(cal)) + '</span><span style="font-size:11px;color:var(--ink-m);">' + cal + ' · ' + tot + ' reseñas</span>'
+    : '<span style="font-size:11px;color:var(--ink-m);">Perfil en SERVY</span>';
+  txt('dcZona', '📍 ' + (PD.direccion_base || 'Córdoba'));
+  document.getElementById('bioBox').innerHTML = pesc(panelBioTexto()).replace(/\n/g, '<br>');
+  document.getElementById('waPrev').innerHTML = pesc(panelWaTexto()).replace(/\n/g, '<br>');
+  txt('repLink', 'servy.ar/p/' + PD.slug);
+
+  var qrBox = document.getElementById('qrBox');
+  try {
+    var qr = qrcode(0, 'M');
+    qr.addData('https://servy.ar/p/' + PD.slug);
+    qr.make();
+    qrBox.innerHTML = qr.createSvgTag({ cellSize: 4, margin: 2, scalable: true });
+    var svg = qrBox.querySelector('svg');
+    if (svg) { svg.style.width = '100%'; svg.style.height = 'auto'; svg.removeAttribute('width'); svg.removeAttribute('height'); }
+  } catch (e) { qrBox.textContent = 'QR no disponible'; }
+}
+
+function descargarQR() {
+  if (!PD) return;
+  var qr = qrcode(0, 'M');
+  qr.addData('https://servy.ar/p/' + PD.slug);
+  qr.make();
+  var n = qr.getModuleCount(), cell = 24, margin = cell * 2, size = n * cell + margin * 2;
+  var cv = document.createElement('canvas');
+  cv.width = size; cv.height = size;
+  var ctx = cv.getContext('2d');
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, size, size);
+  ctx.fillStyle = '#000';
+  for (var r = 0; r < n; r++) for (var col = 0; col < n; col++) {
+    if (qr.isDark(r, col)) ctx.fillRect(margin + col * cell, margin + r * cell, cell, cell);
+  }
+  var a = document.createElement('a');
+  a.download = 'qr-' + PD.slug + '.png';
+  a.href = cv.toDataURL('image/png');
+  a.click();
+}
+
+function renderFotos() {
+  var fotos = (PD.prestador_fotos || []).filter(function (f) { return f.tipo !== 'perfil'; })
+    .sort(function (a, b) { return (a.orden || 0) - (b.orden || 0); });
+  var grid = document.getElementById('fotosGrid');
+  grid.innerHTML = fotos.length
+    ? fotos.map(function (f) {
+        return '<div class="foto-thumb"><img src="' + pesc(f.url) + '" loading="lazy" alt=""><button class="foto-x" onclick="borrarFoto(\'' + f.id + '\')">✕</button></div>';
+      }).join('')
+    : '<div style="grid-column:1/-1;color:var(--ink-m);font-size:12px;text-align:center;padding:14px 0;">Todavía no subiste fotos de trabajos</div>';
+  txt('fotosCount', fotos.length + ' foto' + (fotos.length === 1 ? '' : 's') + ' cargada' + (fotos.length === 1 ? '' : 's') + ' · Máximo 12');
+}
+
+function resizeImg(file, maxPx) {
+  return new Promise(function (resolve, reject) {
+    var img = new Image();
+    img.onload = function () {
+      var sc = Math.min(1, maxPx / Math.max(img.width, img.height));
+      var cv = document.createElement('canvas');
+      cv.width = Math.round(img.width * sc); cv.height = Math.round(img.height * sc);
+      cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+      cv.toBlob(function (b) { b ? resolve(b) : reject(new Error('blob')); }, 'image/jpeg', 0.85);
+      URL.revokeObjectURL(img.src);
+    };
+    img.onerror = reject;
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+async function subirFoto(blob, nombre, token) {
+  var path = PD.id + '/' + nombre;
+  var r = await fetch(PSB + '/storage/v1/object/prestador-fotos/' + path, {
+    method: 'POST',
+    headers: { apikey: PANON, 'Authorization': 'Bearer ' + token, 'Content-Type': 'image/jpeg' },
+    body: blob
+  });
+  if (!r.ok) throw new Error('upload fallo');
+  return PSB + '/storage/v1/object/public/prestador-fotos/' + path;
+}
+
+async function borrarFoto(id) {
+  if (!confirm('¿Eliminar esta foto?')) return;
+  var token = await servyAuth.token();
+  var foto = (PD.prestador_fotos || []).find(function (f) { return f.id === id; });
+  await fetch(PSB + '/rest/v1/prestador_fotos?id=eq.' + id, { method: 'DELETE', headers: authHdr(token, { Prefer: 'return=minimal' }) });
+  if (foto && foto.url.indexOf('/prestador-fotos/') > -1) {
+    var path = foto.url.split('/object/public/prestador-fotos/')[1];
+    if (path) await fetch(PSB + '/storage/v1/object/prestador-fotos/' + path, { method: 'DELETE', headers: { apikey: PANON, 'Authorization': 'Bearer ' + token } });
+  }
+  PD.prestador_fotos = (PD.prestador_fotos || []).filter(function (f) { return f.id !== id; });
+  renderFotos();
+  showToast('✓ Foto eliminada', 'ok');
+}
+
+async function panelInit() {
+  var token = await servyAuth.token();
+  if (!token) {
+    document.body.classList.add('panel-lock');
+    var origClose = window.servyCloseLogin;
+    window.servyCloseLogin = function () { if (!servyAuth.get()) { window.location.href = 'index.html'; return; } origClose(); };
+    servyOpenLogin();
+    return;
+  }
+  try {
+    var r = await fetch(PSB + '/rest/v1/prestadores?select=*,prestador_categorias(es_principal,categorias(nombre)),prestador_servicios(id,nombre,orden),prestador_fotos(id,url,tipo,orden),prestador_redes(id,red,url),prestador_telefonos(numero,codigo_pais,es_principal)&limit=1', {
+      headers: authHdr(token)
+    });
+    var rows = await r.json();
+    if (!r.ok || !rows.length) { servyAuth.clear(); window.location.reload(); return; }
+    PD = rows[0];
+    renderPanel();
+    cargarResenas(token);
+  } catch (e) {
+    showToast('Error cargando tu perfil. Recargá la página.', 'err');
+  }
+}
+
+async function cargarResenas(token) {
+  try {
+    var r = await fetch(PSB + '/rest/v1/resenas?select=estrellas,comentario,recomendante_nombre,relacion,creado_en&order=creado_en.desc&limit=50', { headers: authHdr(token) });
+    var rs = await r.json();
+    if (!r.ok) rs = [];
+    var conEstrellas = rs.filter(function (x) { return x.estrellas; });
+    var tot = conEstrellas.length;
+    var prom = tot ? (conEstrellas.reduce(function (a, x) { return a + x.estrellas; }, 0) / tot) : 0;
+    txt('repBig', tot ? prom.toFixed(1) : '—');
+    var full = Math.round(prom);
+    document.getElementById('repStars').innerHTML = Array.from({ length: 5 }, function (_, i) {
+      return '<span class="star" style="' + (i < full ? '' : 'opacity:.25;') + '">★</span>';
+    }).join('');
+    txt('repCount', tot ? (tot + ' reseña' + (tot === 1 ? '' : 's')) : 'Sin reseñas todavía');
+    var dist = [5, 4, 3, 2, 1].map(function (n) { return { n: n, c: conEstrellas.filter(function (x) { return x.estrellas === n; }).length }; }).filter(function (d) { return d.n >= 3 || d.c > 0; });
+    document.getElementById('repDist').innerHTML = dist.map(function (d) {
+      var pct = tot ? Math.round(d.c / tot * 100) : 0;
+      return '<div class="prog-row" style="margin-bottom:4px;"><div style="font-size:11px;color:var(--ink-m);width:12px;">' + d.n + '★</div>' +
+        '<div class="prog-bg" style="width:80px;"><div class="prog-fill" style="width:' + pct + '%"></div></div>' +
+        '<div style="font-size:11px;color:var(--ink-m);width:16px;text-align:right;">' + d.c + '</div></div>';
+    }).join('');
+    var list = document.getElementById('resenasList');
+    list.innerHTML = rs.length ? rs.map(function (x) {
+      var nom = x.recomendante_nombre || 'Vecino de Córdoba';
+      var ini = nom.split(' ').map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase();
+      var stars = '★'.repeat(Math.max(1, Math.min(5, x.estrellas || 5)));
+      var fecha = x.creado_en ? new Date(x.creado_en).toLocaleDateString('es-AR') : '';
+      return '<div class="review-card"><div class="review-header"><div class="review-avatar">' + pesc(ini) + '</div>' +
+        '<div class="review-meta"><div class="review-name">' + pesc(nom) + '</div>' +
+        '<div class="stars review-date" style="display:flex;align-items:center;gap:6px;">' +
+        '<div style="display:flex;gap:1px;"><span style="font-size:12px;color:var(--star);">' + stars + '</span></div>' +
+        '<span style="font-size:11px;color:var(--ink-m);">' + fecha + '</span></div></div></div>' +
+        (x.comentario ? '<div class="review-text">' + pesc(x.comentario) + '</div>' : '') + '</div>';
+    }).join('') : '<div style="color:var(--ink-m);font-size:13px;padding:12px;">Todavía no tenés reseñas. Compartí tu link para conseguir las primeras.</div>';
+  } catch (e) {}
+}
+
+document.getElementById('fotoFile').addEventListener('change', async function () {
+  if (!PD || !this.files.length) return;
+  var actuales = (PD.prestador_fotos || []).filter(function (f) { return f.tipo !== 'perfil'; }).length;
+  var files = Array.from(this.files).slice(0, Math.max(0, 12 - actuales));
+  if (!files.length) { showToast('Ya llegaste al máximo de 12 fotos', 'err'); return; }
+  var btn = document.getElementById('btnAgregarFotos');
+  btn.disabled = true; btn.textContent = '⏳ Subiendo…';
+  try {
+    var token = await servyAuth.token();
+    for (var i = 0; i < files.length; i++) {
+      var blob = await resizeImg(files[i], 1200);
+      var url = await subirFoto(blob, Date.now() + '_' + i + '.jpg', token);
+      var ins = await fetch(PSB + '/rest/v1/prestador_fotos', {
+        method: 'POST', headers: authHdr(token, { Prefer: 'return=representation' }),
+        body: JSON.stringify({ prestador_id: PD.id, url: url, tipo: 'trabajo', orden: actuales + i + 1 })
+      });
+      var row = await ins.json();
+      if (ins.ok && row.length) PD.prestador_fotos = (PD.prestador_fotos || []).concat(row);
+    }
+    renderFotos();
+    showToast('✓ Fotos subidas', 'ok');
+  } catch (e) {
+    showToast('Error subiendo fotos. Probá de nuevo.', 'err');
+  }
+  btn.disabled = false; btn.textContent = '📷 Agregar fotos';
+  this.value = '';
+});
+
+document.getElementById('fotoPerfilFile').addEventListener('change', async function () {
+  if (!PD || !this.files.length) return;
+  try {
+    var token = await servyAuth.token();
+    var blob = await resizeImg(this.files[0], 600);
+    var url = await subirFoto(blob, 'perfil_' + Date.now() + '.jpg', token);
+    await fetch(PSB + '/rest/v1/prestadores?id=eq.' + PD.id, {
+      method: 'PATCH', headers: authHdr(token, { Prefer: 'return=minimal' }),
+      body: JSON.stringify({ foto_url: url })
+    });
+    PD.foto_url = url;
+    renderPanel();
+    showToast('✓ Foto de perfil actualizada', 'ok');
+  } catch (e) {
+    showToast('Error subiendo la foto.', 'err');
+  }
+  this.value = '';
+});
+
+window.addEventListener('load', panelInit);
+</script>
 </body>
 </html>
