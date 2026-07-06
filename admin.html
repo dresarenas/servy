@@ -260,8 +260,8 @@ function fdt(x){ if(!x) return '—'; const d=new Date(x); return d.toLocaleDate
 function fd(x){ if(!x) return '—'; return new Date(x+'T00:00:00').toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'2-digit'}); }
 function esc(x){ const d=document.createElement('div'); d.textContent = x==null?'':String(x); return d.innerHTML; }
 function pill(estado){
-  const bad = ['rechazo','baja','opt_out','sin_estado','inactivo'];
-  const warn = ['sin_respuesta','dudas','contactado','nueva','nuevo','pendiente'];
+  const bad = ['rechazo_1','rechazo_2','opt_out','sin_estado','inactivo'];
+  const warn = ['nueva','contactar','contactado','no_respondio','nuevo','pendiente'];
   const cls = bad.includes(estado)?'bad':(warn.includes(estado)?'warn':'');
   return '<span class="pill '+cls+'">'+esc(estado)+'</span>';
 }
