@@ -1773,6 +1773,7 @@ function getDemoPrestadores() {
   ];
 }
 
+function escWiz(x) { var d = document.createElement('div'); d.textContent = (x == null ? '' : String(x)); return d.innerHTML; }
 function wizRenderResults(prestadores) {
   var wt = document.getElementById('wizTitle');
   if (wt) wt.style.visibility = '';
@@ -1801,8 +1802,8 @@ function wizRenderResults(prestadores) {
     var _tierLabel = _tierLabels[p.tier] || 'Verificado';
     var _tierClass = 'result-faja-' + (p.tier || 'verificado');
     card.innerHTML = '<div class="result-ribbon ' + _tierClass + '">' + _tierLabel + '</div>'
-      + '<div class="result-top"><span>' + p.num + ' · ' + p.oficio + '</span></div>'
-      + '<div class="result-name">' + p.nombre + '<em>' + p.zona + '</em></div>'
+      + '<div class="result-top"><span>' + escWiz(p.num) + ' · ' + escWiz(p.oficio) + '</span></div>'
+      + '<div class="result-name">' + escWiz(p.nombre) + '<em>' + escWiz(p.zona) + '</em></div>'
       + '<div class="result-bottom"><span class="result-stars">' + stars + '</span><span>' + (p.reseñas > 0 ? p.reseñas + ' reseña' + (p.reseñas > 1 ? 's' : '') : '') + '</span></div>';
     card.addEventListener('click', function() { abrirModal(p); });
     setTimeout(function() { card.classList.add('reveal'); }, 50 + idx * 80);
@@ -1821,12 +1822,12 @@ function abrirModal(p) {
   document.getElementById('modalName').textContent = p.nombre;
   document.getElementById('modalStars').textContent = '★'.repeat(p.stars) + (p.stars < 5 ? '☆'.repeat(5-p.stars) : '');
   document.getElementById('modalRatingSub').textContent = p.stars + '.0 · ' + p.reseñas + ' reseñas';
-  document.getElementById('modalChips').innerHTML = '<span class="modal-chip">' + p.oficio + '</span>';
+  document.getElementById('modalChips').innerHTML = '<span class="modal-chip">' + escWiz(p.oficio) + '</span>';
   // Info strip
   var _strip = document.getElementById('expInfoStrip');
-  var _si = '<div class="exp-info-item"><span class="exp-info-icon">📍</span><span class="exp-info-label">Zona</span><span class="exp-info-val">' + p.zona + '</span></div>';
-  if (p.horarios) _si += '<div class="exp-info-item"><span class="exp-info-icon">🕐</span><span class="exp-info-label">Horarios</span><span class="exp-info-val">' + p.horarios + '</span></div>';
-  if (p.cobro)    _si += '<div class="exp-info-item"><span class="exp-info-icon">💳</span><span class="exp-info-label">Cobro</span><span class="exp-info-val">' + p.cobro + '</span></div>';
+  var _si = '<div class="exp-info-item"><span class="exp-info-icon">📍</span><span class="exp-info-label">Zona</span><span class="exp-info-val">' + escWiz(p.zona) + '</span></div>';
+  if (p.horarios) _si += '<div class="exp-info-item"><span class="exp-info-icon">🕐</span><span class="exp-info-label">Horarios</span><span class="exp-info-val">' + escWiz(p.horarios) + '</span></div>';
+  if (p.cobro)    _si += '<div class="exp-info-item"><span class="exp-info-icon">💳</span><span class="exp-info-label">Cobro</span><span class="exp-info-val">' + escWiz(p.cobro) + '</span></div>';
   _strip.innerHTML = _si;
   // Bio
   var _bw = document.getElementById('expBioWrap');
@@ -1836,7 +1837,7 @@ function abrirModal(p) {
   var _sw = document.getElementById('expServiciosWrap');
   if (p.servicios && p.servicios.length) {
     document.getElementById('expTags').innerHTML = p.servicios.map(function(s, i) {
-      return '<span class="exp-tag' + (i < 3 ? ' hl' : '') + '">' + s + '</span>';
+      return '<span class="exp-tag' + (i < 3 ? ' hl' : '') + '">' + escWiz(s) + '</span>';
     }).join('');
     _sw.style.display = '';
   } else _sw.style.display = 'none';
@@ -1850,7 +1851,7 @@ function abrirModal(p) {
   } else _vw.style.display = 'none';
   // Testimonios
   document.getElementById('testimoniosList').innerHTML = (p.testimonios || []).map(function(t) {
-    return '<div class="testimonio"><div class="testimonio-stars">' + '★'.repeat(t.stars) + '</div><div>' + t.texto + '</div><div class="testimonio-autor">' + t.autor + '</div></div>';
+    return '<div class="testimonio"><div class="testimonio-stars">' + '★'.repeat(t.stars) + '</div><div>' + escWiz(t.texto) + '</div><div class="testimonio-autor">' + escWiz(t.autor) + '</div></div>';
   }).join('') || '<p style="font-family:var(--f-sans);font-size:15px;color:var(--ink-mute);padding:8px 0;">Aún no tiene recomendaciones.</p>';
   document.getElementById('perfilExpansion').style.display = 'none';
   document.getElementById('btnDesplegar').textContent = 'Desplegar perfil completo ↓';
