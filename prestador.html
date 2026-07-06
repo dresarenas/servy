@@ -587,7 +587,7 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
 
       <div class="prest-success-actions">
         <div class="prest-foot-row">
-          <button class="prest-back" onclick="prestGoTo(3)">← Volver</button>
+          <button class="prest-back" onclick="location.href='prestador.html'">+ Cargar otro</button>
           <a href="index.html" class="prest-cta prest-link-btn" style="text-decoration:none;flex:1;">Volver al inicio <span class="btn-arr"></span></a>
         </div>
         <a href="https://wa.me/?text=Estoy%20en%20SERVY%2C%20el%20directorio%20de%20oficios%20de%20C%C3%B3rdoba%20%F0%9F%94%8D%20https%3A%2F%2Fservy.ar" target="_blank" rel="noopener" class="prest-wa-share">
@@ -1006,6 +1006,8 @@ function prestInitMap() {
   document.getElementById('prestMapWrap').style.display = '';
   document.getElementById('prestDireccion').value = 'Córdoba, Argentina';
   document.getElementById('prestZonaTexto').value = 'Córdoba, Argentina';
+  document.getElementById('prestZonaLat').value = cordoba.lat;
+  document.getElementById('prestZonaLng').value = cordoba.lng;
 }
 
 function prestGeocode(cb) {
