@@ -549,6 +549,70 @@ body.panel-lock .tab-content,body.panel-lock .topbar,body.panel-lock .panel-tabs
 .foto-thumb{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;}
 .foto-thumb img{width:100%;height:100%;object-fit:cover;}
 .foto-thumb .foto-x{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.65);color:#fff;border:none;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+/* Login modal (home-v2.js crea el HTML, panel.html no importa home-v2.css, faltaba el estilo) */
+.servy-login-overlay {
+  display: none; position: fixed; inset: 0; z-index: 9000;
+  background: rgba(0,0,0,.72); backdrop-filter: blur(10px);
+  align-items: center; justify-content: center;
+}
+.servy-login-overlay.open { display: flex; }
+.servy-login-box {
+  background: #17181C;
+  border: 1px solid rgba(60,230,197,.2);
+  border-radius: 20px;
+  padding: 36px 28px 28px;
+  width: 90%; max-width: 380px;
+  position: relative;
+}
+.servy-login-close {
+  position: absolute; top: 16px; right: 16px;
+  width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(242,238,230,.08); border: none;
+  color: rgba(242,238,230,.6); font-size: 16px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.servy-login-logo-img {
+  display: block; height: 30px; object-fit: contain;
+  margin: 0 auto 8px; filter: brightness(0) invert(1);
+}
+.servy-login-sub {
+  text-align: center; font-size: 13px;
+  color: rgba(242,238,230,.55); margin-bottom: 24px;
+}
+.servy-login-demo-badge {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(198,255,60,.08); border: 1px solid rgba(198,255,60,.2);
+  border-radius: 10px; padding: 10px 14px; margin-bottom: 20px;
+  font-size: 12px; color: rgba(198,255,60,.9);
+  font-family: "JetBrains Mono", monospace;
+}
+.servy-login-field {
+  width: 100%; padding: 13px 14px;
+  background: rgba(242,238,230,.05);
+  border: 1px solid rgba(242,238,230,.14);
+  border-radius: 10px; color: #F2EEE6;
+  font-size: 14px; font-family: "Geist", sans-serif;
+  outline: none; margin-bottom: 10px; box-sizing: border-box;
+}
+.servy-login-field:focus { border-color: rgba(60,230,197,.5); }
+.servy-login-btn {
+  width: 100%; padding: 15px;
+  background: #3CE6C5; color: #0A0A0A;
+  border: none; border-radius: 12px;
+  font-size: 15px; font-weight: 700;
+  font-family: "Geist", sans-serif;
+  cursor: pointer; margin-top: 4px;
+  transition: background .15s;
+}
+.servy-login-btn:hover { background: #2dc9ab; }
+.servy-login-free {
+  display: block; text-align: center;
+  margin-top: 12px; font-size: 12px;
+  color: rgba(242,238,230,.4); cursor: pointer;
+  background: none; border: none; width: 100%;
+  font-family: "Geist", sans-serif;
+  text-decoration: underline; text-underline-offset: 3px;
+}
 </style>
 </head>
 <body>
