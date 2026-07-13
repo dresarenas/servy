@@ -355,7 +355,7 @@ window.servyAuth = {
     '  <img src="assets/servy-full.png" alt="SERVY" class="servy-login-logo-img">',
     '  <div id="servyViewLogin">',
     '    <div class="servy-login-sub">Accedé a tu panel de prestador</div>',
-    '    <input class="servy-login-field" id="servyLoginTel" type="tel" placeholder="Tu WhatsApp (ej: 351 555-1234)" autocomplete="off">',
+    '    <input class="servy-login-field" id="servyLoginTel" type="text" placeholder="Tu WhatsApp o email" autocomplete="off">',
     '    <input class="servy-login-field" id="servyLoginPass" type="password" placeholder="Contraseña" autocomplete="current-password">',
     '    <div class="servy-login-err" id="servyLoginErr"></div>',
     '    <button class="servy-login-btn" id="servyLoginBtn" onclick="servyDoLogin()">Ingresar al panel →</button>',
@@ -417,24 +417,39 @@ window.servyDoLogin = function () {
   var err = document.getElementById('servyLoginErr');
   var btn = document.getElementById('servyLoginBtn');
   err.textContent = '';
-  var tel = servyTelNorm(document.getElementById('servyLoginTel').value);
+  var raw = document.getElementById('servyLoginTel').value.trim();
   var pass = document.getElementById('servyLoginPass').value;
-  if (!tel) { err.textContent = 'Revisá el número de teléfono.'; return; }
+  // Con '@' es un email real (admin); sin '@' es telefono de prestador
+  var esEmail = raw.indexOf('@') !== -1;
+  var loginEmail, destino;
+  if (esEmail) {
+    loginEmail = raw;
+    destino = 'admin.html';
+  } else {
+    var tel = servyTelNorm(raw);
+    if (!tel) { err.textContent = 'Revisá el número de teléfono (o ingresá tu email).'; return; }
+    loginEmail = tel + '@prestador.servy.ar';
+    destino = 'panel.html';
+  }
   if (!pass) { err.textContent = 'Ingresá tu contraseña.'; return; }
   btn.disabled = true; btn.textContent = 'Ingresando…';
   fetch(SERVY_SB + '/auth/v1/token?grant_type=password', {
     method: 'POST',
     headers: { apikey: SERVY_SB_ANON, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: tel + '@prestador.servy.ar', password: pass })
+    body: JSON.stringify({ email: loginEmail, password: pass })
   }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
     .then(function (res) {
       if (!res.ok || !res.d.access_token) {
-        err.textContent = 'Teléfono o contraseña incorrectos.';
+        err.textContent = esEmail ? 'Email o contraseña incorrectos.' : 'Teléfono o contraseña incorrectos.';
         btn.disabled = false; btn.textContent = 'Ingresar al panel →';
         return;
       }
       servyAuth.set({ access_token: res.d.access_token, refresh_token: res.d.refresh_token, expires_at: Date.now() + (res.d.expires_in || 3600) * 1000, user: res.d.user });
-      window.location.href = 'panel.html';
+      if (esEmail) {
+        // admin.html usa su propia sesion (servyAdminSession) — dejarla lista para entrar directo
+        try { localStorage.setItem('servyAdminSession', JSON.stringify({ at: res.d.access_token, rt: res.d.refresh_token, exp: Date.now() + (res.d.expires_in || 3600) * 1000, email: loginEmail })); } catch (e) {}
+      }
+      window.location.href = destino;
     }).catch(function () {
       err.textContent = 'Error de conexión. Probá de nuevo.';
       btn.disabled = false; btn.textContent = 'Ingresar al panel →';

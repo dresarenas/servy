@@ -980,14 +980,14 @@
       </div>
 
       <div class="wiz-chips-row" id="wizChipsRow">
-        <button class="wiz-chip" onclick="setWizChip(this,'Cuidado de mascotas')">Cuidado de mascotas</button>
-        <button class="wiz-chip" onclick="setWizChip(this,'Instalación eléctrica')">Instalación eléctrica</button>
-        <button class="wiz-chip" onclick="setWizChip(this,'Service de lavarropas')">Service de lavarropas</button>
-        <button class="wiz-chip" onclick="setWizChip(this,'Desagotes')">Desagotes</button>
-        <button class="wiz-chip" onclick="setWizChip(this,'Pintura interior')">Pintura</button>
-        <button class="wiz-chip" onclick="setWizChip(this,'Necesito limpieza')">Limpieza</button>
-        <button class="wiz-chip" onclick="setWizChip(this,'Jardinero')">Jardinero</button>
-        <button class="wiz-chip" onclick="setWizChip(this,'Gasista')">Gasista</button>
+        <button class="wiz-chip" onclick="setWizChip(this,'Cuidado de mascotas','Cuidado de Mascotas')">Cuidado de mascotas</button>
+        <button class="wiz-chip" onclick="setWizChip(this,'Instalación eléctrica','Electricidad')">Instalación eléctrica</button>
+        <button class="wiz-chip" onclick="setWizChip(this,'Service de lavarropas','Service de Lavarropas')">Service de lavarropas</button>
+        <button class="wiz-chip" onclick="setWizChip(this,'Desagotes','Desagotes')">Desagotes</button>
+        <button class="wiz-chip" onclick="setWizChip(this,'Pintura interior','Pintura')">Pintura</button>
+        <button class="wiz-chip" onclick="setWizChip(this,'Necesito limpieza','Limpieza')">Limpieza</button>
+        <button class="wiz-chip" onclick="setWizChip(this,'Jardinero','Jardinería')">Jardinero</button>
+        <button class="wiz-chip" onclick="setWizChip(this,'Gasista','Gasistas')">Gasista</button>
       </div>
 
       <div class="wiz-spacer"></div>
@@ -1216,7 +1216,11 @@ function goToStep(n, fromHistory) {
     }
   });
   wizCurrent = n;
-  if (!fromHistory && n > 0) history.pushState({wizStep: n}, '');
+  if (!fromHistory) {
+    var _hs = (history.state && typeof history.state.wizStep === 'number') ? history.state.wizStep : 0;
+    if (n > _hs) history.pushState({wizStep: n}, '');
+    else history.replaceState({wizStep: n}, '');
+  }
   updateWizSteps();
   if (n === 1) {
     var addrEl = document.getElementById('wizAddr');
@@ -1252,11 +1256,12 @@ function updateWizSteps() {
 }
 
 function wizPrev() {
-  if (history.length <= 1) { location.href = './'; } else { history.back(); }
+  if (wizCurrent > 0) { goToStep(wizCurrent - 1); } else { location.href = './'; }
 }
 
 async function wizNext() {
-  if (wizNext._pending) return; wizNext._pending = true; setTimeout(function(){ wizNext._pending = false; }, 600);
+  if (wizNext._pending) return; wizNext._pending = true;
+  try {
   if (wizCurrent === 0) {
     var _multiPanel = document.getElementById('wizMultiOficio');
     if (_multiPanel && _multiPanel.style.display !== 'none') {
@@ -1273,6 +1278,13 @@ async function wizNext() {
       return;
     }
     wizState.descripcion = desc;
+    if (wizState.oficioFromChip && wizState.oficio) {
+      // Oficio elegido por chip = categoria conocida, no hace falta clasificar con IA
+      document.getElementById('wiz-err-0').classList.remove('visible');
+      goToStep(1);
+      if (!wizMapInited) setTimeout(wizInitMap, 80);
+      return;
+    }
     wizState.oficio = detectOficio(desc) || null;
 
     // Siempre llamar AI — detecta multi-oficio que el diccionario local no puede
@@ -1291,7 +1303,7 @@ async function wizNext() {
         var _aiData = await _aiRes.json();
         var _GENERIC2 = ['el servicio','servicio','los servicios','servicios'];
         if (_aiData.ok && _aiData.oficios && _aiData.oficios.length) {
-          var _ofs = _aiData.oficios.map(normalizarOficio).filter(function(o){ return o && _GENERIC2.indexOf(o.toLowerCase().trim()) === -1; });
+          var _ofs = _aiData.oficios.map(normalizarOficio).filter(function(o){ return o && o.trim() && _GENERIC2.indexOf(o.toLowerCase().trim()) === -1; });
           if (_ofs.length) {
             wizState.oficio = _ofs[0]; wizState.oficios = _ofs.length > 1 ? _ofs : null;
             if (wizState.oficios && wizState.oficios.length > 1) {
@@ -1300,7 +1312,7 @@ async function wizNext() {
               return;
             }
           }
-        } else if (_aiData.ok && _aiData.oficio && _GENERIC2.indexOf(_aiData.oficio.toLowerCase().trim()) === -1) {
+        } else if (_aiData.ok && _aiData.oficio && _aiData.oficio.trim() && _GENERIC2.indexOf(_aiData.oficio.toLowerCase().trim()) === -1) {
           wizState.oficio = normalizarOficio(_aiData.oficio);
         }
       }
@@ -1309,7 +1321,7 @@ async function wizNext() {
 
     if (!wizState.oficio) {
       // AI tambien fallo → error + log fire-and-forget a Supabase
-      _e0.textContent = 'No identificamos ese servicio. Intentá con "plomero", "electricista", "pintor"...';
+      _e0.textContent = 'Todavía no reconocemos ese servicio. Contanos con otras palabras (ej: "se me tapó la cocina", "busco un DJ") o tocá uno de los oficios sugeridos.';
       _e0.classList.add('visible');
       try {
         fetch('https://oupmslbpvtuszwkdcbvq.supabase.co/rest/v1/consultas', {
@@ -1340,6 +1352,7 @@ async function wizNext() {
     goToStep(2);
     wizBuscar();
   }
+  } finally { wizNext._pending = false; }
 }
 
 function wizGoTo(n) {
@@ -1394,6 +1407,7 @@ var _wizDescTimer = null;
 function onWizInput(val) {
   wizState.descripcion = val.trim();
   wizState.oficios = null;
+  wizState.oficioFromChip = false;
   wizState.oficio = detectOficio(val);
   updateWizCta0();
   var _errEl = document.getElementById('wiz-err-0');
@@ -1450,13 +1464,15 @@ function wizAutoExpand(el) {
   el.style.height = el.scrollHeight + 'px';
 }
 
-function setWizChip(el, text) {
+function setWizChip(el, text, oficio) {
   document.querySelectorAll('.wiz-chip').forEach(function(c) { c.classList.remove('selected'); });
   el.classList.add('selected');
   var ta = document.getElementById('wizDesc');
   ta.value = text;
   wizAutoExpand(ta);
   onWizInput(text);
+  // Chip = categoria conocida: fijar oficio canonico y saltear la clasificacion IA en wizNext
+  if (oficio) { wizState.oficio = oficio; wizState.oficioFromChip = true; }
   ta.focus();
 }
 
@@ -1504,7 +1520,8 @@ var oficioMap = {
   'destapac':'Desagotes','tapado':'Desagotes',
   'desagote':'Desagotes','desago':'Desagotes',
   'mascota':'Cuidado de Mascotas','perro':'Cuidado de Mascotas','gato':'Cuidado de Mascotas',
-  'lavarrop':'Service de Lavarropas','electrodom':'Service de Lavarropas'
+  'lavarrop':'Service de Lavarropas','electrodom':'Service de Lavarropas',
+  'animador':'DJ y sonido','animacion':'DJ y sonido','animar':'DJ y sonido',' dj':'DJ y sonido','dj para':'DJ y sonido','sonido para fiesta':'DJ y sonido'
 };
 function normalizeText(s) {
   return s.toLowerCase()
@@ -1680,7 +1697,8 @@ async function wizGeolocate() {
   if (!navigator.geolocation) return;
   var btn = document.getElementById('wizGeoBtn');
   var st = document.getElementById('wizGeoStatus'); st.style.display = 'block';
-  if (navigator.permissions) { try { var perm = await navigator.permissions.query({name:'geolocation'}); if (perm.state === 'denied') { st.textContent = 'Ubicación bloqueada. Habilitala en la configuración del navegador ⚙️'; return; } } catch(e) {} }
+  var _geoBtnHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" opacity="0.3"/></svg> Usar mi ubicación';
+  if (navigator.permissions) { try { var perm = await navigator.permissions.query({name:'geolocation'}); if (perm.state === 'denied') { st.textContent = 'Bloqueaste el permiso de ubicación. Habilitalo desde el candado en la barra del navegador, o escribí tu dirección.'; btn.innerHTML = _geoBtnHTML; return; } } catch(e) {} }
   btn.textContent = 'Detectando...';
   st.textContent = 'Detectando ubicación...';
   navigator.geolocation.getCurrentPosition(function(pos) {
@@ -1698,10 +1716,13 @@ async function wizGeolocate() {
       });
     }
     doReverse();
-  }, function() {
-    st.textContent = 'No se pudo obtener tu ubicación';
-    btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" opacity="0.3"/></svg> Usar mi ubicación';
-  });
+  }, function(err) {
+    st.style.display = 'block';
+    st.textContent = (err && err.code === 1)
+      ? 'Bloqueaste el permiso de ubicación. Habilitalo desde el candado en la barra del navegador, o escribí tu dirección.'
+      : 'No pudimos obtener tu ubicación. Probá de nuevo o escribila.';
+    btn.innerHTML = _geoBtnHTML;
+  }, { timeout: 8000, maximumAge: 0 });
 }
 
 function setWizZona(text, lat, lng) {
@@ -1927,7 +1948,7 @@ async function initFromURLParams() {
         goToStep(1); if (!wizMapInited) setTimeout(wizInitMap, 80);
       } else {
         wizState.oficio = null;
-        if (errEl) { errEl.textContent = 'No reconocemos esa búsqueda. Intentá con "plomero", "electricista", "pintor"...'; errEl.classList.add('visible'); }
+        if (errEl) { errEl.textContent = 'Todavía no reconocemos esa búsqueda. Contanos con otras palabras (ej: "se me tapó la cocina", "busco un DJ") o tocá uno de los oficios sugeridos.'; errEl.classList.add('visible'); }
       }
     }
   } catch(e) {
@@ -1938,7 +1959,7 @@ async function initFromURLParams() {
       goToStep(1); if (!wizMapInited) setTimeout(wizInitMap, 80);
     } else {
       wizState.oficio = null;
-      if (errEl) { errEl.textContent = 'No reconocemos esa búsqueda. Intentá con "plomero", "electricista", "pintor"...'; errEl.classList.add('visible'); }
+      if (errEl) { errEl.textContent = 'Todavía no reconocemos esa búsqueda. Contanos con otras palabras (ej: "se me tapó la cocina", "busco un DJ") o tocá uno de los oficios sugeridos.'; errEl.classList.add('visible'); }
     }
   }
 }

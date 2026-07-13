@@ -749,7 +749,7 @@ function recOficioAutoKey(e) {
 }
 
 function recPrev() {
-  if (recCurrent === 0) { history.back(); return; }
+  if (recCurrent === 0) { window.location.href = './'; return; }
   recGoTo(recCurrent - 1);
 }
 

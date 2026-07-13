@@ -909,7 +909,7 @@ async function prestEnviar() {
 /* ========== GEOLOCATE ========== */
 async function prestGeolocate() {
   if (!navigator.geolocation) return;
-  if (navigator.permissions) { try { var perm = await navigator.permissions.query({name:'geolocation'}); if (perm.state === 'denied') { prestShowErr('errPrestGeo', true); var _ge = document.getElementById('errPrestGeo'); if (_ge) _ge.textContent = 'Ubicación bloqueada. Habilitala en la configuración del navegador ⚙️'; return; } } catch(e) {} }
+  if (navigator.permissions) { try { var perm = await navigator.permissions.query({name:'geolocation'}); if (perm.state === 'denied') { prestShowErr('errPrestGeo', true); var _ge = document.getElementById('errPrestGeo'); if (_ge) _ge.textContent = 'Bloqueaste el permiso de ubicación. Habilitalo desde el candado en la barra del navegador, o marcá tu zona en el mapa.'; return; } } catch(e) {} }
   navigator.geolocation.getCurrentPosition(function(pos) {
     prestShowErr('errPrestGeo', false);
     var lat = pos.coords.latitude, lng = pos.coords.longitude;
@@ -927,9 +927,13 @@ async function prestGeolocate() {
       document.getElementById('prestDireccion').value = texto;
       prestClearErr('errPrestZona');
     });
-  }, function() {
+  }, function(err) {
     prestShowErr('errPrestGeo', true);
-  });
+    var _ge2 = document.getElementById('errPrestGeo');
+    if (_ge2) _ge2.textContent = (err && err.code === 1)
+      ? 'Bloqueaste el permiso de ubicación. Habilitalo desde el candado en la barra del navegador, o marcá tu zona en el mapa.'
+      : 'No pudimos obtener tu ubicación. Probá de nuevo o marcá tu zona en el mapa.';
+  }, { timeout: 8000, maximumAge: 0 });
 }
 /* ========== FOTO ========== */
 var prestFotoData = null;
