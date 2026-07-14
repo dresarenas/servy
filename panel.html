@@ -1277,10 +1277,7 @@ function renderPanel() {
   document.getElementById('pfRubros').innerHTML = oficios.length
     ? oficios.map(function (o) { return '<span class="fc yes">' + pesc(o) + '</span>'; }).join('')
     : '<span class="fc">Sin rubro asignado</span>';
-  var servs = (PD.prestador_servicios || []).sort(function (a, b) { return (a.orden || 0) - (b.orden || 0); });
-  document.getElementById('pfServicios').innerHTML = servs.length
-    ? servs.map(function (s) { return '<span class="fc">' + pesc(s.nombre) + ' <span onclick="quitarServicio(\'' + pesc(s.id) + '\')" style="cursor:pointer;margin-left:4px;opacity:.7;">✕</span></span>'; }).join('')
-    : '<span class="fc">Todavía no cargaste servicios</span>';
+  renderServicios();
   document.getElementById('pfBio').value = PD.descripcion || '';
   document.getElementById('pfDomicilio').value = PD.domicilio || '';
   document.getElementById('pfExp').value = PD.experiencia || '';
@@ -1413,6 +1410,12 @@ async function borrarFoto(id) {
   showToast('✓ Foto eliminada', 'ok');
 }
 
+function renderServicios() {
+  var servs = (PD.prestador_servicios || []).sort(function (a, b) { return (a.orden || 0) - (b.orden || 0); });
+  document.getElementById('pfServicios').innerHTML = servs.length
+    ? servs.map(function (s) { return '<span class="fc">' + pesc(s.nombre) + ' <span onclick="quitarServicio(\'' + pesc(s.id) + '\')" style="cursor:pointer;margin-left:4px;opacity:.7;">✕</span></span>'; }).join('')
+    : '<span class="fc">Todavía no cargaste servicios</span>';
+}
 async function agregarServicio() {
   var nombre = v('pfServicioNuevo');
   if (!nombre) return;
@@ -1427,7 +1430,7 @@ async function agregarServicio() {
     var rows = await r.json();
     PD.prestador_servicios = (PD.prestador_servicios || []).concat(rows);
     document.getElementById('pfServicioNuevo').value = '';
-    renderPanel();
+    renderServicios();
     showToast('✓ Servicio agregado', 'ok');
   } catch (e) {
     showToast('No se pudo agregar. Probá de nuevo.', 'err');
@@ -1440,7 +1443,7 @@ async function quitarServicio(id) {
       method: 'DELETE', headers: authHdr(token, { Prefer: 'return=minimal' })
     });
     PD.prestador_servicios = (PD.prestador_servicios || []).filter(function (s) { return String(s.id) !== String(id); });
-    renderPanel();
+    renderServicios();
     showToast('✓ Servicio eliminado', 'ok');
   } catch (e) {
     showToast('No se pudo eliminar. Probá de nuevo.', 'err');
@@ -1469,21 +1472,21 @@ async function confirmarBaja() {
   btn.disabled = true;
   try {
     var token = await servyAuth.token();
-    await fetch(PSB + '/rest/v1/feedback_prestadores', {
-      method: 'POST', headers: authHdr(token, { Prefer: 'return=minimal' }),
-      body: JSON.stringify({ prestador_id: PD.id, accion: bajaTipo, motivo: motivo, comentario: comentario, estado_previo: PD.estado })
-    });
     if (bajaTipo === 'pausa') {
-      var r = await fetch(PSB + '/rest/v1/prestadores?id=eq.' + PD.id, {
-        method: 'PATCH', headers: authHdr(token, { Prefer: 'return=minimal' }),
-        body: JSON.stringify({ estado: 'suspendido' })
+      var r = await fetch(PSB + '/rest/v1/rpc/pausar_mi_perfil', {
+        method: 'POST', headers: authHdr(token, { Prefer: 'return=minimal' }),
+        body: JSON.stringify({ p_motivo: motivo, p_comentario: comentario })
       });
-      if (!r.ok) throw new Error('patch fallo');
+      if (!r.ok) throw new Error('rpc fallo');
       PD.estado = 'suspendido';
       renderPanel();
       cerrarModalBaja();
       showToast('✓ Perfil pausado. Reactivalo cuando quieras.', 'ok');
     } else {
+      await fetch(PSB + '/rest/v1/feedback_prestadores', {
+        method: 'POST', headers: authHdr(token, { Prefer: 'return=minimal' }),
+        body: JSON.stringify({ prestador_id: PD.id, accion: 'baja', motivo: motivo, comentario: comentario, estado_previo: PD.estado })
+      });
       cerrarModalBaja();
       var texto = 'Hola SERVY, quiero eliminar mi perfil (' + PD.nombre + ' - servy.ar/p/' + PD.slug + ').';
       window.open('https://wa.me/5493518523360?text=' + encodeURIComponent(texto), '_blank');
@@ -1497,21 +1500,13 @@ async function confirmarBaja() {
 async function reactivarPerfil() {
   try {
     var token = await servyAuth.token();
-    var fb = await fetch(PSB + '/rest/v1/feedback_prestadores?prestador_id=eq.' + PD.id + '&accion=eq.pausa&order=created_at.desc&limit=1&select=estado_previo', {
-      headers: authHdr(token)
+    var r = await fetch(PSB + '/rest/v1/rpc/reactivar_mi_perfil', {
+      method: 'POST', headers: authHdr(token, { Prefer: 'return=minimal' }), body: '{}'
     });
-    var rows = fb.ok ? await fb.json() : [];
-    var estadoNuevo = (rows[0] && rows[0].estado_previo) || 'pendiente';
-    var r = await fetch(PSB + '/rest/v1/prestadores?id=eq.' + PD.id, {
-      method: 'PATCH', headers: authHdr(token, { Prefer: 'return=minimal' }),
-      body: JSON.stringify({ estado: estadoNuevo })
-    });
-    if (!r.ok) throw new Error('patch fallo');
-    await fetch(PSB + '/rest/v1/feedback_prestadores', {
-      method: 'POST', headers: authHdr(token, { Prefer: 'return=minimal' }),
-      body: JSON.stringify({ prestador_id: PD.id, accion: 'reactivacion', estado_previo: 'suspendido' })
-    });
-    PD.estado = estadoNuevo;
+    if (!r.ok) throw new Error('rpc fallo');
+    var fresh = await fetch(PSB + '/rest/v1/prestadores?id=eq.' + PD.id + '&select=estado', { headers: authHdr(token) });
+    var rows = fresh.ok ? await fresh.json() : [];
+    PD.estado = (rows[0] && rows[0].estado) || PD.estado;
     renderPanel();
     showToast('✓ Perfil reactivado', 'ok');
   } catch (e) {
