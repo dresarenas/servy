@@ -1404,7 +1404,7 @@ main { position: relative; z-index: 1; }
 }
 [data-palette="bone"] .servy-login-logo-img { filter: none; }
 .servy-login-sub {
-  text-align: center; font-size: 13px;
+  text-align: center; font-size: 15px;
   color: rgba(242,238,230,.55); margin-bottom: 24px;
 }
 .servy-login-demo-badge {
@@ -1419,7 +1419,7 @@ main { position: relative; z-index: 1; }
   background: rgba(242,238,230,.05);
   border: 1px solid rgba(242,238,230,.14);
   border-radius: 10px; color: #F2EEE6;
-  font-size: 14px; font-family: "Geist", sans-serif;
+  font-size: 16px; font-family: "Geist", sans-serif;
   outline: none; margin-bottom: 10px; box-sizing: border-box;
 }
 .servy-login-field:focus { border-color: rgba(60,230,197,.5); }
@@ -1427,7 +1427,7 @@ main { position: relative; z-index: 1; }
   width: 100%; padding: 15px;
   background: #3CE6C5; color: #0A0A0A;
   border: none; border-radius: 12px;
-  font-size: 15px; font-weight: 700;
+  font-size: 17px; font-weight: 700;
   font-family: "Geist", sans-serif;
   cursor: pointer; margin-top: 4px;
   transition: background .15s;
@@ -1435,8 +1435,8 @@ main { position: relative; z-index: 1; }
 .servy-login-btn:hover { background: #2dc9ab; }
 .servy-login-free {
   display: block; text-align: center;
-  margin-top: 12px; font-size: 12px;
-  color: rgba(242,238,230,.4); cursor: pointer;
+  margin-top: 12px; font-size: 14px;
+  color: rgba(242,238,230,.65); cursor: pointer;
   background: none; border: none; width: 100%;
   font-family: "Geist", sans-serif;
   text-decoration: underline; text-underline-offset: 3px;

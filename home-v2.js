@@ -359,9 +359,11 @@ window.servyAuth = {
     '    <input class="servy-login-field" id="servyLoginPass" type="password" placeholder="Contraseña" autocomplete="current-password">',
     '    <div class="servy-login-err" id="servyLoginErr"></div>',
     '    <button class="servy-login-btn" id="servyLoginBtn" onclick="servyDoLogin()">Ingresar al panel →</button>',
+    '    <div class="servy-login-first" onclick="servyShowCodigo(event, \'primera\')">',
+    '      ¿Primera vez? <strong>Tocá acá para crear tu contraseña</strong><br>Te mandamos un código por WhatsApp.',
+    '    </div>',
     '    <div class="servy-login-links">',
     '      <a href="#" onclick="servyShowCodigo(event, \'olvide\')">Olvidé mi contraseña</a>',
-    '      <a href="#" onclick="servyShowCodigo(event, \'primera\')">Primer acceso: crear contraseña</a>',
     '    </div>',
     '  </div>',
     '  <div id="servyViewCodigo" style="display:none;">',
@@ -381,10 +383,15 @@ window.servyAuth = {
   overlay.addEventListener('click', function (e) { if (e.target === overlay) servyCloseLogin(); });
   document.body.appendChild(overlay);
   var st = document.createElement('style');
-  st.textContent = '.servy-login-err{color:#ff7a7a;font-size:12px;min-height:16px;margin:4px 0 6px;text-align:center;}' +
+  st.textContent = '.servy-login-err{color:#ff7a7a;font-size:14px;min-height:16px;margin:4px 0 6px;text-align:center;}' +
     '.servy-login-links{display:flex;flex-direction:column;gap:6px;margin-top:12px;text-align:center;}' +
-    '.servy-login-links a{color:rgba(60,230,197,.85);font-size:12.5px;text-decoration:none;}' +
-    '.servy-login-links a:hover{text-decoration:underline;}';
+    '.servy-login-links a{color:rgba(60,230,197,.85);font-size:14px;text-decoration:none;}' +
+    '.servy-login-links a:hover{text-decoration:underline;}' +
+    '.servy-login-first{margin-top:14px;padding:12px 14px;border-radius:10px;text-align:center;font-size:14px;line-height:1.5;cursor:pointer;' +
+    'background:rgba(60,230,197,.08);border:1px solid rgba(60,230,197,.3);color:rgba(242,238,230,.85);}' +
+    '.servy-login-first strong{color:#3CE6C5;}' +
+    '[data-palette="bone"] .servy-login-first{background:rgba(19,122,99,.08);border-color:rgba(19,122,99,.35);color:rgba(15,16,20,.8);}' +
+    '[data-palette="bone"] .servy-login-first strong{color:#137A63;}';
   document.head.appendChild(st);
 })();
 
