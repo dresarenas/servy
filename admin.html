@@ -169,7 +169,7 @@ const MODULES = {
   },
   prestadores: {
     label: 'Prestadores',
-    tables: [ {n:'prestadores',oid:17597}, {n:'prestador_categorias',oid:17636}, {n:'prestador_fotos',oid:34233} ],
+    tables: [ {n:'prestadores',oid:17597}, {n:'prestador_categorias',oid:17636}, {n:'prestador_fotos',oid:34233}, {n:'feedback_prestadores',oid:34515} ],
     wfs: [
       {id:'GdjOoM5JH8ePLHvD',n:'Registro Prestador'},
       {id:'FmL65k0HQwyyhD5P',n:'Migrar Propuesta→Prestador'}
@@ -384,11 +384,12 @@ function renderPrestadores(s){
     '<div class="cards">'
     + card(nf(p.total),'Total') + card(nf(p.activos),'Activos') + card(nf(p.con_panel),'Con panel/login')
     + card(nf(p.verificados),'Verificados') + card(nf(p.resenas),'Reseñas') + card(nf(p.fotos),'Fotos subidas')
+    + card(nf(p.feedback_pausas),'Pausas') + card(nf(p.feedback_bajas),'Bajas solicitadas')
     + '</div>'
     + linksRow('prestadores')
     + '<div class="panel-grid">'
     + '<div class="box"><h3>Por categoría</h3><div class="chart-wrap"><canvas id="chPrest"></canvas></div></div>'
-    + '<div class="box"><h3>Pipeline por estado</h3>'+rankList(objToRank(p.por_estado))+'</div>'
+    + '<div class="box"><h3>Pipeline por estado</h3>'+rankList(objToRank(p.por_estado))+'<h3 style="margin-top:16px">Motivos pausa/baja</h3>'+rankList(objToRank(p.feedback_motivos))+'</div>'
     + '</div>'
     + '<div class="box"><h3>Últimos prestadores</h3><div id="ev-prestadores"><div class="empty">Cargando…</div></div></div>';
   mkChart('chPrest', { type:'bar',
