@@ -481,12 +481,12 @@ body.cargando::after{content:"";position:fixed;inset:0;margin:auto;width:34px;he
 <div class="divider"></div>
 
 <!-- FOTOS DE TRABAJOS -->
-<div class="section">
+<div class="section" id="fotosSection">
   <div class="sec-title"><span class="st-icon">📷</span> Trabajos realizados</div>
   <div class="foto-grid" id="fotoGrid"></div>
   <div id="fotosEmpty" style="font-size:13px;color:var(--ink-m);">Este prestador todavía no subió fotos.</div>
 </div>
-<div class="divider"></div>
+<div class="divider" id="fotosDivider"></div>
 
 <!-- RESEÑAS -->
 <div class="section">
@@ -713,10 +713,6 @@ body.cargando::after{content:"";position:fixed;inset:0;margin:auto;width:34px;he
   </div>
 </div>
 
-<!-- CTA footer -->
-<div style="padding:20px 16px 24px;text-align:center;">
-  <a href="buscar.html" style="display:inline-flex;align-items:center;gap:6px;padding:12px 28px;border-radius:100px;border:1px solid var(--line-s);color:var(--ink-m);font-family:var(--fm);font-size:13px;letter-spacing:0.05em;text-decoration:none;">← Volver a buscar</a>
-</div>
 
 <!-- STICKY WA BAR -->
 <div class="wa-bar">
@@ -856,6 +852,9 @@ function render(d) {
     el('fotoGrid').innerHTML = fotos.map(f =>
       '<div class="foto-item" onclick="window.open(\'' + esc(f.url) + '\')"><img src="' + esc(f.url) + '" loading="lazy" alt="Trabajo realizado" style="width:100%;height:100%;object-fit:cover;"></div>').join('');
     el('fotosEmpty').style.display = 'none';
+  } else {
+    el('fotosSection').style.display = 'none';
+    el('fotosDivider').style.display = 'none';
   }
   el('resenasTotal').textContent = (cal ? Number(cal).toFixed(1) : '—') + ' · ' + tot + ' total';
   const rs = d.resenas || [];

@@ -1411,10 +1411,11 @@ async function borrarFoto(id) {
 }
 
 function renderServicios() {
+  var oficios = panelOficios();
+  var ofHtml = oficios.map(function (o) { return '<span class="fc yes" style="opacity:.75;">' + pesc(o) + '</span>'; }).join('');
   var servs = (PD.prestador_servicios || []).sort(function (a, b) { return (a.orden || 0) - (b.orden || 0); });
-  document.getElementById('pfServicios').innerHTML = servs.length
-    ? servs.map(function (s) { return '<span class="fc">' + pesc(s.nombre) + ' <span onclick="quitarServicio(\'' + pesc(s.id) + '\')" style="cursor:pointer;margin-left:4px;opacity:.7;">✕</span></span>'; }).join('')
-    : '<span class="fc">Todavía no cargaste servicios</span>';
+  var servHtml = servs.map(function (s) { return '<span class="fc">' + pesc(s.nombre) + ' <span onclick="quitarServicio(\'' + pesc(s.id) + '\')" style="cursor:pointer;margin-left:4px;opacity:.7;">✕</span></span>'; }).join('');
+  document.getElementById('pfServicios').innerHTML = (ofHtml + servHtml) || '<span class="fc">Todavía no cargaste servicios</span>';
 }
 async function agregarServicio() {
   var nombre = v('pfServicioNuevo');
