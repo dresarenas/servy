@@ -39,6 +39,20 @@
   --r2:      10px;
   --bot:     72px;
 }
+[data-palette="bone"] {
+  --bg:      #EEEAE0;
+  --bg-e:    #E2DDD0;
+  --bg-e2:   #D6D0C0;
+  --bg-e3:   #CAC3B0;
+  --ink:     #0F1014;
+  --ink-d:   rgba(15,16,20,.90);
+  --ink-m:   rgba(15,16,20,.65);
+  --line:    rgba(15,16,20,.10);
+  --line-s:  rgba(15,16,20,.22);
+  --ac:      #137A63;
+  --ac2:     #E85A2A;
+  --ak:      #EEEAE0;
+}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{background:var(--bg);height:100%}
 body{
@@ -63,6 +77,39 @@ body{
   padding:14px 20px 12px;
   display:flex;align-items:center;gap:12px;
 }
+[data-palette="bone"] .topbar{ background:rgba(238,234,224,.92); }
+.theme-toggle {
+  width: 44px; height: 22px;
+  border-radius: 999px;
+  border: 1.5px solid var(--line-s);
+  background: var(--bg-e);
+  cursor: pointer;
+  position: relative;
+  padding: 0;
+  flex-shrink: 0;
+  transition: border-color 0.3s;
+  overflow: hidden;
+}
+.theme-toggle .toggle-moon,
+.theme-toggle .toggle-sun {
+  position: absolute; top: 50%;
+  transform: translateY(-50%);
+  font-size: 10px; line-height: 1;
+  pointer-events: none;
+}
+.theme-toggle .toggle-moon { left: 5px; }
+.theme-toggle .toggle-sun  { right: 5px; }
+.theme-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--ink);
+  transition: transform 0.3s;
+  z-index: 1;
+}
+[data-palette="bone"] .theme-toggle::after { transform: translateX(22px); }
 .topbar-logo{
   font-family:var(--ff);font-weight:800;font-size:18px;
   color:var(--ac);letter-spacing:-.03em;
@@ -117,24 +164,28 @@ body{
 .panel-tab-btn .pt-icon{font-size:18px;line-height:1;}
 .panel-tab-btn.active{color:var(--ac);border-bottom-color:var(--ac);}
 
-/* ── BOTTOM NAV (home-v2.js generated) ── */
+/* ── BOTTOM NAV (home-v2.js generated) — mismo estilo que el sitio público ── */
 .bottom-nav{
-  position:fixed;bottom:0;left:0;right:0;
-  background:rgba(23,24,28,.96);
-  backdrop-filter:blur(20px);
-  border-top:1px solid var(--line-s);
-  display:flex; z-index:200;
-  padding-bottom:max(env(safe-area-inset-bottom),4px);
+  position:fixed;bottom:12px;left:12px;right:12px;
+  z-index:200;
+  display:flex;
+  background:rgba(14,15,18,.97);
+  border-radius:20px;
+  border:1px solid rgba(255,255,255,.07);
+  box-shadow:0 4px 24px rgba(0,0,0,.45);
+  padding:6px 4px max(env(safe-area-inset-bottom),6px);
 }
 .bottom-nav-item {
   flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
-  padding:8px 0; text-decoration:none;
+  padding:4px 6px; text-decoration:none; border-radius:14px;
   color:var(--ink-m); font-family:var(--fm);
   font-size:10px; letter-spacing:.04em; text-transform:uppercase;
-  transition:color .2s; -webkit-tap-highlight-color:transparent;
+  transition:color .2s, background .2s; -webkit-tap-highlight-color:transparent;
 }
-.bottom-nav-item.active{color:var(--ac);}
+.bottom-nav-item.active{color:var(--ac);font-weight:700;background:rgba(60,230,197,.1);}
 .bottom-nav-item svg{width:22px;height:22px;stroke:currentColor;}
+[data-palette="bone"] .bottom-nav{ background:rgba(245,242,235,.97); border-color:rgba(0,0,0,.08); box-shadow:0 4px 24px rgba(0,0,0,.12); }
+[data-palette="bone"] .bottom-nav-item.active{ color:#0d7a5c!important; background:rgba(13,122,92,.1)!important; }
 
 /* ── CARDS ── */
 .card{
@@ -629,6 +680,7 @@ body.panel-lock .tab-content,body.panel-lock .topbar,body.panel-lock .panel-tabs
     </div>
   </div>
   <div class="topbar-avatar" id="tbAvatar"></div>
+  <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema" title="Cambiar tema"><span class="toggle-moon">☾</span><span class="toggle-sun">☀</span></button>
 </div>
 
 <!-- TOP TABS -->
