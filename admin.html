@@ -289,7 +289,7 @@ function rankList(arr){
 function objToRank(obj){ return Object.entries(obj||{}).map(([k,n])=>({k,n})).sort((a,b)=>b.n-a.n); }
 
 /* ================= SHELL ================= */
-const TABS = [ ['resumen','Resumen'], ['busquedas','Búsquedas'], ['propuestas','Propuestas'], ['prestadores','Prestadores'], ['bot','Bot WA'], ['visitas','Visitas'], ['redes','Redes'] ];
+const TABS = [ ['resumen','Resumen'], ['busquedas','Búsquedas'], ['propuestas','Propuestas'], ['prestadores','Prestadores'], ['bot','Bot WA'], ['evaluador','Bot IA'], ['visitas','Visitas'], ['redes','Redes'] ];
 const loadedEvents = {};
 
 function buildShell(){
@@ -300,6 +300,7 @@ function buildShell(){
 function openTab(id){
   document.querySelectorAll('.tab-btn').forEach(b=> b.classList.toggle('active', b.dataset.tab===id));
   document.querySelectorAll('.tab-panel').forEach(p=> p.classList.toggle('active', p.id==='tab-'+id));
+  if(id==='evaluador') renderEvaluador();
   if(!loadedEvents[id]) loadEvents(id);
 }
 
@@ -520,6 +521,58 @@ async function loadEvents(tab){
     });
     holder.innerHTML = h + '</tbody></table></div>';
   }catch(e){ holder.innerHTML = '<div class="empty">Error: '+esc(e.message)+'</div>'; }
+}
+
+/* ================= EVALUADOR (Bot IA) ================= */
+async function renderEvaluador(){
+  const el = $('#tab-evaluador');
+  el.innerHTML = '<div class="empty">Cargando evaluaciones…</div>';
+  try{
+    const d = await rpc('evaluador_listar', { p_limit: 20 });
+    const evs = d.evaluaciones || [];
+    const scores = evs.filter(e=>e.score!=null).map(e=>e.score);
+    const prom = scores.length ? (scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1) : '—';
+    let h = '<div class="cards">'
+      + card(nf(d.pendientes||0), 'Propuestas pendientes de tu OK')
+      + card(nf(evs.length), 'Evaluaciones recientes')
+      + card(prom, 'Score promedio')
+      + '</div>'
+      + '<div class="note"><b>Agente Evaluador:</b> Claude analiza las conversaciones del bot cada madrugada (4:37). Aprobá una propuesta y la regla entra al prompt del bot al instante; las de tipo estructural las aplica Claude en sesión.</div>';
+    if(!evs.length){ el.innerHTML = h + '<div class="empty">Sin evaluaciones todavía. La rutina corre a las 4:37 AM.</div>'; return; }
+    evs.forEach(ev=>{
+      const halls = (typeof ev.hallazgos==='string' ? JSON.parse(ev.hallazgos) : ev.hallazgos) || [];
+      h += '<div class="box" style="margin-top:14px"><h3>'+esc(ev.telefono)+' · score '+(ev.score!=null?ev.score+'/10':'—')+' <small class="muted">'+fdt(ev.creado_en)+'</small></h3>'
+        + '<p style="margin:6px 0 10px">'+esc(ev.resumen||'')+'</p>';
+      if(halls.length){
+        h += halls.map(x=>'<div style="margin:4px 0;padding:6px 10px;border-left:3px solid var(--accent);background:var(--bg-elev);border-radius:6px"><b>'+esc(x.tipo||'')+'</b>: '+esc(x.detalle||'')+(x.evidencia?'<div class="muted" style="font-size:.8rem;margin-top:2px">“'+esc(x.evidencia)+'”</div>':'')+'</div>').join('');
+      }
+      (ev.propuestas||[]).forEach(p=>{
+        const resuelta = p.estado!=='pendiente';
+        h += '<div style="margin-top:10px;padding:10px;border:1px solid var(--line);border-radius:10px">'
+          + '<b>'+esc(p.titulo)+'</b> '+pill(p.tipo)+' '+(resuelta?pill(p.estado):'')
+          + '<div style="margin:6px 0;font-size:.88rem">'+esc(p.texto_regla)+'</div>'
+          + (p.justificacion?'<div class="muted" style="font-size:.8rem">'+esc(p.justificacion)+'</div>':'')
+          + (resuelta ? '' :
+            '<div style="margin-top:8px;display:flex;gap:8px">'
+            + '<button class="ev-btn" data-id="'+p.id+'" data-ok="1" style="background:var(--accent);color:#06251d;border:none;border-radius:8px;padding:7px 16px;font-weight:700;cursor:pointer">Aprobar</button>'
+            + '<button class="ev-btn" data-id="'+p.id+'" data-ok="0" style="background:none;color:var(--ink-dim);border:1px solid var(--line);border-radius:8px;padding:7px 16px;cursor:pointer">Rechazar</button>'
+            + '</div>')
+          + '</div>';
+      });
+      h += '</div>';
+    });
+    el.innerHTML = h;
+    el.querySelectorAll('.ev-btn').forEach(b=> b.addEventListener('click', ()=> resolverPropuesta(b.dataset.id, b.dataset.ok==='1', b)));
+  }catch(e){ el.innerHTML = '<div class="empty">Error: '+esc(e.message)+'</div>'; }
+}
+
+async function resolverPropuesta(id, aprobar, btn){
+  btn.disabled = true; btn.textContent = '…';
+  try{
+    const r = await rpc('evaluador_resolver_propuesta', { p_id: id, p_aprobar: aprobar });
+    if(!r || !r.ok) throw new Error((r&&r.error)||'no se pudo resolver');
+    renderEvaluador();
+  }catch(e){ alert('Error: '+e.message); btn.disabled=false; }
 }
 
 /* ================= FLOW ================= */
