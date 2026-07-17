@@ -876,12 +876,20 @@ async function prestEnviar() {
   try {
     var ctrl = new AbortController();
     setTimeout(function() { ctrl.abort(); }, 12000);
-    await fetch(WEBHOOK, {
+    var resp = await fetch(WEBHOOK, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
       signal: ctrl.signal
     });
+    if (resp.status === 409) {
+      prestSubmitRetries = 0;
+      prestShowErr('errPrestSubmit', false);
+      document.getElementById('prestGraciasSub').innerHTML =
+        'Este WhatsApp <strong>ya está registrado en SERVY</strong>.<br>Si sos vos, entrá a tu panel desde <a href="panel.html" style="color:var(--accent)">tu acceso de prestador</a>. Si creés que es un error, escribinos por WhatsApp.';
+      prestGoTo(4);
+      return;
+    }
   } catch(e) {
     prestSubmitRetries++;
     if (prestSubmitRetries >= 3) {
