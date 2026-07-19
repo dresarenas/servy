@@ -163,7 +163,8 @@ const MODULES = {
       {id:'0qQtuLQtXWHEW8p8',n:'Guardar Propuesta Web'},
       {id:'3PezVWvX3hi5iwsq',n:'WA Flow Recomendar'},
       {id:'FmL65k0HQwyyhD5P',n:'Migrar Propuesta→Prestador'},
-      {id:'NXHiQWjsulG6PoTe',n:'Contactar Prestadores',off:true}
+      {id:'tVInQDrtwgvkf6KJ',n:'Contactar Consentimiento (botón)'},
+      {id:'NXHiQWjsulG6PoTe',n:'Contactar Prestadores (legacy)',off:true}
     ],
     ext: []
   },
@@ -183,7 +184,10 @@ const MODULES = {
       {id:'mu6Nty4delTRioRx',n:'YCloud AI Bot'},
       {id:'wyzx8SOqGHe0Kbmi',n:'Timeout Inactividad'},
       {id:'TCPXKoZvfzuR0S3h',n:'Analizar Conversaciones'},
-      {id:'QAawCZvKMKttevJm',n:'Resumen Semanal'}
+      {id:'QAawCZvKMKttevJm',n:'Resumen Semanal'},
+      {id:'AepdLMacC7wnu5GI',n:'Monitor de Créditos'},
+      {id:'WHk76LQOFiq0KKpg',n:'Notificar Telegram'},
+      {id:'lhC7uxjWrSuqq7ZP',n:'Bot Demo Landtrix (separado)'}
     ],
     ext: [ {n:'YCloud consola',url:'https://www.ycloud.com/console/'} ]
   },
@@ -371,12 +375,59 @@ function renderPropuestas(s){
     + '<div class="box"><h3>Por estado</h3><div class="chart-wrap"><canvas id="chProp"></canvas></div></div>'
     + '<div class="box"><h3>Detalle estados</h3>'+rankList(objToRank(est))+'</div>'
     + '</div>'
+    + '<div class="box"><h3>Gestión de propuestas</h3>'
+    + '<div style="margin:8px 0 12px"><button id="btnEjecConsent" style="background:var(--accent);color:#06251d;border:none;border-radius:8px;padding:9px 18px;font-weight:700;cursor:pointer">📤 Ejecutar consentimiento (contacta las marcadas)</button></div>'
+    + '<div id="propAdminList"><div class="empty">Cargando…</div></div></div>'
     + '<div class="box"><h3>Últimas propuestas</h3><div id="ev-propuestas"><div class="empty">Cargando…</div></div></div>';
   const entries = objToRank(est);
   mkChart('chProp', { type:'doughnut',
     data:{ labels:entries.map(x=>x.k), datasets:[{ data:entries.map(x=>x.n),
       backgroundColor:['#00C9A7','#FFC66B','#B8E986','#FF6B7A','#7FB3FF','#C792EA','#FF9E64'] }] },
     options:{ maintainAspectRatio:false, plugins:{legend:{position:'right'}} } });
+  $('#btnEjecConsent').addEventListener('click', ejecutarConsentimiento);
+  loadPropuestasAdmin();
+}
+
+const WEBHOOK_CONSENT = 'https://n8n-n8n.8wg7if.easypanel.host/webhook/contactar-consentimiento-x9k2m7q4';
+
+async function loadPropuestasAdmin(){
+  const holder = document.getElementById('propAdminList');
+  if(!holder) return;
+  try{
+    const rows = await rpc('admin_propuestas_listar', {});
+    if(!rows || !rows.length){ holder.innerHTML = '<div class="empty">Sin propuestas</div>'; return; }
+    let h = '<div style="overflow-x:auto"><table><thead><tr><th>Nombre</th><th>Rubro</th><th>Zona</th><th>Recomendó</th><th>Estado</th><th></th></tr></thead><tbody>';
+    rows.forEach(r=>{
+      const marcable = (r.estado==='nueva' || r.estado==='error');
+      h += '<tr><td>'+esc(r.nombre||'—')+'</td><td>'+esc(r.rubro||'—')+'</td><td>'+esc(r.zona||'—')+'</td><td class="muted">'+esc(r.recomendado_por||'—')+'</td>'
+        + '<td>'+pill(r.estado)+'</td>'
+        + '<td>'+(marcable ? '<button class="prop-btn" data-id="'+r.id+'" style="background:none;color:var(--accent);border:1px solid var(--accent);border-radius:8px;padding:5px 12px;font-weight:600;cursor:pointer;white-space:nowrap">Marcar contactar</button>' : '')+'</td></tr>';
+    });
+    holder.innerHTML = h + '</tbody></table></div>';
+    holder.querySelectorAll('.prop-btn').forEach(b=> b.addEventListener('click', async ()=>{
+      b.disabled = true; b.textContent = '…';
+      try{
+        const r = await rpc('admin_propuesta_contactar', { p_id: b.dataset.id });
+        if(!r || !r.ok) throw new Error((r&&r.error)||'no se pudo');
+        loadPropuestasAdmin();
+      }catch(e){ alert('Error: '+e.message); b.disabled=false; b.textContent='Marcar contactar'; }
+    }));
+  }catch(e){ holder.innerHTML = '<div class="empty">Error: '+esc(e.message)+'</div>'; }
+}
+
+async function ejecutarConsentimiento(){
+  const btn = document.getElementById('btnEjecConsent');
+  if(!confirm('Esto envía el WhatsApp de consentimiento a TODAS las propuestas en estado "contactar". ¿Ejecutar ahora?')) return;
+  btn.disabled = true; btn.textContent = 'Ejecutando…';
+  try{
+    const res = await fetch(WEBHOOK_CONSENT, { method:'POST', headers:{'Content-Type':'application/json'}, body:'{}' });
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    btn.textContent = '✓ Lanzado — actualizando…';
+    setTimeout(()=>{ loadPropuestasAdmin(); btn.disabled=false; btn.textContent='📤 Ejecutar consentimiento (contacta las marcadas)'; }, 15000);
+  }catch(e){
+    alert('Error al ejecutar: '+e.message);
+    btn.disabled=false; btn.textContent='📤 Ejecutar consentimiento (contacta las marcadas)';
+  }
 }
 
 function renderPrestadores(s){
