@@ -399,7 +399,7 @@ async function loadPropuestasAdmin(){
     let h = '<div style="overflow-x:auto"><table><thead><tr><th>Nombre</th><th>Rubro</th><th>Zona</th><th>Recomendó</th><th>Estado</th><th></th></tr></thead><tbody>';
     rows.forEach(r=>{
       const marcable = (r.estado==='nueva' || r.estado==='error');
-      h += '<tr><td>'+esc(r.nombre||'—')+'</td><td>'+esc(r.rubro||'—')+'</td><td>'+esc(r.zona||'—')+'</td><td class="muted">'+esc(r.recomendado_por||'—')+'</td>'
+      h += '<tr><td>'+(r.revisar?'<span title="Rubro fuera de catálogo o calificación baja — revisar antes de contactar">⚠️ </span>':'')+esc(r.nombre||'—')+'</td><td>'+esc(r.rubro||'—')+'</td><td>'+esc(r.zona||'—')+'</td><td class="muted">'+esc(r.recomendado_por||'—')+'</td>'
         + '<td>'+pill(r.estado)+'</td>'
         + '<td>'+(marcable ? '<button class="prop-btn" data-id="'+r.id+'" style="background:none;color:var(--accent);border:1px solid var(--accent);border-radius:8px;padding:5px 12px;font-weight:600;cursor:pointer;white-space:nowrap">Marcar contactar</button>' : '')+'</td></tr>';
     });
