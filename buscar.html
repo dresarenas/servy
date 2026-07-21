@@ -1872,7 +1872,8 @@ function abrirModal(p) {
   } else _vw.style.display = 'none';
   // Testimonios
   document.getElementById('testimoniosList').innerHTML = (p.testimonios || []).map(function(t) {
-    return '<div class="testimonio"><div class="testimonio-stars">' + '★'.repeat(t.stars) + '</div><div>' + escWiz(t.texto) + '</div><div class="testimonio-autor">' + escWiz(t.autor) + '</div></div>';
+    var resp = t.respuesta ? '<div class="testimonio-resp" style="margin-top:6px;padding:6px 10px;background:rgba(255,255,255,0.04);border-radius:8px;font-size:12.5px;"><b>Respuesta del prestador:</b> ' + escWiz(t.respuesta) + '</div>' : '';
+    return '<div class="testimonio"><div class="testimonio-stars">' + '★'.repeat(t.stars) + '</div><div>' + escWiz(t.texto) + '</div><div class="testimonio-autor">' + escWiz(t.autor) + '</div>' + resp + '</div>';
   }).join('') || '<p style="font-family:var(--f-sans);font-size:15px;color:var(--ink-mute);padding:8px 0;">Aún no tiene recomendaciones.</p>';
   document.getElementById('perfilExpansion').style.display = 'none';
   document.getElementById('btnDesplegar').textContent = 'Desplegar perfil completo ↓';

@@ -437,16 +437,70 @@ function renderPrestadores(s){
     + card(nf(p.total),'Total') + card(nf(p.activos),'Activos') + card(nf(p.con_panel),'Con panel/login')
     + card(nf(p.verificados),'Verificados') + card(nf(p.resenas),'Reseñas') + card(nf(p.fotos),'Fotos subidas')
     + card(nf(p.feedback_pausas),'Pausas') + card(nf(p.feedback_bajas),'Bajas solicitadas')
+    + card(nf(p.respuestas_pendientes||0),'Respuestas a moderar') + card(nf(p.pausados_racha||0),'Pausados por racha')
     + '</div>'
     + linksRow('prestadores')
     + '<div class="panel-grid">'
     + '<div class="box"><h3>Por categoría</h3><div class="chart-wrap"><canvas id="chPrest"></canvas></div></div>'
     + '<div class="box"><h3>Pipeline por estado</h3>'+rankList(objToRank(p.por_estado))+'<h3 style="margin-top:16px">Motivos pausa/baja</h3>'+rankList(objToRank(p.feedback_motivos))+'</div>'
     + '</div>'
+    + '<div class="box"><h3>Curaduría de reseñas</h3><div id="curaduria-resenas"><div class="empty">Cargando…</div></div></div>'
     + '<div class="box"><h3>Últimos prestadores</h3><div id="ev-prestadores"><div class="empty">Cargando…</div></div></div>';
   mkChart('chPrest', { type:'bar',
     data:{ labels:p.por_categoria.map(x=>x.k), datasets:[{ data:p.por_categoria.map(x=>x.n), backgroundColor:'rgba(184,233,134,0.6)', borderRadius:4 }] },
     options:{ indexAxis:'y', plugins:{legend:{display:false}}, maintainAspectRatio:false, scales:{x:{beginAtZero:true,ticks:{precision:0}}} } });
+  renderCuraduriaResenas();
+}
+
+async function renderCuraduriaResenas(){
+  const el = $('#curaduria-resenas');
+  try{
+    const d = await rpc('admin_resenas_pendientes', {});
+    const resp = d.respuestas_pendientes || [];
+    const pausados = d.pausados_racha || [];
+    let h = '';
+    h += '<div style="font-weight:700;margin-bottom:6px">Respuestas a moderar ('+resp.length+')</div>';
+    h += resp.length ? resp.map(r=>
+      '<div style="margin:6px 0;padding:8px 10px;border:1px solid var(--line);border-radius:8px">'
+      + '<b>'+esc(r.prestador_nombre)+'</b> · '+esc(String(r.estrellas))+'★<br>'
+      + '<span class="muted" style="font-size:.85rem">Reseña: '+esc(r.comentario||'—')+'</span><br>'
+      + '<span style="font-size:.88rem">Respuesta: '+esc(r.respuesta)+'</span>'
+      + '<div style="margin-top:6px;display:flex;gap:8px">'
+      + '<button class="resp-btn" data-id="'+r.id+'" data-ok="1" style="background:var(--accent);color:#06251d;border:none;border-radius:8px;padding:6px 14px;font-weight:700;cursor:pointer">Aprobar</button>'
+      + '<button class="resp-btn" data-id="'+r.id+'" data-ok="0" style="background:none;color:var(--ink-dim);border:1px solid var(--line);border-radius:8px;padding:6px 14px;cursor:pointer">Rechazar</button>'
+      + '</div></div>'
+    ).join('') : '<div class="empty">Nada pendiente.</div>';
+
+    h += '<div style="font-weight:700;margin:14px 0 6px">Pausados por racha de reseñas bajas ('+pausados.length+')</div>';
+    h += pausados.length ? pausados.map(p=>
+      '<div style="margin:6px 0;padding:8px 10px;border:1px solid var(--line);border-radius:8px">'
+      + '<b>'+esc(p.nombre)+'</b> · promedio '+esc(String(p.calificacion_promedio))+' ('+esc(String(p.total_resenas))+' reseñas) · pausado '+fdt(p.pausado_en)
+      + '<div style="margin-top:6px;display:flex;gap:8px">'
+      + '<button class="racha-btn" data-id="'+p.prestador_id+'" data-ok="1" style="background:var(--accent);color:#06251d;border:none;border-radius:8px;padding:6px 14px;font-weight:700;cursor:pointer">Reactivar</button>'
+      + '<button class="racha-btn" data-id="'+p.prestador_id+'" data-ok="0" style="background:none;color:var(--ink-dim);border:1px solid var(--line);border-radius:8px;padding:6px 14px;cursor:pointer">Baja definitiva</button>'
+      + '</div></div>'
+    ).join('') : '<div class="empty">Ninguno.</div>';
+
+    el.innerHTML = h;
+    el.querySelectorAll('.resp-btn').forEach(b=> b.addEventListener('click', ()=> moderarRespuesta(b.dataset.id, b.dataset.ok==='1', b)));
+    el.querySelectorAll('.racha-btn').forEach(b=> b.addEventListener('click', ()=> resolverPausaRacha(b.dataset.id, b.dataset.ok==='1', b)));
+  }catch(e){ el.innerHTML = '<div class="empty">Error: '+esc(e.message)+'</div>'; }
+}
+
+async function moderarRespuesta(id, aprobar, btn){
+  btn.disabled = true; btn.textContent = '…';
+  try{
+    await rpc('admin_moderar_respuesta', { p_resena_id: id, p_aprobar: aprobar });
+    renderCuraduriaResenas();
+  }catch(e){ alert('Error: '+e.message); btn.disabled=false; }
+}
+
+async function resolverPausaRacha(id, reactivar, btn){
+  btn.disabled = true; btn.textContent = '…';
+  try{
+    await rpc('admin_resolver_pausa_racha', { p_prestador_id: id, p_reactivar: reactivar });
+    renderCuraduriaResenas();
+  }catch(e){ alert('Error: '+e.message); btn.disabled=false; }
 }
 
 function renderBot(s){

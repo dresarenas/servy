@@ -1600,7 +1600,7 @@ async function panelInit() {
 
 async function cargarResenas(token) {
   try {
-    var r = await fetch(PSB + '/rest/v1/resenas?select=estrellas,comentario,recomendante_nombre,relacion,creado_en&order=creado_en.desc&limit=50', { headers: authHdr(token) });
+    var r = await fetch(PSB + '/rest/v1/resenas?select=id,estrellas,comentario,recomendante_nombre,relacion,creado_en,respuesta,respuesta_estado&order=creado_en.desc&limit=50', { headers: authHdr(token) });
     var rs = await r.json();
     if (!r.ok) rs = [];
     var conEstrellas = rs.filter(function (x) { return x.estrellas; });
@@ -1625,15 +1625,57 @@ async function cargarResenas(token) {
       var ini = nom.split(' ').map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase();
       var stars = '★'.repeat(Math.max(1, Math.min(5, x.estrellas || 5)));
       var fecha = x.creado_en ? new Date(x.creado_en).toLocaleDateString('es-AR') : '';
+      var respHtml;
+      if (x.respuesta_estado === 'aprobada') {
+        respHtml = '<div class="review-resp" style="margin-top:8px;padding:8px 10px;background:var(--bg-2,rgba(255,255,255,.04));border-radius:8px;font-size:13px;"><b>Tu respuesta:</b> ' + pesc(x.respuesta) + '</div>';
+      } else if (x.respuesta_estado === 'pendiente') {
+        respHtml = '<div class="review-resp" style="margin-top:8px;font-size:12px;color:var(--ink-m);">Respuesta enviada, esperando aprobación.</div>';
+      } else if (x.respuesta_estado === 'rechazada') {
+        respHtml = '<div class="review-resp" style="margin-top:8px;font-size:12px;color:var(--ink-m);">Tu respuesta anterior no fue aprobada. <button class="btn-responder" data-id="' + pesc(x.id) + '" style="background:none;border:none;color:var(--ac2);cursor:pointer;font-size:12px;padding:0;">Reintentar</button></div>';
+      } else {
+        respHtml = '<button class="btn-responder" data-id="' + pesc(x.id) + '" style="margin-top:8px;background:none;border:none;color:var(--ac2);cursor:pointer;font-size:12px;padding:0;">Responder</button>';
+      }
       return '<div class="review-card"><div class="review-header"><div class="review-avatar">' + pesc(ini) + '</div>' +
         '<div class="review-meta"><div class="review-name">' + pesc(nom) + '</div>' +
         '<div class="stars review-date" style="display:flex;align-items:center;gap:6px;">' +
         '<div style="display:flex;gap:1px;"><span style="font-size:12px;color:var(--star);">' + stars + '</span></div>' +
         '<span style="font-size:11px;color:var(--ink-m);">' + fecha + '</span></div></div></div>' +
-        (x.comentario ? '<div class="review-text">' + pesc(x.comentario) + '</div>' : '') + '</div>';
+        (x.comentario ? '<div class="review-text">' + pesc(x.comentario) + '</div>' : '') +
+        '<div class="review-resp-wrap" data-resp-id="' + pesc(x.id) + '">' + respHtml + '</div></div>';
     }).join('') : '<div style="color:var(--ink-m);font-size:13px;padding:12px;">Todavía no tenés reseñas. Compartí tu link para conseguir las primeras.</div>';
   } catch (e) {}
 }
+
+document.getElementById('resenasList').addEventListener('click', async function (e) {
+  var btn = e.target.closest('.btn-responder');
+  if (!btn) return;
+  var wrap = btn.closest('.review-resp-wrap');
+  var id = btn.getAttribute('data-id');
+  wrap.innerHTML = '<textarea id="respTxt-' + id + '" rows="2" placeholder="Tu respuesta pública a esta reseña..." style="width:100%;font-size:13px;padding:6px;border-radius:8px;border:1px solid var(--line,rgba(255,255,255,.1));background:transparent;color:inherit;margin-top:8px;"></textarea>' +
+    '<button class="btn-enviar-resp" data-id="' + id + '" style="margin-top:6px;background:var(--ac2);color:#000;border:none;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;">Enviar respuesta</button>';
+});
+
+document.getElementById('resenasList').addEventListener('click', async function (e) {
+  var btn = e.target.closest('.btn-enviar-resp');
+  if (!btn) return;
+  var id = btn.getAttribute('data-id');
+  var txt = document.getElementById('respTxt-' + id).value.trim();
+  if (!txt) return;
+  btn.disabled = true; btn.textContent = 'Enviando...';
+  try {
+    var tok = await servyAuth.token();
+    var r = await fetch(PSB + '/rest/v1/rpc/panel_responder_resena', {
+      method: 'POST', headers: authHdr(tok, { Prefer: 'return=minimal' }),
+      body: JSON.stringify({ p_resena_id: id, p_texto: txt })
+    });
+    if (!r.ok) throw new Error('fail');
+    showToast('Respuesta enviada, queda pendiente de aprobación.', 'ok');
+    cargarResenas(tok);
+  } catch (e) {
+    showToast('No se pudo enviar la respuesta. Probá de nuevo.', 'err');
+    btn.disabled = false; btn.textContent = 'Enviar respuesta';
+  }
+});
 
 document.getElementById('fotoFile').addEventListener('change', async function () {
   if (!PD || !this.files.length) return;
