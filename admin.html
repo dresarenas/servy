@@ -488,19 +488,25 @@ async function renderCuraduriaResenas(){
 }
 
 async function moderarRespuesta(id, aprobar, btn){
-  btn.disabled = true; btn.textContent = '…';
+  const wrap = btn.closest('div');
+  wrap.querySelectorAll('button').forEach(b=> b.disabled = true);
+  btn.textContent = '…';
   try{
-    await rpc('admin_moderar_respuesta', { p_resena_id: id, p_aprobar: aprobar });
+    const r = await rpc('admin_moderar_respuesta', { p_resena_id: id, p_aprobar: aprobar });
+    if(!r || !r.ok) throw new Error((r&&r.error)||'no se pudo resolver');
     renderCuraduriaResenas();
-  }catch(e){ alert('Error: '+e.message); btn.disabled=false; }
+  }catch(e){ alert('Error: '+e.message); renderCuraduriaResenas(); }
 }
 
 async function resolverPausaRacha(id, reactivar, btn){
-  btn.disabled = true; btn.textContent = '…';
+  const wrap = btn.closest('div');
+  wrap.querySelectorAll('button').forEach(b=> b.disabled = true);
+  btn.textContent = '…';
   try{
-    await rpc('admin_resolver_pausa_racha', { p_prestador_id: id, p_reactivar: reactivar });
+    const r = await rpc('admin_resolver_pausa_racha', { p_prestador_id: id, p_reactivar: reactivar });
+    if(!r || !r.ok) throw new Error((r&&r.error)||'no se pudo resolver');
     renderCuraduriaResenas();
-  }catch(e){ alert('Error: '+e.message); btn.disabled=false; }
+  }catch(e){ alert('Error: '+e.message); renderCuraduriaResenas(); }
 }
 
 function renderBot(s){

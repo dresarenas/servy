@@ -1290,7 +1290,9 @@ async function wizNext() {
     // Siempre llamar AI — detecta multi-oficio que el diccionario local no puede
     var _e0 = document.getElementById('wiz-err-0');
     var _btn0 = document.getElementById('wizCtaBtn0');
+    var _arrow0 = document.getElementById('wizTextareaArrow');
     if (_btn0) { _btn0.textContent = 'Identificando...'; _btn0.disabled = true; }
+    if (_arrow0) { _arrow0.style.opacity = '0.4'; _arrow0.style.pointerEvents = 'none'; }
     try {
       var _ctrl0 = new AbortController();
       var _t0 = setTimeout(function(){ _ctrl0.abort(); }, 6000);
@@ -1308,6 +1310,7 @@ async function wizNext() {
             wizState.oficio = _ofs[0]; wizState.oficios = _ofs.length > 1 ? _ofs : null;
             if (wizState.oficios && wizState.oficios.length > 1) {
               if (_btn0) { _btn0.textContent = 'Siguiente'; _btn0.disabled = false; }
+              if (_arrow0) { _arrow0.style.opacity = ''; _arrow0.style.pointerEvents = ''; }
               showMultiOficios(wizState.oficios);
               return;
             }
@@ -1318,6 +1321,7 @@ async function wizNext() {
       }
     } catch(_err2) { /* AI no disponible, usar deteccion local */ }
     if (_btn0) { _btn0.textContent = 'Siguiente'; _btn0.disabled = false; }
+    if (_arrow0) { _arrow0.style.opacity = ''; _arrow0.style.pointerEvents = ''; }
 
     if (!wizState.oficio) {
       // AI tambien fallo → error + log fire-and-forget a Supabase
@@ -1528,10 +1532,14 @@ function normalizeText(s) {
     .replace(/[áà]/g,'a').replace(/[éè]/g,'e').replace(/[íì]/g,'i')
     .replace(/[óò]/g,'o').replace(/[úùü]/g,'u').replace(/ñ/g,'n');
 }
+var _oficioKeysPorLargo = Object.keys(oficioMap).sort(function(a, b) { return b.length - a.length; });
 function detectOficio(text) {
   text = normalizeText(text);
   var t = text.toLowerCase();
-  for (var kw in oficioMap) { if (t.includes(kw)) return oficioMap[kw]; }
+  for (var i = 0; i < _oficioKeysPorLargo.length; i++) {
+    var kw = _oficioKeysPorLargo[i];
+    if (t.includes(kw)) return oficioMap[kw];
+  }
   return null;
 }
 var _normOficio = {
