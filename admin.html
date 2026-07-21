@@ -179,7 +179,7 @@ const MODULES = {
   },
   bot: {
     label: 'Bot WA',
-    tables: [ {n:'conversaciones',oid:33960}, {n:'bot_logs',oid:34265}, {n:'bot_learnings',oid:34253} ],
+    tables: [ {n:'conversaciones',oid:33960}, {n:'bot_logs',oid:34265}, {n:'bot_learnings',oid:34253}, {n:'monitor_creditos',oid:34673} ],
     wfs: [
       {id:'mu6Nty4delTRioRx',n:'YCloud AI Bot'},
       {id:'wyzx8SOqGHe0Kbmi',n:'Timeout Inactividad'},
@@ -189,7 +189,12 @@ const MODULES = {
       {id:'WHk76LQOFiq0KKpg',n:'Notificar Telegram'},
       {id:'lhC7uxjWrSuqq7ZP',n:'Bot Demo Landtrix (separado)'}
     ],
-    ext: [ {n:'YCloud consola',url:'https://www.ycloud.com/console/'} ]
+    ext: [
+      {n:'YCloud consola',url:'https://www.ycloud.com/console/'},
+      {n:'Google Cloud Billing',url:'https://console.cloud.google.com/billing'},
+      {n:'OpenAI Usage',url:'https://platform.openai.com/usage'},
+      {n:'Supabase proyecto',url:'https://supabase.com/dashboard/project/oupmslbpvtuszwkdcbvq'}
+    ]
   },
   visitas: {
     label: 'Visitas',
@@ -341,8 +346,43 @@ function renderResumen(s){
     + card(ult?nf(ult.usuarios):'—', 'Visitas (último día)', 'visitas')
     + card(ig?nf(ig.seguidores):'—', 'Seguidores IG', 'redes')
     + '</div>'
+    + renderEstadoServicios(s.monitor)
     + '<div class="note"><b>Regla del tablero:</b> cada cambio en módulos, tablas o workflows de SERVY se refleja acá (config MODULES + RPC admin_dashboard_stats).</div>';
   document.querySelectorAll('#tab-resumen .card.click').forEach(c=> c.addEventListener('click', ()=> openTab(c.dataset.go)) );
+  const btnChk = $('#btnCheckMonitor');
+  if(btnChk) btnChk.addEventListener('click', chequearMonitorAhora);
+}
+
+function renderEstadoServicios(mon){
+  if(!mon) return '<div class="box"><h3>Estado de servicios</h3><div class="empty">Todavía no corrió el Monitor de Créditos.</div></div>';
+  const pill2 = ok => '<span class="pill '+(ok?'':'bad')+'" style="margin-left:6px">'+(ok?'✓ OK':'✗ falla')+'</span>';
+  return '<div class="box"><h3>Estado de servicios</h3>'
+    + '<div class="cards">'
+    + card('$'+(mon.ycloud_saldo!=null?Number(mon.ycloud_saldo).toFixed(2):'—'), 'Saldo YCloud (USD)')
+    + '</div>'
+    + '<div style="margin:10px 0">Google Maps'+pill2(mon.maps_ok)+' &nbsp;·&nbsp; OpenAI'+pill2(mon.openai_ok)+' &nbsp;·&nbsp; Supabase'+pill2(mon.supabase_ok)+'</div>'
+    + '<div class="muted" style="font-size:.85rem">Último chequeo: '+fdt(mon.creado_en)+'</div>'
+    + (mon.detalle && mon.detalle.length ? mon.detalle.map(d=>'<div style="margin:6px 0;padding:6px 10px;background:var(--bg-elev);border-radius:6px;font-size:.85rem">⚠️ '+esc(d)+'</div>').join('') : '')
+    + '<div class="links-row" style="margin-top:10px">'
+      + '<a href="https://www.ycloud.com/console/" target="_blank" rel="noopener"><span class="tag ext">↗</span>YCloud</a>'
+      + '<a href="https://console.cloud.google.com/billing" target="_blank" rel="noopener"><span class="tag ext">↗</span>Google Cloud Billing</a>'
+      + '<a href="https://platform.openai.com/usage" target="_blank" rel="noopener"><span class="tag ext">↗</span>OpenAI Usage</a>'
+      + '<a href="https://supabase.com/dashboard/project/oupmslbpvtuszwkdcbvq" target="_blank" rel="noopener"><span class="tag ext">↗</span>Supabase</a>'
+    + '</div>'
+    + '<button id="btnCheckMonitor" style="margin-top:10px;background:var(--accent);color:#06251d;border:none;border-radius:8px;padding:7px 16px;font-weight:700;cursor:pointer">Chequear ahora</button>'
+    + '</div>';
+}
+
+async function chequearMonitorAhora(){
+  const btn = $('#btnCheckMonitor');
+  btn.disabled = true; btn.textContent = 'Chequeando… (~10s)';
+  try{
+    await fetch('https://n8n-n8n.8wg7if.easypanel.host/webhook/monitor-creditos-test');
+    await new Promise(res=> setTimeout(res, 9000));
+    await refresh();
+  }catch(e){ alert('Error: '+e.message); }
+  const btn2 = $('#btnCheckMonitor');
+  if(btn2){ btn2.disabled = false; btn2.textContent = 'Chequear ahora'; }
 }
 
 function renderBusquedas(s){
@@ -438,12 +478,16 @@ function renderPrestadores(s){
     + card(nf(p.verificados),'Verificados') + card(nf(p.resenas),'Reseñas') + card(nf(p.fotos),'Fotos subidas')
     + card(nf(p.feedback_pausas),'Pausas') + card(nf(p.feedback_bajas),'Bajas solicitadas')
     + card(nf(p.respuestas_pendientes||0),'Respuestas a moderar') + card(nf(p.pausados_racha||0),'Pausados por racha')
+    + card(nf(p.sin_geo||0),'Sin ubicar (sin filtro de zona)')
     + '</div>'
     + linksRow('prestadores')
     + '<div class="panel-grid">'
     + '<div class="box"><h3>Por categoría</h3><div class="chart-wrap"><canvas id="chPrest"></canvas></div></div>'
     + '<div class="box"><h3>Pipeline por estado</h3>'+rankList(objToRank(p.por_estado))+'<h3 style="margin-top:16px">Motivos pausa/baja</h3>'+rankList(objToRank(p.feedback_motivos))+'</div>'
     + '</div>'
+    + (p.sin_geo_lista && p.sin_geo_lista.length ? '<div class="box"><h3>⚠️ Sin ubicar — aparecen en TODAS las búsquedas sin filtro de zona</h3>'
+      + p.sin_geo_lista.map(x=>'<div style="margin:6px 0;padding:8px 10px;border:1px solid var(--line);border-radius:8px"><b>'+esc(x.nombre)+'</b> · zona cargada: "'+esc(x.direccion_base||'—')+'"</div>').join('')
+      + '<div class="note" style="margin-top:8px">Corregir la zona a mano (SQL o panel) hasta que exista edición desde acá.</div></div>' : '')
     + '<div class="box"><h3>Curaduría de reseñas</h3><div id="curaduria-resenas"><div class="empty">Cargando…</div></div></div>'
     + '<div class="box"><h3>Últimos prestadores</h3><div id="ev-prestadores"><div class="empty">Cargando…</div></div></div>';
   mkChart('chPrest', { type:'bar',
