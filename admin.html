@@ -692,8 +692,10 @@ async function renderEvaluador(){
       + card(nf(evs.length), 'Evaluaciones recientes')
       + card(prom, 'Score promedio')
       + '</div>'
-      + '<div class="note"><b>Agente Evaluador:</b> Claude analiza las conversaciones del bot cada madrugada (4:37). Aprobá una propuesta y la regla entra al prompt del bot al instante; las de tipo estructural las aplica Claude en sesión.</div>';
-    if(!evs.length){ el.innerHTML = h + '<div class="empty">Sin evaluaciones todavía. La rutina corre a las 4:37 AM.</div>'; return; }
+      + '<div class="note"><b>Agente Evaluador:</b> Claude analiza las conversaciones del bot cada madrugada (4:37) — solo corre si la app está abierta en ese momento. '
+      + '<button id="btnEvaluarAhora" style="margin-left:10px;background:var(--accent);color:#06251d;border:none;border-radius:8px;padding:6px 14px;font-weight:700;cursor:pointer">Evaluar ahora</button>'
+      + '<span id="evaluarAhoraMsg" class="muted" style="margin-left:10px;font-size:.85rem"></span></div>';
+    if(!evs.length){ h += '<div class="empty">Sin evaluaciones todavía. La rutina corre a las 4:37 AM, o tocá "Evaluar ahora".</div>'; }
     evs.forEach(ev=>{
       const halls = (typeof ev.hallazgos==='string' ? JSON.parse(ev.hallazgos) : ev.hallazgos) || [];
       h += '<div class="box" style="margin-top:14px"><h3>'+esc(ev.telefono)+' · score '+(ev.score!=null?ev.score+'/10':'—')+' <small class="muted">'+fdt(ev.creado_en)+'</small></h3>'
@@ -718,7 +720,25 @@ async function renderEvaluador(){
     });
     el.innerHTML = h;
     el.querySelectorAll('.ev-btn').forEach(b=> b.addEventListener('click', ()=> resolverPropuesta(b.dataset.id, b.dataset.ok==='1', b)));
+    const btnEv = $('#btnEvaluarAhora');
+    if(btnEv) btnEv.addEventListener('click', dispararEvaluadorManual);
   }catch(e){ el.innerHTML = '<div class="empty">Error: '+esc(e.message)+'</div>'; }
+}
+
+async function dispararEvaluadorManual(){
+  const btn = $('#btnEvaluarAhora'), msg = $('#evaluarAhoraMsg');
+  btn.disabled = true; msg.textContent = 'Buscando conversaciones pendientes…';
+  try{
+    const pendientes = await rpc('evaluador_conversaciones_pendientes', {});
+    const n = Array.isArray(pendientes) ? pendientes.length : 0;
+    if(n === 0){ msg.textContent = 'Sin conversaciones pendientes de evaluar ahora mismo.'; return; }
+    const texto = '🔔 Andrés disparó el Evaluador manualmente — ' + n + ' conversación(es) esperando análisis.\nDecile a Claude "evaluá" en una sesión para procesarlas.';
+    await fetch('https://n8n-n8n.8wg7if.easypanel.host/webhook/notificar-telegram', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({texto})
+    });
+    msg.textContent = n + ' conversación(es) pendientes — te avisamos por Telegram.';
+  }catch(e){ msg.textContent = 'Error: '+e.message; }
+  finally{ btn.disabled = false; }
 }
 
 async function resolverPropuesta(id, aprobar, btn){
