@@ -1897,12 +1897,15 @@ main { position: relative; z-index: 1; }
     backface-visibility: hidden;
   }
   .bottom-nav-item {
-    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
-    padding: 4px 6px; text-decoration: none; border-radius: 14px;
+    flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 4px 4px; text-decoration: none; border-radius: 14px;
     color: var(--ink-mute); font-family: var(--f-mono);
-    font-size: 10px; letter-spacing: .04em; text-transform: uppercase;
+    font-size: 10px; letter-spacing: .02em; text-transform: uppercase;
     transition: color .2s, background .2s;
     -webkit-tap-highlight-color: transparent;
+  }
+  .bottom-nav-item span {
+    max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .bottom-nav-item.active { color: var(--accent); font-weight: 700; background: rgba(60,230,197,0.1); }
   .bottom-nav-item svg { width: 22px; height: 22px; }
