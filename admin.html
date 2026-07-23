@@ -698,7 +698,7 @@ async function renderEvaluador(){
     if(!evs.length){ h += '<div class="empty">Sin evaluaciones todavía. La rutina corre a las 4:37 AM, o tocá "Evaluar ahora".</div>'; }
     evs.forEach(ev=>{
       const halls = (typeof ev.hallazgos==='string' ? JSON.parse(ev.hallazgos) : ev.hallazgos) || [];
-      h += '<div class="box" style="margin-top:14px"><h3>'+esc(ev.telefono)+' · score '+(ev.score!=null?ev.score+'/10':'—')+' <small class="muted">'+fdt(ev.creado_en)+'</small></h3>'
+      h += '<div class="box" style="margin-top:14px"><h3>'+esc(ev.telefono)+' · score '+(ev.score!=null?ev.score+'/10':'—')+' <small class="muted">'+fdt(ev.conversacion_desde)+' · evaluado '+fdt(ev.creado_en)+'</small></h3>'
         + '<p style="margin:6px 0 10px">'+esc(ev.resumen||'')+'</p>';
       if(halls.length){
         h += halls.map(x=>'<div style="margin:4px 0;padding:6px 10px;border-left:3px solid var(--accent);background:var(--bg-elev);border-radius:6px"><b>'+esc(x.tipo||'')+'</b>: '+esc(x.detalle||'')+(x.evidencia?'<div class="muted" style="font-size:.8rem;margin-top:2px">“'+esc(x.evidencia)+'”</div>':'')+'</div>').join('');
