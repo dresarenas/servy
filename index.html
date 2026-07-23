@@ -820,7 +820,26 @@
   var _col0=_p0==='candy'?0xd5ff4a:0x3ce6c5;
   var _dots0=(_p0!=='bone');
   var _isMobile = window.innerWidth < 768;
-  var vantaInst = VANTA.NET({
+  function _vantaIgnoreHeightOnlyResize(fn) {
+    var orig = window.addEventListener;
+    var lastW = window.innerWidth;
+    window.addEventListener = function(type, listener, opts) {
+      if (type === 'resize') {
+        var wrapped = function(e) {
+          var w = window.innerWidth;
+          if (w === lastW) return; // Android: solo cambió innerHeight (barra de direcciones), no un resize real
+          lastW = w;
+          listener(e);
+        };
+        return orig.call(window, type, wrapped, opts);
+      }
+      return orig.call(window, type, listener, opts);
+    };
+    var result = fn();
+    window.addEventListener = orig;
+    return result;
+  }
+  var vantaInst = _vantaIgnoreHeightOnlyResize(function() { return VANTA.NET({
     el: '#hero-vanta',
     mouseControls: true, touchControls: true, gyroControls: false,
     minHeight: 200, minWidth: 200, scale: 1, scaleMobile: 1,
@@ -829,7 +848,7 @@
     maxDistance: _isMobile ? 18 : 22,
     spacing: (_p0==='bone'||_isMobile) ? 22 : 18,
     showDots: _dots0
-  });
+  }); });
   setTimeout(function() { if (vantaInst) vantaInst.resize(); }, 200);
   new MutationObserver(function() {
     var p = document.documentElement.getAttribute('data-palette');
@@ -837,13 +856,13 @@
     var dots = (p !== 'bone');
     if (vantaInst) { vantaInst.destroy(); }
     var _mob = window.innerWidth < 768;
-    vantaInst = VANTA.NET({
+    vantaInst = _vantaIgnoreHeightOnlyResize(function() { return VANTA.NET({
       el: '#hero-vanta',
       mouseControls: true, touchControls: true, gyroControls: false,
       minHeight: 200, minWidth: 200, scale: 1, scaleMobile: 1,
       color: col, backgroundAlpha: 0,
       points: (p==='bone'||_mob) ? 5 : 9, maxDistance: _mob ? 18 : 22, spacing: (p==='bone'||_mob) ? 22 : 18, showDots: dots
-    });
+    }); });
   }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-palette'] });
 </script>
 <script src="servy-shared.js"></script>
