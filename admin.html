@@ -684,6 +684,7 @@ async function renderEvaluador(){
   el.innerHTML = '<div class="empty">Cargando evaluaciones…</div>';
   try{
     const d = await rpc('evaluador_listar', { p_limit: 20 });
+    const huerfanas = await rpc('evaluador_listar_huerfanas', {}).catch(()=>[]);
     const evs = d.evaluaciones || [];
     const scores = evs.filter(e=>e.score!=null).map(e=>e.score);
     const prom = scores.length ? (scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1) : '—';
@@ -695,6 +696,20 @@ async function renderEvaluador(){
       + '<div class="note"><b>Agente Evaluador:</b> Claude analiza las conversaciones del bot cada madrugada (4:37) — solo corre si la app está abierta en ese momento. '
       + '<button id="btnEvaluarAhora" style="margin-left:10px;background:var(--accent);color:#06251d;border:none;border-radius:8px;padding:6px 14px;font-weight:700;cursor:pointer">Evaluar ahora</button>'
       + '<span id="evaluarAhoraMsg" class="muted" style="margin-left:10px;font-size:.85rem"></span></div>';
+    if(huerfanas.length){
+      h += '<div class="box" style="margin-top:14px"><h3>Propuestas del evaluador automático nocturno <small class="muted">(no ligadas a una conversación puntual)</small></h3>';
+      huerfanas.forEach(p=>{
+        h += '<div style="margin-top:10px;padding:10px;border:1px solid var(--line);border-radius:10px">'
+          + '<b>'+esc(p.titulo)+'</b> '+pill(p.tipo)
+          + '<div style="margin:6px 0;font-size:.88rem">'+esc(p.texto_regla)+'</div>'
+          + (p.justificacion?'<div class="muted" style="font-size:.8rem">'+esc(p.justificacion)+'</div>':'')
+          + '<div style="margin-top:8px;display:flex;gap:8px">'
+          + '<button class="ev-btn" data-id="'+p.id+'" data-ok="1" style="background:var(--accent);color:#06251d;border:none;border-radius:8px;padding:7px 16px;font-weight:700;cursor:pointer">Aprobar</button>'
+          + '<button class="ev-btn" data-id="'+p.id+'" data-ok="0" style="background:none;color:var(--ink-dim);border:1px solid var(--line);border-radius:8px;padding:7px 16px;cursor:pointer">Rechazar</button>'
+          + '</div></div>';
+      });
+      h += '</div>';
+    }
     if(!evs.length){ h += '<div class="empty">Sin evaluaciones todavía. La rutina corre a las 4:37 AM, o tocá "Evaluar ahora".</div>'; }
     evs.forEach(ev=>{
       const halls = (typeof ev.hallazgos==='string' ? JSON.parse(ev.hallazgos) : ev.hallazgos) || [];
