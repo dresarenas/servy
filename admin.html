@@ -742,16 +742,14 @@ async function renderEvaluador(){
 
 async function dispararEvaluadorManual(){
   const btn = $('#btnEvaluarAhora'), msg = $('#evaluarAhoraMsg');
-  btn.disabled = true; msg.textContent = 'Buscando conversaciones pendientes…';
+  btn.disabled = true; msg.textContent = 'Evaluando conversaciones pendientes…';
   try{
-    const pendientes = await rpc('evaluador_conversaciones_pendientes', {});
-    const n = Array.isArray(pendientes) ? pendientes.length : 0;
-    if(n === 0){ msg.textContent = 'Sin conversaciones pendientes de evaluar ahora mismo.'; return; }
-    const texto = '🔔 Andrés disparó el Evaluador manualmente — ' + n + ' conversación(es) esperando análisis.\nDecile a Claude "evaluá" en una sesión para procesarlas.';
-    await fetch('https://n8n-n8n.8wg7if.easypanel.host/webhook/notificar-telegram', {
-      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({texto})
+    const res = await fetch('https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-evaluador-manual', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({})
     });
-    msg.textContent = n + ' conversación(es) pendientes — te avisamos por Telegram.';
+    const r = await res.json();
+    msg.textContent = r.mensaje || ((r.evaluadas||0) + ' conversación(es) evaluadas.');
+    renderEvaluador();
   }catch(e){ msg.textContent = 'Error: '+e.message; }
   finally{ btn.disabled = false; }
 }
