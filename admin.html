@@ -346,21 +346,34 @@ function renderResumen(s){
     + card(ult?nf(ult.usuarios):'—', 'Visitas (último día)', 'visitas')
     + card(ig?nf(ig.seguidores):'—', 'Seguidores IG', 'redes')
     + '</div>'
-    + renderEstadoServicios(s.monitor)
+    + renderEstadoServicios(s.monitor, s.bot)
     + '<div class="note"><b>Regla del tablero:</b> cada cambio en módulos, tablas o workflows de SERVY se refleja acá (config MODULES + RPC admin_dashboard_stats).</div>';
   document.querySelectorAll('#tab-resumen .card.click').forEach(c=> c.addEventListener('click', ()=> openTab(c.dataset.go)) );
   const btnChk = $('#btnCheckMonitor');
   if(btnChk) btnChk.addEventListener('click', chequearMonitorAhora);
 }
 
-function renderEstadoServicios(mon){
+function renderEstadoServicios(mon, bot){
   if(!mon) return '<div class="box"><h3>Estado de servicios</h3><div class="empty">Todavía no corrió el Monitor de Créditos.</div></div>';
   const pill2 = ok => '<span class="pill '+(ok?'':'bad')+'" style="margin-left:6px">'+(ok?'✓ OK':'✗ falla')+'</span>';
+  // Chequeo de COMPORTAMIENTO, no de conectividad (31/07): cuenta conversaciones
+  // que ya deberían haber recibido el recordatorio de silencio (mismo criterio
+  // que la RPC del workflow, +15min de margen) y no lo tienen. Bug real: el
+  // workflow corría perfecto cada 30 min pero RLS sin policy + key anon hacía
+  // que siempre encontrara 0 filas -- un pill de "Supabase ✓" nunca detecta
+  // eso, porque Supabase SÍ estaba respondiendo bien.
+  const vencidos = bot ? Number(bot.recordatorio_vencidos || 0) : null;
+  const recordatorioOk = vencidos === 0;
   return '<div class="box"><h3>Estado de servicios</h3>'
     + '<div class="cards">'
     + card('$'+(mon.ycloud_saldo!=null?Number(mon.ycloud_saldo).toFixed(2):'—'), 'Saldo YCloud (USD)')
     + '</div>'
-    + '<div style="margin:10px 0">Google Maps'+pill2(mon.maps_ok)+' &nbsp;·&nbsp; OpenAI'+pill2(mon.openai_ok)+' &nbsp;·&nbsp; Supabase'+pill2(mon.supabase_ok)+'</div>'
+    + '<div style="margin:10px 0">Google Maps'+pill2(mon.maps_ok)+' &nbsp;·&nbsp; OpenAI'+pill2(mon.openai_ok)+' &nbsp;·&nbsp; Supabase'+pill2(mon.supabase_ok)
+      + (vencidos!=null ? ' &nbsp;·&nbsp; Recordatorio bot'+pill2(recordatorioOk) : '')
+    + '</div>'
+    + (vencidos!=null && !recordatorioOk ? '<div style="margin:6px 0;padding:6px 10px;background:var(--bg-elev);border-radius:6px;font-size:.85rem">⚠️ '
+        +nf(vencidos)+' conversación(es) sin recordatorio pese a llevar más de 3h15 sin actividad (peor caso: '
+        +esc(String(bot.recordatorio_peor_espera_horas))+'h de espera). Puede incluir números de prueba de la batería QA — revisar antes de asumir que el mecanismo está roto.</div>' : '')
     + '<div class="muted" style="font-size:.85rem">Último chequeo: '+fdt(mon.creado_en)+'</div>'
     + (mon.detalle && mon.detalle.length ? mon.detalle.map(d=>'<div style="margin:6px 0;padding:6px 10px;background:var(--bg-elev);border-radius:6px;font-size:.85rem">⚠️ '+esc(d)+'</div>').join('') : '')
     + '<div class="links-row" style="margin-top:10px">'
