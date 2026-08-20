@@ -179,7 +179,7 @@ const MODULES = {
   },
   bot: {
     label: 'Bot WA',
-    tables: [ {n:'conversaciones',oid:33960}, {n:'bot_logs',oid:34265}, {n:'bot_learnings',oid:34253}, {n:'monitor_creditos',oid:34673} ],
+    tables: [ {n:'conversaciones',oid:33960}, {n:'bot_logs',oid:34265}, {n:'bot_correcciones',oid:35123}, {n:'monitor_creditos',oid:34673} ],
     wfs: [
       {id:'mu6Nty4delTRioRx',n:'YCloud AI Bot'},
       {id:'wyzx8SOqGHe0Kbmi',n:'Timeout Inactividad'},
@@ -262,6 +262,20 @@ async function rpc(name, args){
   return res.json();
 }
 
+async function replayCall(body){
+  const tk = await freshToken();
+  if(!tk){ showLogin(); throw new Error('sin sesión'); }
+  const res = await fetch(SB + '/functions/v1/wa-bot-replay', {
+    method:'POST',
+    headers:{ 'apikey':ANON, 'Authorization':'Bearer '+tk, 'Content-Type':'application/json' },
+    body: JSON.stringify(body)
+  });
+  if(res.status===401 || res.status===403){ clearSession(); showLogin(); throw new Error('sesión vencida o sin permisos'); }
+  const d = await res.json().catch(()=>({}));
+  if(!res.ok) throw new Error(d.error||d.message||('Error '+res.status));
+  return d;
+}
+
 /* ================= HELPERS ================= */
 const $ = s => document.querySelector(s);
 const nf = n => (n==null?'—':Number(n).toLocaleString('es-AR'));
@@ -298,7 +312,7 @@ function rankList(arr){
 function objToRank(obj){ return Object.entries(obj||{}).map(([k,n])=>({k,n})).sort((a,b)=>b.n-a.n); }
 
 /* ================= SHELL ================= */
-const TABS = [ ['resumen','Resumen'], ['busquedas','Búsquedas'], ['propuestas','Propuestas'], ['prestadores','Prestadores'], ['bot','Bot WA'], ['evaluador','Bot IA'], ['visitas','Visitas'], ['redes','Redes'] ];
+const TABS = [ ['resumen','Resumen'], ['busquedas','Búsquedas'], ['propuestas','Propuestas'], ['prestadores','Prestadores'], ['bot','Bot WA'], ['correcciones','Correcciones'], ['visitas','Visitas'], ['redes','Redes'] ];
 const loadedEvents = {};
 
 function buildShell(){
@@ -309,7 +323,7 @@ function buildShell(){
 function openTab(id){
   document.querySelectorAll('.tab-btn').forEach(b=> b.classList.toggle('active', b.dataset.tab===id));
   document.querySelectorAll('.tab-panel').forEach(p=> p.classList.toggle('active', p.id==='tab-'+id));
-  if(id==='evaluador') renderEvaluador();
+  if(id==='correcciones') renderCorrecciones();
   if(!loadedEvents[id]) loadEvents(id);
 }
 
@@ -691,89 +705,116 @@ async function loadEvents(tab){
   }catch(e){ holder.innerHTML = '<div class="empty">Error: '+esc(e.message)+'</div>'; }
 }
 
-/* ================= EVALUADOR (Bot IA) ================= */
-async function renderEvaluador(){
-  const el = $('#tab-evaluador');
-  el.innerHTML = '<div class="empty">Cargando evaluaciones…</div>';
+/* ================= CORRECCIONES (agente aprendiz) ================= */
+let correccionesTurnos = [];
+
+async function renderCorrecciones(){
+  const el = $('#tab-correcciones');
+  el.innerHTML =
+    '<div class="note"><b>Agente aprendiz:</b> cargá los turnos reales de un teléfono, recalculá con el código de hoy, '
+    + 'y aprobá / editá / reescribí la respuesta. La corrección queda guardada como memoria para futuras respuestas del bot en el mismo estado.</div>'
+    + '<div class="box" style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">'
+    + '<input id="corrTel" type="text" placeholder="Teléfono (ej. 5493511234567)" style="flex:1;min-width:220px;background:var(--bg-elev);border:1px solid var(--line);border-radius:8px;padding:8px 12px;color:var(--ink)">'
+    + '<button id="btnCorrCargar" style="background:var(--accent);color:#06251d;border:none;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer">Cargar conversación</button>'
+    + '</div>'
+    + '<div id="corrLista" style="margin-top:14px"></div>';
+  $('#btnCorrCargar').addEventListener('click', cargarCorreccionesTel);
+  $('#corrTel').addEventListener('keydown', e=>{ if(e.key==='Enter') cargarCorreccionesTel(); });
+}
+
+async function cargarCorreccionesTel(){
+  const tel = $('#corrTel').value.replace(/[^0-9]/g,'');
+  const lista = $('#corrLista');
+  if(!tel){ lista.innerHTML = '<div class="empty">Ingresá un teléfono.</div>'; return; }
+  lista.innerHTML = '<div class="empty">Cargando turnos…</div>';
   try{
-    const d = await rpc('evaluador_listar', { p_limit: 20 });
-    const huerfanas = await rpc('evaluador_listar_huerfanas', {}).catch(()=>[]);
-    const evs = d.evaluaciones || [];
-    const scores = evs.filter(e=>e.score!=null).map(e=>e.score);
-    const prom = scores.length ? (scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1) : '—';
-    let h = '<div class="cards">'
-      + card(nf(d.pendientes||0), 'Propuestas pendientes de tu OK')
-      + card(nf(evs.length), 'Evaluaciones recientes')
-      + card(prom, 'Score promedio')
+    const r = await replayCall({ accion:'listar', telefono: tel });
+    correccionesTurnos = r.turnos || [];
+    if(!correccionesTurnos.length){ lista.innerHTML = '<div class="empty">Sin turnos registrados para ese teléfono.</div>'; return; }
+    lista.innerHTML = correccionesTurnos.map((t,i)=> corrTurnoBox(t,i)).join('');
+    correccionesTurnos.forEach((t,i)=>{
+      const btn = $('#corrRecalc'+i);
+      if(btn) btn.addEventListener('click', ()=> recalcularCorreccion(i));
+    });
+  }catch(e){ lista.innerHTML = '<div class="empty">Error: '+esc(e.message)+'</div>'; }
+}
+
+function corrTurnoBox(t, i){
+  const dec = (typeof t.decision==='string' ? JSON.parse(t.decision) : t.decision) || {};
+  return '<div class="box" id="corrBox'+i+'" style="margin-top:10px">'
+    + '<div class="muted" style="font-size:.8rem">'+fdt(t.created_at)+' · '+esc(dec.estado_origen||t.flujo||'—')+' → '+esc(dec.estado_destino||'—')+'</div>'
+    + '<div style="margin:6px 0"><b>Usuario:</b> '+esc(t.mensaje||'')+'</div>'
+    + '<div style="margin:6px 0"><b>Bot (enviado):</b> '+esc(t.respuesta_bot||'')+'</div>'
+    + '<button id="corrRecalc'+i+'" style="background:none;color:var(--accent);border:1px solid var(--accent);border-radius:8px;padding:6px 14px;cursor:pointer">Recalcular con código actual</button>'
+    + '<div id="corrResultado'+i+'"></div>'
+    + '</div>';
+}
+
+async function recalcularCorreccion(i){
+  const btn = $('#corrRecalc'+i);
+  const out = $('#corrResultado'+i);
+  btn.disabled = true; btn.textContent = 'Recalculando…';
+  try{
+    const t = correccionesTurnos[i];
+    const dec = (typeof t.decision==='string' ? JSON.parse(t.decision) : t.decision) || {};
+    const previos = correccionesTurnos.slice(Math.max(0,i-6), i).filter(p=>p.respuesta_bot);
+    const historial = previos.length ? previos.map(p=>'Usuario: '+p.mensaje+'\nBot: '+p.respuesta_bot).join('\n') : undefined;
+    const ultimaRespuestaBot = previos.length ? previos[previos.length-1].respuesta_bot : undefined;
+    const r = await replayCall({
+      accion: 'recalcular', fuente: 'bot_logs', fuenteRef: t.id,
+      conv: { estado: dec.estado_origen || 'nuevo' },
+      mensaje: { tipo: 'text', texto: t.mensaje },
+      historial, ultimaRespuestaBot,
+    });
+    out.innerHTML =
+      '<div style="margin-top:10px;padding:10px;border:1px solid var(--line);border-radius:10px">'
+      + '<div class="muted" style="font-size:.8rem">Estado recalculado: '+esc(r.estadoNuevo)+'</div>'
+      + '<div style="margin:6px 0"><b>Propuesta del bot (hoy):</b> '+esc(r.textoBot)+'</div>'
+      + '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">'
+      + '<button class="corr-ok" style="background:var(--accent);color:#06251d;border:none;border-radius:8px;padding:7px 16px;font-weight:700;cursor:pointer">Aprobar</button>'
+      + '<button class="corr-edit" style="background:none;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:7px 16px;cursor:pointer">Editar</button>'
+      + '<button class="corr-rewrite" style="background:none;color:var(--ink-dim);border:1px solid var(--line);border-radius:8px;padding:7px 16px;cursor:pointer">Reescribir</button>'
       + '</div>'
-      + '<div class="note"><b>Agente Evaluador:</b> Claude analiza las conversaciones del bot cada madrugada (4:37) — solo corre si la app está abierta en ese momento. '
-      + '<button id="btnEvaluarAhora" style="margin-left:10px;background:var(--accent);color:#06251d;border:none;border-radius:8px;padding:6px 14px;font-weight:700;cursor:pointer">Evaluar ahora</button>'
-      + '<span id="evaluarAhoraMsg" class="muted" style="margin-left:10px;font-size:.85rem"></span></div>';
-    if(huerfanas.length){
-      h += '<div class="box" style="margin-top:14px"><h3>Propuestas del evaluador automático nocturno <small class="muted">(no ligadas a una conversación puntual)</small></h3>';
-      huerfanas.forEach(p=>{
-        h += '<div style="margin-top:10px;padding:10px;border:1px solid var(--line);border-radius:10px">'
-          + '<b>'+esc(p.titulo)+'</b> '+pill(p.tipo)
-          + '<div style="margin:6px 0;font-size:.88rem">'+esc(p.texto_regla)+'</div>'
-          + (p.justificacion?'<div class="muted" style="font-size:.8rem">'+esc(p.justificacion)+'</div>':'')
-          + '<div style="margin-top:8px;display:flex;gap:8px">'
-          + '<button class="ev-btn" data-id="'+p.id+'" data-ok="1" style="background:var(--accent);color:#06251d;border:none;border-radius:8px;padding:7px 16px;font-weight:700;cursor:pointer">Aprobar</button>'
-          + '<button class="ev-btn" data-id="'+p.id+'" data-ok="0" style="background:none;color:var(--ink-dim);border:1px solid var(--line);border-radius:8px;padding:7px 16px;cursor:pointer">Rechazar</button>'
-          + '</div></div>';
-      });
-      h += '</div>';
-    }
-    if(!evs.length){ h += '<div class="empty">Sin evaluaciones todavía. La rutina corre a las 4:37 AM, o tocá "Evaluar ahora".</div>'; }
-    evs.forEach(ev=>{
-      const halls = (typeof ev.hallazgos==='string' ? JSON.parse(ev.hallazgos) : ev.hallazgos) || [];
-      h += '<div class="box" style="margin-top:14px"><h3>'+esc(ev.telefono)+' · score '+(ev.score!=null?ev.score+'/10':'—')+' <small class="muted">'+fdt(ev.conversacion_desde)+' · evaluado '+fdt(ev.creado_en)+'</small></h3>'
-        + '<p style="margin:6px 0 10px">'+esc(ev.resumen||'')+'</p>';
-      if(halls.length){
-        h += halls.map(x=>'<div style="margin:4px 0;padding:6px 10px;border-left:3px solid var(--accent);background:var(--bg-elev);border-radius:6px"><b>'+esc(x.tipo||'')+'</b>: '+esc(x.detalle||'')+(x.evidencia?'<div class="muted" style="font-size:.8rem;margin-top:2px">“'+esc(x.evidencia)+'”</div>':'')+'</div>').join('');
-      }
-      (ev.propuestas||[]).forEach(p=>{
-        const resuelta = p.estado!=='pendiente';
-        h += '<div style="margin-top:10px;padding:10px;border:1px solid var(--line);border-radius:10px">'
-          + '<b>'+esc(p.titulo)+'</b> '+pill(p.tipo)+' '+(resuelta?pill(p.estado):'')
-          + '<div style="margin:6px 0;font-size:.88rem">'+esc(p.texto_regla)+'</div>'
-          + (p.justificacion?'<div class="muted" style="font-size:.8rem">'+esc(p.justificacion)+'</div>':'')
-          + (resuelta ? '' :
-            '<div style="margin-top:8px;display:flex;gap:8px">'
-            + '<button class="ev-btn" data-id="'+p.id+'" data-ok="1" style="background:var(--accent);color:#06251d;border:none;border-radius:8px;padding:7px 16px;font-weight:700;cursor:pointer">Aprobar</button>'
-            + '<button class="ev-btn" data-id="'+p.id+'" data-ok="0" style="background:none;color:var(--ink-dim);border:1px solid var(--line);border-radius:8px;padding:7px 16px;cursor:pointer">Rechazar</button>'
-            + '</div>')
-          + '</div>';
-      });
-      h += '</div>';
+      + '<div class="corr-editor" style="display:none;margin-top:8px">'
+      + '<textarea class="corr-textarea" rows="3" style="width:100%;background:var(--bg-elev);border:1px solid var(--line);border-radius:8px;padding:8px;color:var(--ink)"></textarea>'
+      + '<button class="corr-guardar" style="margin-top:6px;background:var(--accent);color:#06251d;border:none;border-radius:8px;padding:7px 16px;font-weight:700;cursor:pointer">Guardar corrección</button>'
+      + '</div>'
+      + '<div class="corr-msg muted" style="font-size:.85rem;margin-top:6px"></div>'
+      + '</div>';
+
+    const ctx = { turno: t, dec, plantillaBase: r.plantillaBase, textoBot: r.textoBot, estadoNuevo: r.estadoNuevo, router: r.router };
+    const box = out.firstElementChild;
+    const editor = box.querySelector('.corr-editor');
+    const textarea = box.querySelector('.corr-textarea');
+    const msgEl = box.querySelector('.corr-msg');
+
+    box.querySelector('.corr-ok').addEventListener('click', ()=> guardarCorreccion(ctx, r.textoBot, false, msgEl));
+    box.querySelector('.corr-edit').addEventListener('click', ()=>{ editor.style.display='block'; textarea.value = r.textoBot; textarea.focus(); });
+    box.querySelector('.corr-rewrite').addEventListener('click', ()=>{ editor.style.display='block'; textarea.value = ''; textarea.focus(); });
+    box.querySelector('.corr-guardar').addEventListener('click', ()=>{
+      const texto = textarea.value.trim();
+      if(!texto){ msgEl.textContent = 'Escribí una respuesta antes de guardar.'; return; }
+      guardarCorreccion(ctx, texto, true, msgEl);
     });
-    el.innerHTML = h;
-    el.querySelectorAll('.ev-btn').forEach(b=> b.addEventListener('click', ()=> resolverPropuesta(b.dataset.id, b.dataset.ok==='1', b)));
-    const btnEv = $('#btnEvaluarAhora');
-    if(btnEv) btnEv.addEventListener('click', dispararEvaluadorManual);
-  }catch(e){ el.innerHTML = '<div class="empty">Error: '+esc(e.message)+'</div>'; }
+  }catch(e){ out.innerHTML = '<div class="empty">Error: '+esc(e.message)+'</div>'; }
+  finally{ btn.disabled = false; btn.textContent = 'Recalcular con código actual'; }
 }
 
-async function dispararEvaluadorManual(){
-  const btn = $('#btnEvaluarAhora'), msg = $('#evaluarAhoraMsg');
-  btn.disabled = true; msg.textContent = 'Evaluando conversaciones pendientes…';
+async function guardarCorreccion(ctx, textoCorregido, fueEditado, msgEl){
+  msgEl.textContent = 'Guardando…';
   try{
-    const res = await fetch('https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-evaluador-manual', {
-      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({})
+    await rpc('correccion_guardar', {
+      p_fuente: 'bot_logs', p_fuente_ref: ctx.turno.id,
+      p_estado: ctx.estadoNuevo || ctx.dec.estado_destino || 'nuevo',
+      p_intencion: (ctx.router && ctx.router.intencion) || null,
+      p_polaridad: (ctx.router && ctx.router.polaridad) || null,
+      p_acto: (ctx.router && ctx.router.acto) || null,
+      p_mensaje_usuario: ctx.turno.mensaje || null,
+      p_plantilla_base: ctx.plantillaBase, p_texto_bot: ctx.textoBot,
+      p_texto_corregido: textoCorregido, p_fue_editado: fueEditado,
     });
-    const r = await res.json();
-    msg.textContent = r.mensaje || ((r.evaluadas||0) + ' conversación(es) evaluadas.');
-    renderEvaluador();
-  }catch(e){ msg.textContent = 'Error: '+e.message; }
-  finally{ btn.disabled = false; }
-}
-
-async function resolverPropuesta(id, aprobar, btn){
-  btn.disabled = true; btn.textContent = '…';
-  try{
-    const r = await rpc('evaluador_resolver_propuesta', { p_id: id, p_aprobar: aprobar });
-    if(!r || !r.ok) throw new Error((r&&r.error)||'no se pudo resolver');
-    renderEvaluador();
-  }catch(e){ alert('Error: '+e.message); btn.disabled=false; }
+    msgEl.textContent = fueEditado ? 'Corrección guardada ✅' : 'Aprobado tal cual ✅';
+  }catch(e){ msgEl.textContent = 'Error: '+e.message; }
 }
 
 /* ================= FLOW ================= */
