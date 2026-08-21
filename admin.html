@@ -707,6 +707,7 @@ async function loadEvents(tab){
 
 /* ================= CORRECCIONES (agente aprendiz) ================= */
 let correccionesTurnos = [];
+let correccionesYaHechas = new Set();
 
 async function renderCorrecciones(){
   const el = $('#tab-correcciones');
@@ -731,6 +732,10 @@ async function cargarCorreccionesTel(){
     const r = await replayCall({ accion:'listar', telefono: tel });
     correccionesTurnos = r.turnos || [];
     if(!correccionesTurnos.length){ lista.innerHTML = '<div class="empty">Sin turnos registrados para ese teléfono.</div>'; return; }
+    try{
+      const ya = await rpc('correccion_fuente_refs_existentes', { p_fuente:'bot_logs', p_fuente_refs: correccionesTurnos.map(t=>t.id) });
+      correccionesYaHechas = new Set(ya||[]);
+    }catch(e){ correccionesYaHechas = new Set(); }
     lista.innerHTML = correccionesTurnos.map((t,i)=> corrTurnoBox(t,i)).join('');
     correccionesTurnos.forEach((t,i)=>{
       const btn = $('#corrRecalc'+i);
@@ -741,8 +746,11 @@ async function cargarCorreccionesTel(){
 
 function corrTurnoBox(t, i){
   const dec = (typeof t.decision==='string' ? JSON.parse(t.decision) : t.decision) || {};
+  const yaCorregido = correccionesYaHechas.has(t.id);
   return '<div class="box" id="corrBox'+i+'" style="margin-top:10px">'
-    + '<div class="muted" style="font-size:.8rem">'+fdt(t.created_at)+' · '+esc(dec.estado_origen||t.flujo||'—')+' → '+esc(dec.estado_destino||'—')+'</div>'
+    + '<div class="muted" style="font-size:.8rem">'+fdt(t.created_at)+' · '+esc(dec.estado_origen||t.flujo||'—')+' → '+esc(dec.estado_destino||'—')
+    + (yaCorregido ? ' <span id="corrBadge'+i+'" class="pill" style="background:var(--accent);color:#06251d">✅ ya corregido</span>' : '<span id="corrBadge'+i+'"></span>')
+    + '</div>'
     + '<div style="margin:6px 0"><b>Usuario:</b> '+esc(t.mensaje||'')+'</div>'
     + '<div style="margin:6px 0"><b>Bot (enviado):</b> '+esc(t.respuesta_bot||'')+'</div>'
     + '<button id="corrRecalc'+i+'" style="background:none;color:var(--accent);border:1px solid var(--accent);border-radius:8px;padding:6px 14px;cursor:pointer">Recalcular con código actual</button>'
@@ -782,7 +790,7 @@ async function recalcularCorreccion(i){
       + '<div class="corr-msg muted" style="font-size:.85rem;margin-top:6px"></div>'
       + '</div>';
 
-    const ctx = { turno: t, dec, plantillaBase: r.plantillaBase, textoBot: r.textoBot, estadoNuevo: r.estadoNuevo, router: r.router };
+    const ctx = { turno: t, dec, plantillaBase: r.plantillaBase, textoBot: r.textoBot, estadoNuevo: r.estadoNuevo, router: r.router, i };
     const box = out.firstElementChild;
     const editor = box.querySelector('.corr-editor');
     const textarea = box.querySelector('.corr-textarea');
@@ -814,6 +822,9 @@ async function guardarCorreccion(ctx, textoCorregido, fueEditado, msgEl){
       p_texto_corregido: textoCorregido, p_fue_editado: fueEditado,
     });
     msgEl.textContent = fueEditado ? 'Corrección guardada ✅' : 'Aprobado tal cual ✅';
+    correccionesYaHechas.add(ctx.turno.id);
+    const badge = $('#corrBadge'+ctx.i);
+    if(badge) badge.outerHTML = '<span id="corrBadge'+ctx.i+'" class="pill" style="background:var(--accent);color:#06251d">✅ ya corregido</span>';
   }catch(e){ msgEl.textContent = 'Error: '+e.message; }
 }
 
