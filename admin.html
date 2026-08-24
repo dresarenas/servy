@@ -744,15 +744,46 @@ async function cargarCorreccionesTel(){
   }catch(e){ lista.innerHTML = '<div class="empty">Error: '+esc(e.message)+'</div>'; }
 }
 
+function corrGuardadoTxt(dec){
+  const g = dec.guardado || {};
+  if(g.propuesta) return '💾 Guardó propuesta: '+esc(g.propuesta.nombre||'')+' ('+esc(g.propuesta.rubro||'s/oficio')+', '+esc(g.propuesta.calificacion||'?')+'★)';
+  if(g.resena) return '💾 Guardó reseña directa ('+esc(g.resena.calificacion||'?')+'★)';
+  if(g.propuesta_actualizada) return '💾 Actualizó propuesta: '+esc(g.propuesta_actualizada.accion||'');
+  return '';
+}
+
+// Campos con sentido de negocio dentro de contacto_pendiente -- el resto
+// (intentos, sin_progreso, ultima_decision, despedido, telTipeado, etc.) es
+// bookkeeping interno de la FSM, sin valor para revisar "qué tomó el bot".
+const CORR_CAMPOS_DATO = [
+  ['nombre','nombre'], ['tel','tel'], ['rubros','rubro'], ['calificacion','calificación'],
+  ['comentario','comentario'], ['localidad','localidad'], ['horarios','horarios'],
+  ['descripcion','descripción'], ['especialidades','especialidades'], ['experiencia','experiencia'], ['redes','redes'],
+];
+function corrDatosTxt(dec){
+  const pend = dec.contacto_pendiente || {};
+  const partes = [];
+  if(dec.zona_nueva) partes.push('zona='+dec.zona_nueva);
+  CORR_CAMPOS_DATO.forEach(([k,lbl])=>{
+    if(pend[k]!=null && pend[k]!=='') partes.push(lbl+'='+(Array.isArray(pend[k])?pend[k].join('/'):pend[k]));
+  });
+  return partes.length ? '📋 Datos tomados: '+esc(partes.join(', ')) : '';
+}
+
 function corrTurnoBox(t, i){
   const dec = (typeof t.decision==='string' ? JSON.parse(t.decision) : t.decision) || {};
   const yaCorregido = correccionesYaHechas.has(t.id);
+  const audioTag = dec.tipo_mensaje==='audio' ? ' 🎤' : '';
+  const guardadoTxt = corrGuardadoTxt(dec);
+  const datosTxt = corrDatosTxt(dec);
   return '<div class="box" id="corrBox'+i+'" style="margin-top:10px">'
     + '<div class="muted" style="font-size:.8rem">'+fdt(t.created_at)+' · '+esc(dec.estado_origen||t.flujo||'—')+' → '+esc(dec.estado_destino||'—')
     + (yaCorregido ? ' <span id="corrBadge'+i+'" class="pill" style="background:var(--accent);color:#06251d">✅ ya corregido</span>' : '<span id="corrBadge'+i+'"></span>')
     + '</div>'
-    + '<div style="margin:6px 0"><b>Usuario:</b> '+esc(t.mensaje||'')+'</div>'
+    + '<div style="margin:6px 0"><b>Usuario'+audioTag+':</b> '+esc(t.mensaje||'')+'</div>'
     + '<div style="margin:6px 0"><b>Bot (enviado):</b> '+esc(t.respuesta_bot||'')+'</div>'
+    + (datosTxt ? '<div class="muted" style="font-size:.8rem;margin-bottom:2px">'+datosTxt+'</div>' : '')
+    + (guardadoTxt ? '<div class="muted" style="font-size:.8rem;margin-bottom:6px">'+guardadoTxt+'</div>' : '')
     + '<button id="corrRecalc'+i+'" style="background:none;color:var(--accent);border:1px solid var(--accent);border-radius:8px;padding:6px 14px;cursor:pointer">Recalcular con código actual</button>'
     + '<div id="corrResultado'+i+'"></div>'
     + '</div>';
