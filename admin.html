@@ -179,7 +179,7 @@ const MODULES = {
   },
   bot: {
     label: 'Bot WA',
-    tables: [ {n:'conversaciones',oid:33960}, {n:'bot_logs',oid:34265}, {n:'bot_correcciones',oid:35123}, {n:'monitor_creditos',oid:34673} ],
+    tables: [ {n:'conversaciones',oid:33960}, {n:'bot_logs',oid:34265}, {n:'bot_correcciones',oid:35123}, {n:'bot_bugs_reportados',oid:35154}, {n:'monitor_creditos',oid:34673} ],
     wfs: [
       {id:'mu6Nty4delTRioRx',n:'YCloud AI Bot'},
       {id:'wyzx8SOqGHe0Kbmi',n:'Timeout Inactividad'},
@@ -813,10 +813,16 @@ async function recalcularCorreccion(i){
       + '<button class="corr-ok" style="background:var(--accent);color:#06251d;border:none;border-radius:8px;padding:7px 16px;font-weight:700;cursor:pointer">Aprobar</button>'
       + '<button class="corr-edit" style="background:none;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:7px 16px;cursor:pointer">Editar</button>'
       + '<button class="corr-rewrite" style="background:none;color:var(--ink-dim);border:1px solid var(--line);border-radius:8px;padding:7px 16px;cursor:pointer">Reescribir</button>'
+      + '<button class="corr-bug" style="background:none;color:#e0a030;border:1px solid #e0a030;border-radius:8px;padding:7px 16px;cursor:pointer">🐞 Reportar problema</button>'
       + '</div>'
       + '<div class="corr-editor" style="display:none;margin-top:8px">'
       + '<textarea class="corr-textarea" rows="3" style="width:100%;background:var(--bg-elev);border:1px solid var(--line);border-radius:8px;padding:8px;color:var(--ink)"></textarea>'
       + '<button class="corr-guardar" style="margin-top:6px;background:var(--accent);color:#06251d;border:none;border-radius:8px;padding:7px 16px;font-weight:700;cursor:pointer">Guardar corrección</button>'
+      + '</div>'
+      + '<div class="corr-bug-editor" style="display:none;margin-top:8px">'
+      + '<div class="muted" style="font-size:.8rem;margin-bottom:4px">Esto NO se usa como ejemplo de redacción -- va a una lista de bugs que reviso yo para arreglar el código.</div>'
+      + '<textarea class="corr-bug-textarea" rows="3" placeholder="¿Qué salió mal? (ej: ya le había dado el oficio y lo volvió a preguntar)" style="width:100%;background:var(--bg-elev);border:1px solid #e0a030;border-radius:8px;padding:8px;color:var(--ink)"></textarea>'
+      + '<button class="corr-bug-guardar" style="margin-top:6px;background:#e0a030;color:#251c06;border:none;border-radius:8px;padding:7px 16px;font-weight:700;cursor:pointer">Guardar reporte</button>'
       + '</div>'
       + '<div class="corr-msg muted" style="font-size:.85rem;margin-top:6px"></div>'
       + '</div>';
@@ -825,15 +831,23 @@ async function recalcularCorreccion(i){
     const box = out.firstElementChild;
     const editor = box.querySelector('.corr-editor');
     const textarea = box.querySelector('.corr-textarea');
+    const bugEditor = box.querySelector('.corr-bug-editor');
+    const bugTextarea = box.querySelector('.corr-bug-textarea');
     const msgEl = box.querySelector('.corr-msg');
 
     box.querySelector('.corr-ok').addEventListener('click', ()=> guardarCorreccion(ctx, r.textoBot, false, msgEl));
-    box.querySelector('.corr-edit').addEventListener('click', ()=>{ editor.style.display='block'; textarea.value = r.textoBot; textarea.focus(); });
-    box.querySelector('.corr-rewrite').addEventListener('click', ()=>{ editor.style.display='block'; textarea.value = ''; textarea.focus(); });
+    box.querySelector('.corr-edit').addEventListener('click', ()=>{ editor.style.display='block'; bugEditor.style.display='none'; textarea.value = r.textoBot; textarea.focus(); });
+    box.querySelector('.corr-rewrite').addEventListener('click', ()=>{ editor.style.display='block'; bugEditor.style.display='none'; textarea.value = ''; textarea.focus(); });
+    box.querySelector('.corr-bug').addEventListener('click', ()=>{ bugEditor.style.display='block'; editor.style.display='none'; bugTextarea.focus(); });
     box.querySelector('.corr-guardar').addEventListener('click', ()=>{
       const texto = textarea.value.trim();
       if(!texto){ msgEl.textContent = 'Escribí una respuesta antes de guardar.'; return; }
       guardarCorreccion(ctx, texto, true, msgEl);
+    });
+    box.querySelector('.corr-bug-guardar').addEventListener('click', ()=>{
+      const nota = bugTextarea.value.trim();
+      if(!nota){ msgEl.textContent = 'Contame qué salió mal antes de guardar.'; return; }
+      reportarBug(ctx, nota, msgEl);
     });
   }catch(e){ out.innerHTML = '<div class="empty">Error: '+esc(e.message)+'</div>'; }
   finally{ btn.disabled = false; btn.textContent = 'Recalcular con código actual'; }
@@ -856,6 +870,21 @@ async function guardarCorreccion(ctx, textoCorregido, fueEditado, msgEl){
     correccionesYaHechas.add(ctx.turno.id);
     const badge = $('#corrBadge'+ctx.i);
     if(badge) badge.outerHTML = '<span id="corrBadge'+ctx.i+'" class="pill" style="background:var(--accent);color:#06251d">✅ ya corregido</span>';
+  }catch(e){ msgEl.textContent = 'Error: '+e.message; }
+}
+
+async function reportarBug(ctx, nota, msgEl){
+  msgEl.textContent = 'Guardando reporte…';
+  try{
+    await rpc('bug_reportar', {
+      p_fuente_ref: ctx.turno.id,
+      p_telefono: ($('#corrTel')&&$('#corrTel').value) || null,
+      p_estado: ctx.estadoNuevo || ctx.dec.estado_destino || null,
+      p_mensaje_usuario: ctx.turno.mensaje || null,
+      p_respuesta_bot: ctx.turno.respuesta_bot || null,
+      p_nota: nota,
+    });
+    msgEl.textContent = 'Reporte guardado 🐞 (no afecta la memoria del bot)';
   }catch(e){ msgEl.textContent = 'Error: '+e.message; }
 }
 
