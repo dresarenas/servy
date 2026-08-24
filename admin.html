@@ -736,7 +736,8 @@ async function cargarCorreccionesTel(){
       const ya = await rpc('correccion_fuente_refs_existentes', { p_fuente:'bot_logs', p_fuente_refs: correccionesTurnos.map(t=>t.id) });
       correccionesYaHechas = new Set(ya||[]);
     }catch(e){ correccionesYaHechas = new Set(); }
-    lista.innerHTML = correccionesTurnos.map((t,i)=> corrTurnoBox(t,i)).join('');
+    const orden = correccionesTurnos.map((_,i)=>i).reverse();
+    lista.innerHTML = orden.map(i=> corrTurnoBox(correccionesTurnos[i],i)).join('');
     correccionesTurnos.forEach((t,i)=>{
       const btn = $('#corrRecalc'+i);
       if(btn) btn.addEventListener('click', ()=> recalcularCorreccion(i));
