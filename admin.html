@@ -708,6 +708,7 @@ async function loadEvents(tab){
 /* ================= CORRECCIONES (agente aprendiz) ================= */
 let correccionesTurnos = [];
 let correccionesYaHechas = new Set();
+let correccionesBugYaHechas = new Set();
 
 async function renderCorrecciones(){
   const el = $('#tab-correcciones');
@@ -718,9 +719,28 @@ async function renderCorrecciones(){
     + '<input id="corrTel" type="text" placeholder="Teléfono (ej. 5493511234567)" style="flex:1;min-width:220px;background:var(--bg-elev);border:1px solid var(--line);border-radius:8px;padding:8px 12px;color:var(--ink)">'
     + '<button id="btnCorrCargar" style="background:var(--accent);color:#06251d;border:none;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer">Cargar conversación</button>'
     + '</div>'
+    + '<div id="corrTelefonos" style="margin-top:10px"></div>'
     + '<div id="corrLista" style="margin-top:14px"></div>';
-  $('#btnCorrCargar').addEventListener('click', cargarCorreccionesTel);
+  $('#btnCorrCargar').addEventListener('click', ()=> cargarCorreccionesTel());
   $('#corrTel').addEventListener('keydown', e=>{ if(e.key==='Enter') cargarCorreccionesTel(); });
+  cargarListaTelefonos();
+}
+
+async function cargarListaTelefonos(){
+  const cont = $('#corrTelefonos');
+  try{
+    const tels = await rpc('bot_logs_telefonos_recientes', { p_limit: 20 });
+    if(!tels || !tels.length){ cont.innerHTML = ''; return; }
+    cont.innerHTML = '<div class="muted" style="font-size:.8rem;margin-bottom:6px">Conversaciones recientes:</div>'
+      + '<div style="display:flex;gap:8px;flex-wrap:wrap">'
+      + tels.map(t=>'<button class="corr-tel-chip" data-tel="'+esc(t.telefono)+'" style="background:var(--bg-elev);color:var(--ink);border:1px solid var(--line);border-radius:20px;padding:6px 14px;font-size:.85rem;cursor:pointer">'
+        + esc(t.telefono)+' <span class="muted">('+t.turnos+' · '+fdt(t.ultima_actividad)+')</span></button>').join('')
+      + '</div>';
+    cont.querySelectorAll('.corr-tel-chip').forEach(b=> b.addEventListener('click', ()=>{
+      $('#corrTel').value = b.dataset.tel;
+      cargarCorreccionesTel();
+    }));
+  }catch(e){ cont.innerHTML = ''; }
 }
 
 async function cargarCorreccionesTel(){
@@ -736,6 +756,10 @@ async function cargarCorreccionesTel(){
       const ya = await rpc('correccion_fuente_refs_existentes', { p_fuente:'bot_logs', p_fuente_refs: correccionesTurnos.map(t=>t.id) });
       correccionesYaHechas = new Set(ya||[]);
     }catch(e){ correccionesYaHechas = new Set(); }
+    try{
+      const yaBug = await rpc('bug_fuente_refs_existentes', { p_fuente_refs: correccionesTurnos.map(t=>t.id) });
+      correccionesBugYaHechas = new Set(yaBug||[]);
+    }catch(e){ correccionesBugYaHechas = new Set(); }
     const orden = correccionesTurnos.map((_,i)=>i).reverse();
     lista.innerHTML = orden.map(i=> corrTurnoBox(correccionesTurnos[i],i)).join('');
     correccionesTurnos.forEach((t,i)=>{
@@ -774,12 +798,15 @@ function corrDatosTxt(dec){
 function corrTurnoBox(t, i){
   const dec = (typeof t.decision==='string' ? JSON.parse(t.decision) : t.decision) || {};
   const yaCorregido = correccionesYaHechas.has(t.id);
+  const yaReportado = correccionesBugYaHechas.has(t.id);
   const audioTag = dec.tipo_mensaje==='audio' ? ' 🎤' : '';
   const guardadoTxt = corrGuardadoTxt(dec);
   const datosTxt = corrDatosTxt(dec);
   return '<div class="box" id="corrBox'+i+'" style="margin-top:10px">'
     + '<div class="muted" style="font-size:.8rem">'+fdt(t.created_at)+' · '+esc(dec.estado_origen||t.flujo||'—')+' → '+esc(dec.estado_destino||'—')
-    + (yaCorregido ? ' <span id="corrBadge'+i+'" class="pill" style="background:var(--accent);color:#06251d">✅ ya corregido</span>' : '<span id="corrBadge'+i+'"></span>')
+    + (yaCorregido ? ' <span class="pill" style="background:var(--accent);color:#06251d">✅ ya corregido</span>' : '')
+    + (yaReportado ? ' <span id="corrBugBadge'+i+'" class="pill" style="background:#e0a030;color:#251c06">🐞 ya reportado</span>' : '<span id="corrBugBadge'+i+'"></span>')
+    + '<span id="corrBadge'+i+'"></span>'
     + '</div>'
     + '<div style="margin:6px 0"><b>Usuario'+audioTag+':</b> '+esc(t.mensaje||'')+'</div>'
     + '<div style="margin:6px 0"><b>Bot (enviado):</b> '+esc(t.respuesta_bot||'')+'</div>'
@@ -845,10 +872,10 @@ async function recalcularCorreccion(i){
       if(!texto){ msgEl.textContent = 'Escribí una respuesta antes de guardar.'; return; }
       guardarCorreccion(ctx, texto, true, msgEl);
     });
-    box.querySelector('.corr-bug-guardar').addEventListener('click', ()=>{
+    box.querySelector('.corr-bug-guardar').addEventListener('click', (ev)=>{
       const nota = bugTextarea.value.trim();
       if(!nota){ msgEl.textContent = 'Contame qué salió mal antes de guardar.'; return; }
-      reportarBug(ctx, nota, msgEl);
+      reportarBug(ctx, nota, msgEl, ev.currentTarget);
     });
   }catch(e){ out.innerHTML = '<div class="empty">Error: '+esc(e.message)+'</div>'; }
   finally{ btn.disabled = false; btn.textContent = 'Recalcular con código actual'; }
@@ -874,7 +901,8 @@ async function guardarCorreccion(ctx, textoCorregido, fueEditado, msgEl){
   }catch(e){ msgEl.textContent = 'Error: '+e.message; }
 }
 
-async function reportarBug(ctx, nota, msgEl){
+async function reportarBug(ctx, nota, msgEl, btn){
+  if(btn) btn.disabled = true;
   msgEl.textContent = 'Guardando reporte…';
   try{
     await rpc('bug_reportar', {
@@ -886,7 +914,10 @@ async function reportarBug(ctx, nota, msgEl){
       p_nota: nota,
     });
     msgEl.textContent = 'Reporte guardado 🐞 (no afecta la memoria del bot)';
-  }catch(e){ msgEl.textContent = 'Error: '+e.message; }
+    correccionesBugYaHechas.add(ctx.turno.id);
+    const badge = $('#corrBugBadge'+ctx.i);
+    if(badge) badge.outerHTML = '<span id="corrBugBadge'+ctx.i+'" class="pill" style="background:#e0a030;color:#251c06">🐞 ya reportado</span>';
+  }catch(e){ msgEl.textContent = 'Error: '+e.message; if(btn) btn.disabled = false; }
 }
 
 /* ================= FLOW ================= */
