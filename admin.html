@@ -677,7 +677,7 @@ const EV_DEFS = {
   busquedas: { rpcMod:'busquedas', cols:[['oficio','Oficio'],['zona','Zona'],['resultados_count','Result.'],['canal','Canal'],['created_at','Cuándo','dt']] },
   propuestas: { rpcMod:'propuestas', cols:[['nombre_propuesto','Nombre'],['categoria_sugerida','Rubro'],['zona_recomendante','Zona recom.'],['estado','Estado','pill'],['source','Origen'],['created_at','Cuándo','dt']] },
   prestadores: { rpcMod:'prestadores', cols:[['nombre','Nombre'],['estado','Estado','pill'],['slug','Slug'],['con_panel','Panel','bool'],['created_at','Alta','dt']] },
-  bot: { rpcMod:'bot', cols:[['telefono','Teléfono'],['mensaje','Mensaje'],['respuesta_bot','Respuesta'],['flujo','Flujo'],['created_at','Cuándo','dt']] },
+  bot: { rpcMod:'bot', limite:40, cols:[['telefono','Teléfono'],['mensaje','Mensaje'],['respuesta_bot','Respuesta'],['flujo','Flujo'],['created_at','Cuándo','dt']] },
   redes: { rpcMod:'redes', cols:[['fecha','Fecha','d'],['red','Red'],['seguidores','Seguidores'],['alcance','Alcance'],['interacciones','Interac.'],['fuente','Fuente']] }
 };
 
@@ -687,7 +687,7 @@ async function loadEvents(tab){
   const holder = document.getElementById('ev-'+tab);
   if(!holder) return;
   try{
-    const rows = await rpc('admin_ultimos_eventos', { p_modulo: def.rpcMod, p_limite: 15 });
+    const rows = await rpc('admin_ultimos_eventos', { p_modulo: def.rpcMod, p_limite: def.limite || 15 });
     loadedEvents[tab] = true;
     if(!rows || !rows.length){ holder.innerHTML = '<div class="empty">Sin registros todavía</div>'; return; }
     let h = '<div style="overflow-x:auto"><table><thead><tr>'+def.cols.map(c=>'<th>'+c[1]+'</th>').join('')+'</tr></thead><tbody>';
@@ -713,7 +713,8 @@ let correccionesBugYaHechas = new Set();
 async function renderCorrecciones(){
   const el = $('#tab-correcciones');
   el.innerHTML =
-    '<div id="qaHallazgos"></div>'
+    '<div id="qaBugs"></div>'
+    + '<div id="qaHallazgos"></div>'
     + '<div class="note" style="margin-top:14px"><b>Agente aprendiz:</b> cargá los turnos reales de un teléfono, recalculá con el código de hoy, '
     + 'y aprobá / editá / reescribí la respuesta. La corrección queda guardada como memoria para futuras respuestas del bot en el mismo estado.</div>'
     + '<div class="box" style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">'
@@ -726,6 +727,38 @@ async function renderCorrecciones(){
   $('#corrTel').addEventListener('keydown', e=>{ if(e.key==='Enter') cargarCorreccionesTel(); });
   cargarListaTelefonos();
   renderHallazgosQA();
+  renderBugsReportados();
+}
+
+// Bugs reportados a mano desde el botón 🐞 "Reportar problema" (bot_bugs_reportados,
+// via bug_reportar) -- hasta 31/08 se escribían pero nada los leía. Ahora se listan acá
+// (pendientes = resuelto is not true) y se marcan resueltos con bug_marcar_resuelto.
+async function renderBugsReportados(){
+  const cont = $('#qaBugs');
+  cont.innerHTML = '<div class="empty">Cargando bugs reportados…</div>';
+  try{
+    const filas = await rpc('bugs_listar_pendientes', { p_limit: 50 });
+    if(!filas || !filas.length){ cont.innerHTML = ''; return; }
+    cont.innerHTML =
+      '<div class="note"><b>🐞 Bugs reportados (pendientes):</b> reportados a mano con el botón "Reportar problema". '
+      + 'Se marcan resueltos cuando Claude confirma el fix.</div>'
+      + '<div style="margin-top:10px">' + filas.map(bugReportadoBox).join('') + '</div>';
+    cont.querySelectorAll('.bug-resolver').forEach(b=> b.addEventListener('click', async ()=>{
+      b.disabled = true; b.textContent = 'Marcando…';
+      try{ await rpc('bug_marcar_resuelto', { p_id: b.dataset.id }); renderBugsReportados(); }
+      catch(e){ b.disabled = false; b.textContent = 'Error: '+esc(e.message); }
+    }));
+  }catch(e){ cont.innerHTML = '<div class="empty">Bugs reportados: error cargando -- '+esc(e.message)+'</div>'; }
+}
+
+function bugReportadoBox(f){
+  return '<div class="box" style="margin-bottom:10px">'
+    + '<div class="muted" style="font-size:.8rem">'+fdt(f.creado_en)+' · '+esc(f.telefono||'')+' · <span class="pill warn">'+esc(f.estado||'')+'</span></div>'
+    + (f.mensaje_usuario ? '<div style="margin:6px 0"><b>Usuario:</b> '+esc(f.mensaje_usuario)+'</div>' : '')
+    + (f.respuesta_bot ? '<div style="margin:6px 0"><b>Bot:</b> '+esc(f.respuesta_bot)+'</div>' : '')
+    + (f.nota ? '<div style="margin:6px 0;color:var(--accent)"><b>Nota de Andrés:</b> '+esc(f.nota)+'</div>' : '')
+    + '<button class="bug-resolver" data-id="'+esc(f.id)+'" style="margin-top:6px;background:var(--bg-elev);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer">Marcar resuelto</button>'
+    + '</div>';
 }
 
 // Hallazgos de QA adversarial (31/08, ver plan en
@@ -745,7 +778,7 @@ async function renderHallazgosQA(){
       + 'armadas a partir de chats reales. Esto es lo que un juez (otro LLM) marcó como posible problema -- revisalo antes de confiar en el '
       + '"texto sugerido", puede estar mal diagnosticado.</div>'
       + '<div style="margin-top:10px">' + filas.map(qaHallazgoBox).join('') + '</div>';
-  }catch(e){ cont.innerHTML = ''; /* fuente nueva, no bloquear el resto de la pestaña si falla */ }
+  }catch(e){ cont.innerHTML = '<div class="empty">Hallazgos de QA adversarial: error cargando -- '+esc(e.message)+'</div>'; /* fuente nueva -- visible en vez de silenciosa, no bloquea el resto de la pestaña */ }
 }
 
 function qaHallazgoBox(f){
