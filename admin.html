@@ -713,7 +713,8 @@ let correccionesBugYaHechas = new Set();
 async function renderCorrecciones(){
   const el = $('#tab-correcciones');
   el.innerHTML =
-    '<div class="note"><b>Agente aprendiz:</b> cargá los turnos reales de un teléfono, recalculá con el código de hoy, '
+    '<div id="qaHallazgos"></div>'
+    + '<div class="note" style="margin-top:14px"><b>Agente aprendiz:</b> cargá los turnos reales de un teléfono, recalculá con el código de hoy, '
     + 'y aprobá / editá / reescribí la respuesta. La corrección queda guardada como memoria para futuras respuestas del bot en el mismo estado.</div>'
     + '<div class="box" style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">'
     + '<input id="corrTel" type="text" placeholder="Teléfono (ej. 5493511234567)" style="flex:1;min-width:220px;background:var(--bg-elev);border:1px solid var(--line);border-radius:8px;padding:8px 12px;color:var(--ink)">'
@@ -724,6 +725,37 @@ async function renderCorrecciones(){
   $('#btnCorrCargar').addEventListener('click', ()=> cargarCorreccionesTel());
   $('#corrTel').addEventListener('keydown', e=>{ if(e.key==='Enter') cargarCorreccionesTel(); });
   cargarListaTelefonos();
+  renderHallazgosQA();
+}
+
+// Hallazgos de QA adversarial (31/08, ver plan en
+// C:\Users\dres_\.claude\plans\te-voy-a-pasar-magical-plum.md, Fase 7):
+// bot_correcciones con fuente='qa_fixture' -- los publica
+// qa/adversarial/publicar_correcciones.py, nunca se escriben desde acá.
+// Solo lectura por ahora (v1): revisar y decidir manualmente, sin botón de
+// "aprobar" todavía -- ese flujo puede sumarse después si hace falta.
+async function renderHallazgosQA(){
+  const cont = $('#qaHallazgos');
+  cont.innerHTML = '<div class="empty">Cargando hallazgos de QA adversarial…</div>';
+  try{
+    const filas = await rpc('correcciones_listar_por_fuente', { p_fuente: 'qa_fixture', p_limit: 30 });
+    if(!filas || !filas.length){ cont.innerHTML = ''; return; }
+    cont.innerHTML =
+      '<div class="note"><b>Hallazgos de QA adversarial:</b> un usuario simulado por LLM (no un guion fijo) probó el bot con personas '
+      + 'armadas a partir de chats reales. Esto es lo que un juez (otro LLM) marcó como posible problema -- revisalo antes de confiar en el '
+      + '"texto sugerido", puede estar mal diagnosticado.</div>'
+      + '<div style="margin-top:10px">' + filas.map(qaHallazgoBox).join('') + '</div>';
+  }catch(e){ cont.innerHTML = ''; /* fuente nueva, no bloquear el resto de la pestaña si falla */ }
+}
+
+function qaHallazgoBox(f){
+  return '<div class="box" style="margin-bottom:10px">'
+    + '<div class="muted" style="font-size:.8rem">'+fdt(f.creado_en)+' · <span class="pill warn">'+esc(f.fuente_ref)+'</span></div>'
+    + (f.plantilla_base ? '<div class="muted" style="font-size:.8rem;margin:6px 0"><b>Motivo (juez):</b> '+esc(f.plantilla_base)+'</div>' : '')
+    + '<div style="margin:6px 0"><b>Usuario simulado:</b> '+esc(f.mensaje_usuario||'')+'</div>'
+    + '<div style="margin:6px 0"><b>Bot (real):</b> '+esc(f.texto_bot||'')+'</div>'
+    + '<div style="margin:6px 0;color:var(--accent)"><b>Sugerido por el juez:</b> '+esc(f.texto_corregido||'')+'</div>'
+    + '</div>';
 }
 
 async function cargarListaTelefonos(){
