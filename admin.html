@@ -778,6 +778,11 @@ async function renderHallazgosQA(){
       + 'armadas a partir de chats reales. Esto es lo que un juez (otro LLM) marcó como posible problema -- revisalo antes de confiar en el '
       + '"texto sugerido", puede estar mal diagnosticado.</div>'
       + '<div style="margin-top:10px">' + filas.map(qaHallazgoBox).join('') + '</div>';
+    cont.querySelectorAll('.qa-hallazgo-visto').forEach(b=> b.addEventListener('click', async ()=>{
+      b.disabled = true; b.textContent = 'Marcando…';
+      try{ await rpc('correccion_marcar_vista', { p_id: b.dataset.id }); renderHallazgosQA(); }
+      catch(e){ b.disabled = false; b.textContent = 'Error: '+esc(e.message); }
+    }));
   }catch(e){ cont.innerHTML = '<div class="empty">Hallazgos de QA adversarial: error cargando -- '+esc(e.message)+'</div>'; /* fuente nueva -- visible en vez de silenciosa, no bloquea el resto de la pestaña */ }
 }
 
@@ -788,6 +793,7 @@ function qaHallazgoBox(f){
     + '<div style="margin:6px 0"><b>Usuario simulado:</b> '+esc(f.mensaje_usuario||'')+'</div>'
     + '<div style="margin:6px 0"><b>Bot (real):</b> '+esc(f.texto_bot||'')+'</div>'
     + '<div style="margin:6px 0;color:var(--accent)"><b>Sugerido por el juez:</b> '+esc(f.texto_corregido||'')+'</div>'
+    + '<button class="qa-hallazgo-visto" data-id="'+esc(f.id)+'" style="margin-top:6px;background:var(--bg-elev);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer">Marcar visto</button>'
     + '</div>';
 }
 
