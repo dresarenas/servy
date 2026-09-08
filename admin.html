@@ -761,6 +761,8 @@ function solicitudLlamadaBox(f){
     + '<div class="muted" style="font-size:.8rem">'+fdt(f.created_at)+' · '+esc(f.telefono||'')+'</div>'
     + '<div style="margin:6px 0"><b>Motivo:</b> '+esc(f.motivo||'')+'</div>'
     + (f.resumen ? '<div class="muted" style="margin:6px 0;white-space:pre-wrap">'+esc(f.resumen)+'</div>' : '')
+    + (f.ultimos_turnos ? '<details style="margin:6px 0"><summary class="muted" style="cursor:pointer;font-size:.8rem">Ver últimos mensajes de la charla</summary>'
+      + '<div class="muted" style="white-space:pre-wrap;margin-top:6px;font-size:.85rem">'+esc(f.ultimos_turnos)+'</div></details>' : '')
     + '<button class="solicitud-atendida" data-id="'+esc(f.id)+'" style="margin-top:6px;background:var(--bg-elev);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer">Marcar atendida</button>'
     + '</div>';
 }
