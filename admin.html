@@ -713,7 +713,8 @@ let correccionesBugYaHechas = new Set();
 async function renderCorrecciones(){
   const el = $('#tab-correcciones');
   el.innerHTML =
-    '<div id="qaBugs"></div>'
+    '<div id="qaSolicitudes"></div>'
+    + '<div id="qaBugs"></div>'
     + '<div id="qaHallazgos"></div>'
     + '<div class="note" style="margin-top:14px"><b>Agente aprendiz:</b> cargá los turnos reales de un teléfono, recalculá con el código de hoy, '
     + 'y aprobá / editá / reescribí la respuesta. La corrección queda guardada como memoria para futuras respuestas del bot en el mismo estado.</div>'
@@ -728,6 +729,40 @@ async function renderCorrecciones(){
   cargarListaTelefonos();
   renderHallazgosQA();
   renderBugsReportados();
+  renderSolicitudesLlamada();
+}
+
+// Solicitudes de llamada (07/09, Andrés): el bot deriva a un humano por
+// varios motivos (zona/contacto/rubro que no se logró identificar, pedido
+// explícito de hablar con una persona) y hasta hoy quedaban encoladas en
+// solicitudes_llamada sin que nadie las viera acá -- 7 reales, ninguna
+// atendida desde el 28/08. resumen viene armado por construirResumen
+// (motor-slots.ts) en el momento de la derivación -- nunca inventado acá.
+async function renderSolicitudesLlamada(){
+  const cont = $('#qaSolicitudes');
+  cont.innerHTML = '<div class="empty">Cargando solicitudes de llamada…</div>';
+  try{
+    const filas = await rpc('solicitudes_llamada_listar', {});
+    if(!filas || !filas.length){ cont.innerHTML = ''; return; }
+    cont.innerHTML =
+      '<div class="note"><b>📞 Pidieron que los contactemos:</b> derivación automática del bot (zona/contacto/rubro que no se '
+      + 'logró identificar, o pedido explícito de hablar con una persona).</div>'
+      + '<div style="margin-top:10px">' + filas.map(solicitudLlamadaBox).join('') + '</div>';
+    cont.querySelectorAll('.solicitud-atendida').forEach(b=> b.addEventListener('click', async ()=>{
+      b.disabled = true; b.textContent = 'Marcando…';
+      try{ await rpc('solicitud_llamada_marcar_atendida', { p_id: b.dataset.id }); renderSolicitudesLlamada(); }
+      catch(e){ b.disabled = false; b.textContent = 'Error: '+esc(e.message); }
+    }));
+  }catch(e){ cont.innerHTML = '<div class="empty">Solicitudes de llamada: error cargando -- '+esc(e.message)+'</div>'; }
+}
+
+function solicitudLlamadaBox(f){
+  return '<div class="box" style="margin-bottom:10px">'
+    + '<div class="muted" style="font-size:.8rem">'+fdt(f.created_at)+' · '+esc(f.telefono||'')+'</div>'
+    + '<div style="margin:6px 0"><b>Motivo:</b> '+esc(f.motivo||'')+'</div>'
+    + (f.resumen ? '<div class="muted" style="margin:6px 0;white-space:pre-wrap">'+esc(f.resumen)+'</div>' : '')
+    + '<button class="solicitud-atendida" data-id="'+esc(f.id)+'" style="margin-top:6px;background:var(--bg-elev);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer">Marcar atendida</button>'
+    + '</div>';
 }
 
 // Bugs reportados a mano desde el botón 🐞 "Reportar problema" (bot_bugs_reportados,
