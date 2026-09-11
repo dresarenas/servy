@@ -1755,7 +1755,7 @@ async function wizBuscar() {
   var ofStr = wizState.oficio || 'el servicio';
   var zoAddr = wizState.zonaText ? (wizState.zonaText.length > 28 ? wizState.zonaText.substring(0,28)+'…' : wizState.zonaText) : 'tu zona';
   sum.innerHTML = 'Buscamos <strong style="color:var(--accent-2)">' + ofStr + '</strong> cerca de <strong style="color:var(--accent-2)">' + zoAddr + '</strong>';
-  var payload = { descripcion: wizState.descripcion, oficio: wizState.oficio, zona: wizState.zonaText, zona_lat: wizState.zonaLat, zona_lng: wizState.zonaLng, tiempo: wizState.tiempo };
+  var payload = { oficio: wizState.oficio, zona: wizState.zonaText, zona_lat: wizState.zonaLat, zona_lng: wizState.zonaLng };
   var prestadores = []; wizIsDemoData = false;
   var ctrl = new AbortController();
   var aiMsgTimer = setTimeout(function() { if (loadTxt) loadTxt.textContent = 'Analizando tu consulta con IA…'; }, 2500);

@@ -102,6 +102,17 @@ tr:last-child td{border-bottom:none}
 .social-form input:focus,.social-form select:focus{outline:none;border-color:var(--accent)}
 .social-form button{background:var(--accent);color:#04241C;border:none;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer;font-family:var(--f-sans);font-size:.85rem}
 #socialMsg{font-size:.78rem;margin-top:8px}
+
+/* ---- Chat estilo WhatsApp (Bot WA + Correcciones) ----
+   Solo usa variables del tema (--accent/--bg-elev/--line/--ink-dim): si se
+   exporta SERVY a otro rubro, cambiar la paleta acá alcanza para que esto
+   siga viéndose bien, sin tocar el componente. */
+.wa-thread{display:flex;flex-direction:column;gap:6px}
+.wa-bubble{max-width:80%;padding:8px 12px;border-radius:14px;font-size:.85rem;line-height:1.42;white-space:pre-wrap;word-break:break-word}
+.wa-bubble.in{align-self:flex-start;background:var(--bg-elev);border:1px solid var(--line);border-bottom-left-radius:4px}
+.wa-bubble.out{align-self:flex-end;background:rgba(0,201,167,0.16);border:1px solid rgba(0,201,167,0.3);border-bottom-right-radius:4px}
+.wa-thread-phone{font-size:.72rem;color:var(--ink-dim);text-transform:uppercase;letter-spacing:.04em;margin:16px 0 6px}
+.wa-thread-phone:first-child{margin-top:0}
 </style>
 </head>
 <body>
@@ -161,7 +172,7 @@ const MODULES = {
     tables: [ {n:'propuestas',oid:17693}, {n:'resenas',oid:25434} ],
     wfs: [
       {id:'0qQtuLQtXWHEW8p8',n:'Guardar Propuesta Web'},
-      {id:'3PezVWvX3hi5iwsq',n:'WA Flow Recomendar'},
+      {id:'3PezVWvX3hi5iwsq',n:'WA Flow Recomendar (legacy)',off:true},
       {id:'FmL65k0HQwyyhD5P',n:'Migrar Propuesta→Prestador'},
       {id:'tVInQDrtwgvkf6KJ',n:'Contactar Consentimiento (botón)'},
       {id:'NXHiQWjsulG6PoTe',n:'Contactar Prestadores (legacy)',off:true}
@@ -181,7 +192,7 @@ const MODULES = {
     label: 'Bot WA',
     tables: [ {n:'conversaciones',oid:33960}, {n:'bot_logs',oid:34265}, {n:'bot_correcciones',oid:35123}, {n:'bot_bugs_reportados',oid:35154}, {n:'monitor_creditos',oid:34673} ],
     wfs: [
-      {id:'mu6Nty4delTRioRx',n:'YCloud AI Bot'},
+      {id:'mu6Nty4delTRioRx',n:'YCloud AI Bot (legacy, migrado a wa-bot Edge Function)',off:true},
       {id:'wyzx8SOqGHe0Kbmi',n:'Timeout Inactividad'},
       {id:'TCPXKoZvfzuR0S3h',n:'Analizar Conversaciones'},
       {id:'QAawCZvKMKttevJm',n:'Resumen Semanal'},
@@ -282,6 +293,13 @@ const nf = n => (n==null?'—':Number(n).toLocaleString('es-AR'));
 function fdt(x){ if(!x) return '—'; const d=new Date(x); return d.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}); }
 function fd(x){ if(!x) return '—'; return new Date(x+'T00:00:00').toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'2-digit'}); }
 function esc(x){ const d=document.createElement('div'); d.textContent = x==null?'':String(x); return d.innerHTML; }
+// Burbuja de chat reusable (Bot WA + Correcciones) -- "in" = mensaje del
+// contacto, "out" = respuesta del bot. Pensada para exportar: no sabe nada
+// de SERVY, solo recibe texto.
+function waBubble(dir, texto){
+  if(texto == null || texto === '') return '';
+  return '<div class="wa-bubble '+dir+'">'+esc(texto)+'</div>';
+}
 function pill(estado){
   const bad = ['rechazo_1','rechazo_2','opt_out','sin_estado','inactivo'];
   const warn = ['nueva','contactar','contactado','no_respondio','nuevo','pendiente'];
@@ -690,6 +708,20 @@ async function loadEvents(tab){
     const rows = await rpc('admin_ultimos_eventos', { p_modulo: def.rpcMod, p_limite: def.limite || 15 });
     loadedEvents[tab] = true;
     if(!rows || !rows.length){ holder.innerHTML = '<div class="empty">Sin registros todavía</div>'; return; }
+    if(tab === 'bot'){
+      // Chat estilo WhatsApp en vez de tabla -- mismo componente que usa
+      // Correcciones (wa-thread/wa-bubble). Agrupa por teléfono cuando dos
+      // filas seguidas son del mismo contacto (admin_ultimos_eventos ya
+      // viene ordenado por fecha desc).
+      let lastTel = null, hc = '';
+      rows.forEach(r=>{
+        if(r.telefono !== lastTel){ hc += '<div class="wa-thread-phone">'+esc(r.telefono||'—')+'</div>'; lastTel = r.telefono; }
+        hc += '<div class="wa-thread">' + waBubble('in', r.mensaje) + waBubble('out', r.respuesta_bot) + '</div>'
+          + '<div class="muted" style="font-size:.7rem;margin:3px 0 12px">'+fdt(r.created_at)+(r.flujo?' · '+esc(r.flujo):'')+'</div>';
+      });
+      holder.innerHTML = hc;
+      return;
+    }
     let h = '<div style="overflow-x:auto"><table><thead><tr>'+def.cols.map(c=>'<th>'+c[1]+'</th>').join('')+'</tr></thead><tbody>';
     rows.forEach(r=>{
       h += '<tr>'+def.cols.map(c=>{
@@ -916,8 +948,10 @@ function corrTurnoBox(t, i){
     + (yaReportado ? ' <span id="corrBugBadge'+i+'" class="pill" style="background:#e0a030;color:#251c06">🐞 ya reportado</span>' : '<span id="corrBugBadge'+i+'"></span>')
     + '<span id="corrBadge'+i+'"></span>'
     + '</div>'
-    + '<div style="margin:6px 0"><b>Usuario'+audioTag+':</b> '+esc(t.mensaje||'')+'</div>'
-    + '<div style="margin:6px 0"><b>Bot (enviado):</b> '+esc(t.respuesta_bot||'')+'</div>'
+    + '<div class="wa-thread" style="margin:8px 0">'
+    + waBubble('in', (audioTag ? '🎤 ' : '') + (t.mensaje||''))
+    + waBubble('out', t.respuesta_bot)
+    + '</div>'
     + (datosTxt ? '<div class="muted" style="font-size:.8rem;margin-bottom:2px">'+datosTxt+'</div>' : '')
     + (guardadoTxt ? '<div class="muted" style="font-size:.8rem;margin-bottom:6px">'+guardadoTxt+'</div>' : '')
     + '<button id="corrRecalc'+i+'" style="background:none;color:var(--accent);border:1px solid var(--accent);border-radius:8px;padding:6px 14px;cursor:pointer">Recalcular con código actual</button>'
