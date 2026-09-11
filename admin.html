@@ -396,11 +396,21 @@ function renderEstadoServicios(mon, bot){
   // eso, porque Supabase SÍ estaba respondiendo bien.
   const vencidos = bot ? Number(bot.recordatorio_vencidos || 0) : null;
   const recordatorioOk = vencidos === 0;
+  // Bug real (11/09, Andrés): OpenAI no tiene un endpoint público de "saldo
+  // restante" (a diferencia de YCloud) -- el probe diario solo puede hacer un
+  // chequeo funcional (¿responde o no?). Sin crédito quedaba indistinguible
+  // de cualquier otra falla ("✗ falla" para todo) -- se lo notó recién horas
+  // después, en vivo, cuando el bot ya venía fallando. Si el detalle del
+  // probe menciona el código real de OpenAI, se lo muestra explícito.
+  const openaiSinCredito = !mon.openai_ok && (mon.detalle||[]).some(d=>/insufficient_quota|credit_balance_exhausted/i.test(d));
+  const openaiPill = openaiSinCredito
+    ? '<span class="pill bad" style="margin-left:6px">✗ sin crédito</span>'
+    : pill2(mon.openai_ok);
   return '<div class="box"><h3>Estado de servicios</h3>'
     + '<div class="cards">'
     + card('$'+(mon.ycloud_saldo!=null?Number(mon.ycloud_saldo).toFixed(2):'—'), 'Saldo YCloud (USD)')
     + '</div>'
-    + '<div style="margin:10px 0">Google Maps'+pill2(mon.maps_ok)+' &nbsp;·&nbsp; OpenAI'+pill2(mon.openai_ok)+' &nbsp;·&nbsp; Supabase'+pill2(mon.supabase_ok)
+    + '<div style="margin:10px 0">Google Maps'+pill2(mon.maps_ok)+' &nbsp;·&nbsp; OpenAI'+openaiPill+' &nbsp;·&nbsp; Supabase'+pill2(mon.supabase_ok)
       + (vencidos!=null ? ' &nbsp;·&nbsp; Recordatorio bot'+pill2(recordatorioOk) : '')
     + '</div>'
     + (vencidos!=null && !recordatorioOk ? '<div style="margin:6px 0;padding:6px 10px;background:var(--bg-elev);border-radius:6px;font-size:.85rem">⚠️ '
