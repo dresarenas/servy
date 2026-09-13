@@ -1086,10 +1086,13 @@ async function recEnviar() {
       }),
       signal: ctrl.signal
     });
-    if (res.ok) {
-      var data = await res.json().catch(function() { return {}; });
-      esDuplicado = !!data.duplicado;
+    if (!res.ok) {
+      if (btn) { btn.disabled = false; btn.textContent = 'Enviar recomendación'; }
+      recShowErr('errRecSubmit', true);
+      return;
     }
+    var data = await res.json().catch(function() { return {}; });
+    esDuplicado = !!data.duplicado;
   } catch(e) {
     // Timeout (AbortError): n8n probablemente procesó pero tardó — avanzar igual
     if (e && e.name === 'AbortError') {

@@ -875,7 +875,7 @@ async function prestEnviar() {
   var WEBHOOK = 'https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-prestador';
   try {
     var ctrl = new AbortController();
-    setTimeout(function() { ctrl.abort(); }, 12000);
+    setTimeout(function() { ctrl.abort(); }, 25000);
     var resp = await fetch(WEBHOOK, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -890,13 +890,8 @@ async function prestEnviar() {
       prestGoTo(4);
       return;
     }
+    if (!resp.ok) throw new Error('registro fallo ' + resp.status);
   } catch(e) {
-    prestSubmitRetries++;
-    if (prestSubmitRetries >= 3) {
-      prestSubmitRetries = 0;
-      prestGoTo(4);
-      return;
-    }
     prestSubmitted = false;
     if (btn) { btn.disabled = false; btn.textContent = 'Verificar mi perfil'; }
     prestShowErr('errPrestSubmit', true);
