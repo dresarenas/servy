@@ -756,16 +756,18 @@ async function renderCorrecciones(){
   const el = $('#tab-correcciones');
   el.innerHTML =
     '<div id="qaSolicitudes"></div>'
-    + '<div id="qaBugs"></div>'
     + '<div id="qaHallazgos"></div>'
-    + '<div class="note" style="margin-top:14px"><b>Agente aprendiz:</b> cargá los turnos reales de un teléfono, recalculá con el código de hoy, '
-    + 'y aprobá / editá / reescribí la respuesta. La corrección queda guardada como memoria para futuras respuestas del bot en el mismo estado.</div>'
+    + '<div class="note" style="margin-top:14px"><b>Agente aprendiz:</b> elegí una conversación y, en cada respuesta del bot, tocá <b>Corregir</b>: '
+    + 'aprobala, editala o reescribila (queda como ejemplo de <i>cómo decirlo</i> para respuestas futuras en ese mismo paso), '
+    + 'o reportá un problema si el bot <i>hizo</i> algo mal (eso lo arreglo yo en el código).</div>'
     + '<div class="box" style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">'
     + '<input id="corrTel" type="text" placeholder="Teléfono (ej. 5493511234567)" style="flex:1;min-width:220px;background:var(--bg-elev);border:1px solid var(--line);border-radius:8px;padding:8px 12px;color:var(--ink)">'
     + '<button id="btnCorrCargar" style="background:var(--accent);color:#06251d;border:none;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer">Cargar conversación</button>'
     + '</div>'
     + '<div id="corrTelefonos" style="margin-top:10px"></div>'
-    + '<div id="corrLista" style="margin-top:14px"></div>';
+    + '<div id="corrLista" style="margin-top:14px"></div>'
+    // Pedido de Andrés (16/09): los bugs reportados van debajo de las conversaciones.
+    + '<div id="qaBugs" style="margin-top:22px"></div>';
   $('#btnCorrCargar').addEventListener('click', ()=> cargarCorreccionesTel());
   $('#corrTel').addEventListener('keydown', e=>{ if(e.key==='Enter') cargarCorreccionesTel(); });
   cargarListaTelefonos();
@@ -883,8 +885,10 @@ async function cargarListaTelefonos(){
     if(!tels || !tels.length){ cont.innerHTML = ''; return; }
     cont.innerHTML = '<div class="muted" style="font-size:.8rem;margin-bottom:6px">Conversaciones recientes:</div>'
       + '<div style="display:flex;gap:8px;flex-wrap:wrap">'
-      + tels.map(t=>'<button class="corr-tel-chip" data-tel="'+esc(t.telefono)+'" style="background:var(--bg-elev);color:var(--ink);border:1px solid var(--line);border-radius:20px;padding:6px 14px;font-size:.85rem;cursor:pointer">'
-        + esc(t.telefono)+' <span class="muted">('+t.turnos+' · '+fdt(t.ultima_actividad)+')</span></button>').join('')
+      // Nombre (perfil de WhatsApp, ficha de prestador o recomendaciones) + últimos 4 dígitos (16/09).
+      + tels.map(t=>'<button class="corr-tel-chip" data-tel="'+esc(t.telefono)+'" title="'+esc(t.telefono)+'" style="background:var(--bg-elev);color:var(--ink);border:1px solid var(--line);border-radius:20px;padding:6px 14px;font-size:.85rem;cursor:pointer">'
+        + (t.nombre ? '<b>'+esc(t.nombre)+'</b> · ' : '')+'…'+esc(String(t.telefono).slice(-4))
+        + ' <span class="muted">('+t.turnos+' · '+fdt(t.ultima_actividad)+')</span></button>').join('')
       + '</div>';
     cont.querySelectorAll('.corr-tel-chip').forEach(b=> b.addEventListener('click', ()=>{
       $('#corrTel').value = b.dataset.tel;
@@ -910,13 +914,42 @@ async function cargarCorreccionesTel(){
       const yaBug = await rpc('bug_fuente_refs_existentes', { p_fuente_refs: correccionesTurnos.map(t=>t.id) });
       correccionesBugYaHechas = new Set(yaBug||[]);
     }catch(e){ correccionesBugYaHechas = new Set(); }
-    const orden = correccionesTurnos.map((_,i)=>i).reverse();
-    lista.innerHTML = orden.map(i=> corrTurnoBox(correccionesTurnos[i],i)).join('');
-    correccionesTurnos.forEach((t,i)=>{
-      const btn = $('#corrRecalc'+i);
-      if(btn) btn.addEventListener('click', ()=> recalcularCorreccion(i));
-    });
+    corrCharlasVisibles = 2;
+    renderTurnosCorreccion();
   }catch(e){ lista.innerHTML = '<div class="empty">Error: '+esc(e.message)+'</div>'; }
+}
+
+// Pedido de Andrés (16/09): orden cronológico (el más viejo arriba) y solo las
+// últimas charlas -- antes venían todos los turnos, el más nuevo primero.
+// Una charla nueva arranca donde el bot marcó sesion_nueva, o tras 3 h sin mensajes.
+let corrCharlasVisibles = 2;
+function decisionDe(t){ return (typeof t.decision==='string' ? JSON.parse(t.decision) : t.decision) || {}; }
+function charlasDeTurnos(turnos){
+  const charlas = [];
+  turnos.forEach((t,i)=>{
+    const prev = turnos[i-1];
+    const gap = prev ? (new Date(t.created_at) - new Date(prev.created_at)) : Infinity;
+    if(!prev || decisionDe(t).sesion_nueva===true || gap > 3*3600*1000) charlas.push([]);
+    charlas[charlas.length-1].push(i);
+  });
+  return charlas;
+}
+function renderTurnosCorreccion(){
+  const lista = $('#corrLista');
+  const charlas = charlasDeTurnos(correccionesTurnos);
+  const ocultas = Math.max(0, charlas.length - corrCharlasVisibles);
+  let html = ocultas ? '<button id="corrVerAnteriores" style="background:none;color:var(--accent);border:1px solid var(--line);border-radius:8px;padding:6px 14px;cursor:pointer">Ver charlas anteriores ('+ocultas+')</button>' : '';
+  charlas.slice(ocultas).forEach(idxs=>{
+    html += '<div class="muted" style="margin:18px 0 2px;padding-top:8px;border-top:1px solid var(--line);font-size:.8rem">Charla del '+fdt(correccionesTurnos[idxs[0]].created_at)+' · '+idxs.length+' mensajes</div>'
+      + idxs.map(i=> corrTurnoBox(correccionesTurnos[i],i)).join('');
+  });
+  lista.innerHTML = html;
+  const ver = $('#corrVerAnteriores');
+  if(ver) ver.addEventListener('click', ()=>{ corrCharlasVisibles += 3; renderTurnosCorreccion(); });
+  correccionesTurnos.forEach((t,i)=>{
+    const btn = $('#corrRecalc'+i);
+    if(btn) btn.addEventListener('click', ()=> abrirCorreccion(i));
+  });
 }
 
 function corrGuardadoTxt(dec){
@@ -964,32 +997,27 @@ function corrTurnoBox(t, i){
     + '</div>'
     + (datosTxt ? '<div class="muted" style="font-size:.8rem;margin-bottom:2px">'+datosTxt+'</div>' : '')
     + (guardadoTxt ? '<div class="muted" style="font-size:.8rem;margin-bottom:6px">'+guardadoTxt+'</div>' : '')
-    + '<button id="corrRecalc'+i+'" style="background:none;color:var(--accent);border:1px solid var(--accent);border-radius:8px;padding:6px 14px;cursor:pointer">Recalcular con código actual</button>'
+    + (t.respuesta_bot ? '<button id="corrRecalc'+i+'" style="background:none;color:var(--accent);border:1px solid var(--accent);border-radius:8px;padding:6px 14px;cursor:pointer">Corregir</button>' : '')
     + '<div id="corrResultado'+i+'"></div>'
     + '</div>';
 }
 
-async function recalcularCorreccion(i){
-  const btn = $('#corrRecalc'+i);
+// Bug real (16/09): "Recalcular con código actual" corría una copia VIEJA del
+// motor (wa-bot-replay, el switch de fsm.ts previo a E4), no el que atiende
+// hoy -- por eso proponía "¿De qué barrio o zona nos escribís?", una pregunta
+// que el bot real ya no hace desde el 30/08, y las correcciones quedaban
+// hechas sobre respuestas que nadie recibió. Ahora se corrige la respuesta
+// REAL que se mandó, con el paso y la lectura que el bot registró en ese turno.
+function abrirCorreccion(i){
   const out = $('#corrResultado'+i);
-  btn.disabled = true; btn.textContent = 'Recalculando…';
+  if(out.firstElementChild){ out.innerHTML = ''; return; }
   try{
     const t = correccionesTurnos[i];
-    const dec = (typeof t.decision==='string' ? JSON.parse(t.decision) : t.decision) || {};
-    const previos = correccionesTurnos.slice(Math.max(0,i-6), i).filter(p=>p.respuesta_bot);
-    const historial = previos.length ? previos.map(p=>'Usuario: '+p.mensaje+'\nBot: '+p.respuesta_bot).join('\n') : undefined;
-    const ultimaRespuestaBot = previos.length ? previos[previos.length-1].respuesta_bot : undefined;
-    const r = await replayCall({
-      accion: 'recalcular', fuente: 'bot_logs', fuenteRef: t.id,
-      conv: { estado: dec.estado_origen || 'nuevo' },
-      mensaje: { tipo: 'text', texto: t.mensaje },
-      historial, ultimaRespuestaBot,
-    });
+    const dec = decisionDe(t);
+    const r = { textoBot: t.respuesta_bot || '', plantillaBase: null, estadoNuevo: dec.estado_destino || t.flujo || 'nuevo', router: dec.router || null };
     out.innerHTML =
       '<div style="margin-top:10px;padding:10px;border:1px solid var(--line);border-radius:10px">'
-      + '<div class="muted" style="font-size:.8rem">Estado recalculado: '+esc(r.estadoNuevo)+'</div>'
-      + '<div style="margin:6px 0"><b>Propuesta del bot (hoy):</b> '+esc(r.textoBot)+'</div>'
-      + '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">'
+      + '<div style="margin-top:2px;display:flex;gap:8px;flex-wrap:wrap">'
       + '<button class="corr-ok" style="background:var(--accent);color:#06251d;border:none;border-radius:8px;padding:7px 16px;font-weight:700;cursor:pointer">Aprobar</button>'
       + '<button class="corr-edit" style="background:none;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:7px 16px;cursor:pointer">Editar</button>'
       + '<button class="corr-rewrite" style="background:none;color:var(--ink-dim);border:1px solid var(--line);border-radius:8px;padding:7px 16px;cursor:pointer">Reescribir</button>'
@@ -1030,7 +1058,6 @@ async function recalcularCorreccion(i){
       reportarBug(ctx, nota, msgEl, ev.currentTarget);
     });
   }catch(e){ out.innerHTML = '<div class="empty">Error: '+esc(e.message)+'</div>'; }
-  finally{ btn.disabled = false; btn.textContent = 'Recalcular con código actual'; }
 }
 
 async function guardarCorreccion(ctx, textoCorregido, fueEditado, msgEl){
