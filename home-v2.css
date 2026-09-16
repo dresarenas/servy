@@ -1532,7 +1532,15 @@ main { position: relative; z-index: 1; }
   opacity: 0;
   transition: transform 0.45s var(--ease-out), opacity 0.4s var(--ease-out);
   pointer-events: none;
-  will-change: transform, opacity;
+  /* Bug real (15/09, video de Andrés en Android): con la pagina QUIETA, el
+     boton y el bottom-nav se iban desplazando solos hacia abajo/derecha hasta
+     desaparecer, y volvian a su lugar recien al scrollear (lo que fuerza un
+     repaint). Es deriva de capa del compositor: `will-change` le reserva una
+     capa GPU permanente y, en Android con poca memoria de video y muchas capas
+     animadas en paralelo (ver bloque ANDROID al final del archivo), esa capa se
+     desincroniza del viewport. Mismo fix que ya habia funcionado para
+     .bottom-nav el 24/06. translateZ(0)/backface-visibility SE MANTIENEN:
+     hacen falta para Safari iOS y no reservan capa por si solos. */
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }
@@ -1932,4 +1940,69 @@ main { position: relative; z-index: 1; }
   color: var(--ink-mute);
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+
+/* ============ ANDROID: MENOS CAPAS ANIMADAS (15/09) ============ */
+/* Bug viejo (anterior al fix de viewport del 25/08, reportado de nuevo con
+   video el 15/09): en Android, con la pagina QUIETA, el boton flotante y el
+   bottom-nav se desplazan solos hacia abajo y a la derecha hasta desaparecer;
+   al scrollear vuelven a su lugar. En iOS no pasa.
+
+   Causa: deriva de capas del compositor. La landing corre ~8 animaciones
+   infinitas simultaneas, y cuatro de ellas son de las mas caras que hay
+   (filter: blur grande + transform animado, que obliga a re-rasterizar el
+   desenfoque en cada cuadro):
+     - 3 x .section-glow  -> blur(120px) + glowDrift (translate + scale)
+     - 1 x .search::before -> blur(50px)  + searchBreath (scale)
+     - .brand-watermark    -> 120vw x 120vw animado, con opacity 0.04 en mobile
+                              (o sea: carisimo y practicamente invisible)
+   Con esa presion, un Android modesto se queda sin memoria de video y las
+   capas de los elementos fixed se desincronizan del viewport.
+
+   Se apagan SOLO las animaciones (no los elementos): el aspecto queda igual,
+   pero estaticos. El blur de los glows ademas baja a 70px, que a simple vista
+   no se distingue y cuesta bastante menos. Las marquesinas (marq /
+   providersScroll) se dejan: son movimiento que el usuario SI ve, y mueven
+   transform sin blur, que es barato. Si el sintoma persistiera, el siguiente
+   paso es sacarles el `will-change` a esas dos. */
+@media (max-width: 820px) {
+  .brand-watermark { animation: none; }
+  .section-glow { animation: none; filter: blur(70px); }
+  .search::before { animation: none; }
+}
+
+/* Respetar "reducir movimiento" del sistema: no habia ninguna guarda en todo
+   el CSS (home-v2.js declara prefersReduced y no lo usa). Ademas de accesible,
+   le da al usuario de Android una salida manual si el sintoma reaparece. */
+@media (prefers-reduced-motion: reduce) {
+  .brand-watermark, .section-glow, .search::before,
+  .marquee-track, .providers-track,
+  .hero-tag .dot, .hero-eyebrow .sticker .pulse, .scroll-cue .line-tall {
+    animation: none !important;
+  }
+  .search-float { transition: opacity 0.2s linear !important; }
+}
+
+/* ============ CAUSA RAIZ DEL BUG DE ANDROID (15/09) ============ */
+/* Medido en vivo con el viewport a 390px: el documento medía 469px de ancho
+   (79px de desborde) y, en consecuencia, los elementos `position: fixed` se
+   dimensionaban contra ESE ancho y no contra la pantalla:
+     .bottom-nav   -> 445px de ancho (se salía 67px: íconos cortados a la derecha)
+     .search-float -> 469px, centrando la píldora en 234px en vez de 195px
+   Eso es lo que se ve en el video: el botón y el menú corridos hacia la derecha.
+
+   Quién desbordaba: los tres .section-glow (312px cada uno, posicionados a
+   left/right -20vw y sin ningún ancestro que los recorte). Como además estaban
+   ANIMADOS (glowDrift mueve y escala), el ancho del documento cambiaba cuadro a
+   cuadro -> los fixed se re-dimensionaban solos, con la página quieta, hasta
+   salirse de pantalla; al scrollear, el navegador recalculaba y volvían a su
+   lugar. En iOS no pasa porque Safari ancla los fixed al viewport visual.
+
+   `clip` en vez de `hidden`: hidden en html/body puede romper position:sticky y
+   en algunos motores crea un contenedor de scroll; clip sólo recorta. Se deja
+   hidden como respaldo para navegadores sin soporte de clip (declaración
+   anterior, que los nuevos pisan). */
+html, body {
+  overflow-x: hidden;
+  overflow-x: clip;
 }
