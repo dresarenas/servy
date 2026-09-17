@@ -855,9 +855,8 @@ async function renderHallazgosQA(){
     const filas = await rpc('correcciones_listar_por_fuente', { p_fuente: 'qa_fixture', p_limit: 30 });
     if(!filas || !filas.length){ cont.innerHTML = ''; return; }
     cont.innerHTML =
-      '<div class="note"><b>Hallazgos de QA adversarial:</b> un usuario simulado por LLM (no un guion fijo) probó el bot con personas '
-      + 'armadas a partir de chats reales. Esto es lo que un juez (otro LLM) marcó como posible problema -- revisalo antes de confiar en el '
-      + '"texto sugerido", puede estar mal diagnosticado.</div>'
+      '<div class="note"><b>Hallazgos de QA adversarial:</b> una IA hizo de usuario (con personalidades armadas a partir de charlas reales) '
+      + 'y otra IA, el juez, marcó en qué respuestas mirar. El juez no propone textos: Claude revisa esos turnos antes de cambiar algo.</div>'
       + '<div style="margin-top:10px">' + filas.map(qaHallazgoBox).join('') + '</div>';
     cont.querySelectorAll('.qa-hallazgo-visto').forEach(b=> b.addEventListener('click', async ()=>{
       b.disabled = true; b.textContent = 'Marcando…';
@@ -873,7 +872,7 @@ function qaHallazgoBox(f){
     + (f.plantilla_base ? '<div class="muted" style="font-size:.8rem;margin:6px 0"><b>Motivo (juez):</b> '+esc(f.plantilla_base)+'</div>' : '')
     + '<div style="margin:6px 0"><b>Usuario simulado:</b> '+esc(f.mensaje_usuario||'')+'</div>'
     + '<div style="margin:6px 0"><b>Bot (real):</b> '+esc(f.texto_bot||'')+'</div>'
-    + '<div style="margin:6px 0;color:var(--accent)"><b>Sugerido por el juez:</b> '+esc(f.texto_corregido||'')+'</div>'
+    // Hallazgos viejos (antes del 16/09) traen un texto sugerido por gpt-4o-mini: no se muestra.'
     + '<button class="qa-hallazgo-visto" data-id="'+esc(f.id)+'" style="margin-top:6px;background:var(--bg-elev);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer">Marcar visto</button>'
     + '</div>';
 }
