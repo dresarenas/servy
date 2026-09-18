@@ -586,6 +586,17 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
       <p class="prest-sub" id="prestGraciasSub">En las próximas horas te contactamos por WhatsApp para confirmar tu perfil.</p>
 
       <div class="prest-success-actions">
+        <!-- 18/09 (Andrés): completar el perfil a elección, por WhatsApp o en la web.
+             Los mensajes que SERVY manda después del alta casi nunca llegan (WhatsApp
+             no deja escribirle primero a quien no nos escribió en las últimas 24 h);
+             si el prestador escribe él, la charla queda abierta y el bot le pide los datos. -->
+        <div id="prestCompletar" style="display:none;width:100%;margin-bottom:14px;">
+          <p class="prest-sub" style="margin:0 0 10px;">Completá tu perfil (horarios, cómo cobrás, servicios y una foto) como te quede más cómodo:</p>
+          <div class="prest-foot-row">
+            <a href="https://wa.me/5493518523360?text=Hola%20SERVY%2C%20quiero%20completar%20mi%20perfil%20de%20prestador" target="_blank" rel="noopener" class="prest-cta prest-link-btn" style="text-decoration:none;flex:1;">Por WhatsApp <span class="btn-arr"></span></a>
+            <a href="panel.html" class="prest-back" style="text-decoration:none;flex:1;display:flex;align-items:center;justify-content:center;">En la web</a>
+          </div>
+        </div>
         <div class="prest-foot-row">
           <button class="prest-back" onclick="location.href='prestador.html'">+ Cargar otro</button>
           <a href="index.html" class="prest-cta prest-link-btn" style="text-decoration:none;flex:1;">Volver al inicio <span class="btn-arr"></span></a>
@@ -678,7 +689,7 @@ function prestTelInput(el) {
   el.value = el.value.replace(/[^0-9 ]/g, '');
   prestClearErr('errPrestTel');
   var d = el.value.replace(/\s/g, '');
-  var ok = /^\d{10,11}$/.test(d) && !/^(\d)+$/.test(d);
+  var ok = /^\d{10,11}$/.test(d) && !/^(\d)\1+$/.test(d);
   document.getElementById('prestPhoneWrap').style.borderColor = ok ? 'var(--accent)' : (d ? 'rgba(255,80,80,0.5)' : '');
 }
 /* ========== VALIDATION ========== */
@@ -904,7 +915,8 @@ async function prestEnviar() {
   var _rO = categorias || 'su rubro';
   var _rZ = zonaTexto ? ' en ' + zonaTexto : '';
   document.getElementById('prestGraciasSub').innerHTML =
-    'Registramos a <strong>' + _rN + '</strong> como <strong>' + _rO + '</strong>' + _rZ + '.<br>Te vamos a escribir por WhatsApp para completar tu perfil. Para entrar a tu panel, andá a <strong>servy.ar → Ingresá</strong> y pedí tu código de acceso.';
+    'Registramos a <strong>' + _rN + '</strong> como <strong>' + _rO + '</strong>' + _rZ + '.<br>Para entrar a tu panel más adelante, andá a <strong>servy.ar → Ingresá</strong> y pedí tu código de acceso.';
+  document.getElementById('prestCompletar').style.display = 'block';
   prestGoTo(4);
 }
 

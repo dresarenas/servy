@@ -441,6 +441,21 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
           <label class="rec-label">¿De qué barrio o zona sos? <span style="color:var(--ink-mute);font-size:11px;font-weight:400;">(opcional)</span></label>
           <input type="text" class="rec-input" id="recZonaRecomendador" placeholder="Ej: Nueva Córdoba, Argüello..." autocomplete="off">
         </div>
+        <!-- 18/09 (Andrés): el WhatsApp de quien recomienda firma la recomendación y
+             evita duplicados si después también recomienda por el bot. Obligatorio
+             solo en el formulario; por WhatsApp ya se sabe desde qué número escribe. -->
+        <div class="rec-field" style="margin-top:14px;">
+          <label class="rec-label">Tu WhatsApp <span style="color:var(--accent)">*</span></label>
+          <div class="rec-phone-wrap" id="recPhoneWrapRecom">
+            <span class="rec-phone-prefix">+54 9</span>
+            <input type="text" class="rec-input" id="recTelRecomendador" placeholder="351 1234567"
+              inputmode="numeric" autocomplete="off"
+              oninput="recTelInput(this, 'recPhoneWrapRecom', 'errTelRecomendador')"
+              onkeydown="if(event.key==='Enter'){event.preventDefault();}">
+          </div>
+          <div class="rec-hint">Sin el 0 ni el 15. No se publica.</div>
+          <div class="rec-err" id="errTelRecomendador">Ingresá tu número de WhatsApp (ej: 351 1234567)</div>
+        </div>
       </div>
 
       <div id="mobileWASection">
@@ -798,9 +813,10 @@ function recNombreInput(el) {
   }
 }
 
-function recTelInput(el) {
+function recTelInput(el, wrapId, errId) {
+  wrapId = wrapId || 'recPhoneWrap';
   el.value = el.value.replace(/[^0-9 ]/g, '');
-  recClearErr('errTel');
+  recClearErr(errId || 'errTel');
   var d = el.value.replace(/\s/g, '');
   if (d.length > 11) {
     if (d.startsWith('5493')) d = d.slice(3);
@@ -809,8 +825,8 @@ function recTelInput(el) {
   }
   if (d.startsWith('0')) d = d.slice(1);
   el.value = d;
-  var ok = /^\d{10,11}$/.test(d) && !/^(\d)+$/.test(d);
-  document.getElementById('recPhoneWrap').style.borderColor = ok ? 'var(--accent)' : (d ? 'rgba(255,80,80,0.5)' : '');
+  var ok = /^\d{10,11}$/.test(d) && !/^(\d)\1+$/.test(d);
+  document.getElementById(wrapId).style.borderColor = ok ? 'var(--accent)' : (d ? 'rgba(255,80,80,0.5)' : '');
 }
 /* ========== STEP VALIDATION ========== */
 async function recValidStep0() {
@@ -822,9 +838,13 @@ async function recValidStep0() {
   if (!SERVY.validarNombre(nombre)) { recShowErr('errNombre', true); ok = false; } else recShowErr('errNombre', false);
   var telOk = /^\d{10,11}$/.test(tel) && !/^(\d)\1+$/.test(tel);
   if (!telOk) { recShowErr('errTel', true); ok = false; } else recShowErr('errTel', false);
+  var telRecom = (document.getElementById('recTelRecomendador').value || '').replace(/\s/g, '');
+  var telRecomOk = /^\d{10,11}$/.test(telRecom) && !/^(\d)\1+$/.test(telRecom);
+  if (!telRecomOk) { recShowErr('errTelRecomendador', true); ok = false; } else recShowErr('errTelRecomendador', false);
   if (!recStars) { recShowErr('errEstrellas', true); ok = false; } else recShowErr('errEstrellas', false);
   if (!ok) {
     if (!recNombreOk) { var _rn = document.getElementById('recRecomendadorNombre'); _rn.focus(); document.getElementById('errRecomendadorNombre').scrollIntoView({behavior:'smooth',block:'center'}); }
+    else if (!telRecomOk) { var _tr = document.getElementById('recTelRecomendador'); _tr.focus(); document.getElementById('errTelRecomendador').scrollIntoView({behavior:'smooth',block:'center'}); }
     else if (!SERVY.validarNombre(nombre)) { var _nn = document.getElementById('recNombre'); _nn.focus(); document.getElementById('errNombre').scrollIntoView({behavior:'smooth',block:'center'}); }
     else if (!telOk) { var _tt = document.getElementById('recTel'); _tt.focus(); document.getElementById('errTel').scrollIntoView({behavior:'smooth',block:'center'}); }
     return;
@@ -1081,7 +1101,7 @@ async function recEnviar() {
         comentario:              resenya,
         relacion:                relacion,
         quien_recomienda_nombre: (document.getElementById('recRecomendadorNombre').value||'').trim() || null,
-        quien_recomienda_tel:    null,
+        quien_recomienda_tel:    (function() { var t = (document.getElementById('recTelRecomendador').value || '').replace(/\s/g, ''); return t ? '+549' + t : null; })(),
         source:                  'web_desktop'
       }),
       signal: ctrl.signal
