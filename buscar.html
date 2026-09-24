@@ -1180,7 +1180,10 @@
 <script>
 var WEBHOOK_BUSQUEDA   = 'https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-busqueda';
 var WEBHOOK_WHISPER    = 'https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-whisper';
-var WEBHOOK_CLASIFICAR = 'https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-clasificar';
+// 24/09: pasa por la función de Supabase, que elige con Jev (96% contra 86% del
+// workflow de n8n sobre 56 casos reales, y en un tercio del tiempo) y cae al
+// workflow de siempre si Jev no contesta. Ver supabase/functions/clasificar-oficio.
+var WEBHOOK_CLASIFICAR = 'https://oupmslbpvtuszwkdcbvq.supabase.co/functions/v1/clasificar-oficio';
 
 /* ---- STATE ---- */
 var wizState = { descripcion: null, oficio: null, oficios: null, zonaText: '', zonaLat: null, zonaLng: null, tiempo: null, prestadores: [] };
