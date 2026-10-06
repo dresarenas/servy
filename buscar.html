@@ -1905,7 +1905,13 @@ function togglePerfilExpansion() {
 }
 function contactarWhatsApp() {
   if (!prestadorActual) return;
-  window.open('https://wa.me/549' + prestadorActual.tel + '?text=' + encodeURIComponent('Hola, te contacto a través de SERVY. ¿Podés ayudarme?'), '_blank');
+  // Ficha de prueba (06/10): el contacto va al WhatsApp de SERVY, no al del
+  // prestador, que todavía no sabe que está cargado. El texto lleva la marca
+  // que el bot reconoce para explicar que es una prueba y pedir la opinión.
+  var texto = prestadorActual.prueba
+    ? 'Hola! Vengo de SERVY, buscaba ' + (prestadorActual.oficio || 'un prestador') + ' (ficha de prueba)'
+    : 'Hola, te contacto a través de SERVY. ¿Podés ayudarme?';
+  window.open('https://wa.me/549' + prestadorActual.tel + '?text=' + encodeURIComponent(texto), '_blank');
 }
 function solicitarPresupuesto() { document.getElementById('modalPresupuesto').classList.add('visible'); }
 
