@@ -1981,6 +1981,23 @@ main { position: relative; z-index: 1; }
     animation: none !important;
   }
   .search-float { transition: opacity 0.2s linear !important; }
+  /* 07/10: con la animación apagada, el carrusel quedaba como una cinta
+     cortada que parece rota -- se veían dos tarjetas y media y nada más. Sin
+     movimiento se muestra como grilla: se ven todos y se leen completos. */
+  .providers-carousel {
+    width: auto;
+    margin-left: 0;
+    -webkit-mask-image: none;
+            mask-image: none;
+  }
+  .providers-track {
+    flex-wrap: wrap;
+    width: auto;
+    justify-content: center;
+    gap: 12px;
+    background: transparent;
+  }
+  .providers-track .provider { flex: 1 1 260px; max-width: 320px; }
 }
 
 /* ============ CAUSA RAIZ DEL BUG DE ANDROID (15/09) ============ */
