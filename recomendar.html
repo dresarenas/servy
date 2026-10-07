@@ -86,11 +86,11 @@
   width:28px; height:28px; border-radius:50%;
   border:2px solid var(--line-strong);
   display:flex; align-items:center; justify-content:center;
-  font-family:var(--f-mono); font-size:11px; font-weight:700;
+  font-family:var(--f-mono); font-size:14.5px; font-weight:700;
   color:var(--ink-mute); opacity:.4; flex-shrink:0; cursor:default;
   transition:all .3s;
 }
-.rec-dot.active { border-color:var(--accent); color:var(--accent); background:color-mix(in srgb,var(--accent) 10%,transparent); width:32px; height:32px; font-size:13px; opacity:1; }
+.rec-dot.active { border-color:var(--accent); color:var(--accent); background:color-mix(in srgb,var(--accent) 10%,transparent); width:32px; height:32px; font-size:15px; opacity:1; }
 .rec-dot.done   { border-color:var(--accent); background:var(--accent); color:var(--accent-ink); opacity:1; cursor:pointer; }
 .rec-dot-line { flex:1; height:2px; background:var(--line-strong); margin:0 6px; transition:background .3s; }
 .rec-dot-line.done { background:var(--accent); }
@@ -118,7 +118,7 @@
 .rec-back {
   padding:16px 20px; background:transparent;
   border:1px solid var(--line-strong); border-radius:14px;
-  color:var(--ink-dim); font-family:var(--f-mono); font-size:14px;
+  color:var(--ink-dim); font-family:var(--f-mono); font-size:15.5px;
   letter-spacing:.08em; text-transform:uppercase; cursor:pointer;
   display:flex; align-items:center; gap:8px;
   transition:color .2s,border-color .2s; white-space:nowrap; flex-shrink:0;
@@ -136,16 +136,16 @@
   border-radius:16px; padding:20px; margin-bottom:24px;
 }
 .rec-import-tag {
-  font-family:var(--f-mono); font-size:10px; letter-spacing:.14em;
+  font-family:var(--f-mono); font-size:14px; letter-spacing:.14em;
   text-transform:uppercase; color:var(--accent); margin-bottom:8px;
 }
-.rec-import-desc { font-family:var(--f-sans); font-size:14px; color:var(--ink-dim); margin-bottom:14px; line-height:1.5; }
+.rec-import-desc { font-family:var(--f-sans); font-size:15.5px; color:var(--ink-dim); margin-bottom:14px; line-height:1.5; }
 .rec-btn-import {
   display:flex; align-items:center; justify-content:center; gap:10px;
   width:100%; padding:16px 24px;
   background:var(--accent); color:var(--accent-ink);
   border:none; border-radius:12px;
-  font-family:var(--f-mono); font-size:13px; letter-spacing:.08em;
+  font-family:var(--f-mono); font-size:15px; letter-spacing:.08em;
   text-transform:uppercase; cursor:pointer;
   transition:background .2s,transform .15s;
 }
@@ -154,7 +154,7 @@
 .rec-btn-import:active { transform:scale(.98); }
 .rec-import-ok {
   display:none; align-items:center; gap:8px; margin-top:12px;
-  font-family:var(--f-mono); font-size:12px; color:var(--accent); letter-spacing:.06em;
+  font-family:var(--f-mono); font-size:14px; color:var(--accent); letter-spacing:.06em;
 }
 .rec-import-ok.visible { display:flex; }
 
@@ -181,14 +181,14 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
 .rec-phone-prefix { padding:14px 0 14px 16px; font-family:var(--f-mono); font-size:18px; color:var(--ink-mute); white-space:nowrap; flex-shrink:0; }
 .rec-phone-wrap .rec-input { border:none; border-radius:0; background:transparent; padding-left:8px; }
 .rec-phone-wrap .rec-input:focus { background:transparent; }
-.rec-hint { font-family:var(--f-mono); font-size:13px; color:var(--ink-mute); letter-spacing:.04em; margin-top:6px; }
-.rec-err { display:none; font-family:var(--f-mono); font-size:13px; color:#F87171; margin-top:6px; letter-spacing:.04em; }
+.rec-hint { font-family:var(--f-mono); font-size:15px; color:var(--ink-mute); letter-spacing:.04em; margin-top:6px; }
+.rec-err { display:none; font-family:var(--f-mono); font-size:15px; color:#F87171; margin-top:6px; letter-spacing:.04em; }
 .rec-err.visible { display:block; }
 
 /* ===== CHIPS ===== */
 .rec-chips { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px; }
 .rec-chip {
-  font-family:var(--f-sans); font-size:14px; font-weight:500;
+  font-family:var(--f-sans); font-size:15.5px; font-weight:500;
   color:var(--ink-dim); padding:10px 18px;
   border:1.5px solid var(--line-strong); border-radius:999px;
   background:transparent; cursor:pointer;
@@ -206,18 +206,18 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
 .rec-star-label { font-family:var(--f-mono); font-size:16px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-mute); margin-bottom:16px; }
 .rec-oficio-wrap { position:relative; }
 .rec-oficio-sugg { position:absolute; top:100%; left:0; right:0; z-index:50; background:var(--bg-elev); border:1px solid rgba(255,255,255,0.12); border-radius:12px; margin-top:4px; overflow:hidden; box-shadow:0 8px 32px rgba(0,0,0,0.4); }
-.rec-sugg-item { padding:13px 16px; cursor:pointer; font-family:var(--f-sans); font-size:15px; color:var(--ink); border-bottom:1px solid var(--line); transition:background .12s; }
+.rec-sugg-item { padding:13px 16px; cursor:pointer; font-family:var(--f-sans); font-size:16.5px; color:var(--ink); border-bottom:1px solid var(--line); transition:background .12s; }
 .rec-sugg-item:last-child { border-bottom:none; }
 .rec-sugg-item:hover,.rec-sugg-item:focus { background:color-mix(in srgb,var(--accent) 12%,transparent); color:var(--ink); outline:none; }
 .rec-oficio-tags { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
-.rec-oficio-tag { display:flex; align-items:center; gap:5px; background:color-mix(in srgb,var(--accent) 15%,transparent); border:1px solid color-mix(in srgb,var(--accent) 35%,transparent); border-radius:20px; padding:5px 12px; font-family:var(--f-sans); font-size:13px; color:var(--ink); }
+.rec-oficio-tag { display:flex; align-items:center; gap:5px; background:color-mix(in srgb,var(--accent) 15%,transparent); border:1px solid color-mix(in srgb,var(--accent) 35%,transparent); border-radius:20px; padding:5px 12px; font-family:var(--f-sans); font-size:15px; color:var(--ink); }
 .rec-oficio-tag-x { background:none; border:none; color:var(--ink-mute); cursor:pointer; font-size:17px; line-height:1; padding:0 0 0 2px; }
 .rec-oficio-tag-x:hover { color:var(--accent); }
 
 /* ===== SECTION DIVIDER ===== */
 .rec-opt-label {
   display:flex; align-items:center; gap:12px; margin:20px 0 14px;
-  font-family:var(--f-mono); font-size:10px; letter-spacing:.12em;
+  font-family:var(--f-mono); font-size:14px; letter-spacing:.12em;
   text-transform:uppercase; color:var(--ink-mute);
 }
 .rec-opt-label::after { content:''; flex:1; height:1px; background:var(--line-strong); }
@@ -235,7 +235,7 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
   display:flex; align-items:center; justify-content:center; gap:8px;
   width:100%; padding:12px; border:1px solid rgba(37,211,102,.35);
   border-radius:14px; color:#25d366; background:transparent;
-  font-family:var(--f-mono); font-size:12px; letter-spacing:.06em;
+  font-family:var(--f-mono); font-size:14px; letter-spacing:.06em;
   text-decoration:none; cursor:pointer; transition:background .2s,border-color .2s;
   box-sizing:border-box;
 }
@@ -296,7 +296,7 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
 .rec-resena-wrap textarea { padding-bottom:52px !important; resize:none !important; overflow:hidden; min-height:100px; }
 .rec-resena-label { font-size:16px !important; }
 .rec-opcional-badge {
-  font-family:var(--f-mono); font-size:10px; font-weight:700;
+  font-family:var(--f-mono); font-size:14px; font-weight:700;
   letter-spacing:.12em; text-transform:uppercase;
   color:var(--ink-mute); border:1px solid var(--line-strong);
   border-radius:999px; padding:2px 9px; vertical-align:middle; margin-left:4px;
@@ -315,7 +315,7 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
 /* ===== IMPORT MANUAL LINK ===== */
 .rec-import-manual {
   display:block; text-align:center; margin-top:10px;
-  font-family:var(--f-mono); font-size:11px; letter-spacing:.06em;
+  font-family:var(--f-mono); font-size:14.5px; letter-spacing:.06em;
   color:var(--ink-dim); text-decoration:underline; cursor:pointer;
 }
 /* ===== EYEBROW BADGE ===== */
@@ -330,7 +330,7 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
   display: flex; align-items: center; gap: 10px;
   width: 100%; justify-content: center;
   background: #25D366; color: #fff; border: none;
-  font-family: var(--f-mono); font-size: 15px; font-weight: 600;
+  font-family: var(--f-mono); font-size: 16.5px; font-weight: 600;
   letter-spacing: 0.06em; padding: 18px 28px;
   border-radius: 999px; cursor: pointer;
   transition: background .2s, transform .2s; margin-top: 8px;
@@ -338,7 +338,7 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
 .rec-mobile-btn:active { background: #1ebe5d; transform: translateY(-1px); }
 .rec-mobile-form-link {
   display: block; text-align: center; margin-top: 14px;
-  font-family: var(--f-mono); font-size: 12px; letter-spacing: .06em;
+  font-family: var(--f-mono); font-size: 14px; letter-spacing: .06em;
   color: var(--ink-dim); text-decoration: underline; cursor: pointer;
 }
 @media (max-width: 820px) {
@@ -360,11 +360,11 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
   #recWiz.show-form #recVolverWALink { display: block !important; }
   #recWiz.show-form #recZonaWrap { display: block !important; }
 }
-.nombre-badge{display:flex;align-items:center;gap:10px;background:color-mix(in srgb,var(--accent) 10%,transparent);border:1px solid color-mix(in srgb,var(--accent) 25%,transparent);border-radius:10px;padding:8px 14px;margin-top:8px;font-size:14px;color:var(--ink-dim);font-family:var(--f-sans);}
-.nombre-badge-icon{width:20px;height:20px;border-radius:50%;background:var(--accent);color:#0B1A2B;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.nombre-badge{display:flex;align-items:center;gap:10px;background:color-mix(in srgb,var(--accent) 10%,transparent);border:1px solid color-mix(in srgb,var(--accent) 25%,transparent);border-radius:10px;padding:8px 14px;margin-top:8px;font-size:15.5px;color:var(--ink-dim);font-family:var(--f-sans);}
+.nombre-badge-icon{width:20px;height:20px;border-radius:50%;background:var(--accent);color:#0B1A2B;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 @media (max-width: 768px) { #recZonaWrap { display: none; } }
 .rec-quick-chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
-.rec-quick-chip { font-family:var(--f-sans); font-size:13px; padding:6px 14px; border-radius:20px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.06); color:var(--ink-dim); cursor:pointer; transition:all .15s; }
+.rec-quick-chip { font-family:var(--f-sans); font-size:15px; padding:6px 14px; border-radius:20px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.06); color:var(--ink-dim); cursor:pointer; transition:all .15s; }
 .rec-quick-chip:hover, .rec-quick-chip:active { background:rgba(0,201,167,0.15); border-color:var(--accent); color:var(--accent); }
 </style>
 </head>
@@ -423,7 +423,7 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
           <span id="importBtnTxt">Importar desde contactos</span>
         </button>
         <a class="rec-import-manual" id="linkManual" onclick="_recShowFormFields()" href="javascript:void(0)">O ingresá manualmente</a>
-        <div class="rec-import-manual" id="iosHint" style="display:none;margin-top:14px;line-height:1.7;font-size:11px;text-decoration:none;cursor:default;">💡 Cómo copiar el número:<br>WhatsApp → info del contacto → manténé presionado el número → Copiar → volvé acá y tocá el botón</div>
+        <div class="rec-import-manual" id="iosHint" style="display:none;margin-top:14px;line-height:1.7;font-size:14.5px;text-decoration:none;cursor:default;">💡 Cómo copiar el número:<br>WhatsApp → info del contacto → manténé presionado el número → Copiar → volvé acá y tocá el botón</div>
         <div class="rec-import-ok" id="importOk">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           Contacto importado — podés editar los datos abajo
@@ -436,9 +436,9 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
           autocomplete="off"
           oninput="this.value=this.value.replace(/[0-9]/g,''); recRecomNombreInput(this)" onblur="recRecomNombreBlur(this)">
         <div class="rec-err" id="errRecomendadorNombre">Ingresá un nombre válido (ej: Ana García)</div>
-<span id="recNombreOk" style="display:none;color:var(--accent);font-size:13px;margin-top:4px">✓ Nombre válido</span>
+<span id="recNombreOk" style="display:none;color:var(--accent);font-size:15px;margin-top:4px">✓ Nombre válido</span>
         <div class="rec-field" id="recZonaWrap" style="margin-top:14px;">
-          <label class="rec-label">¿De qué barrio o zona sos? <span style="color:var(--ink-mute);font-size:11px;font-weight:400;">(opcional)</span></label>
+          <label class="rec-label">¿De qué barrio o zona sos? <span style="color:var(--ink-mute);font-size:14.5px;font-weight:400;">(opcional)</span></label>
           <input type="text" class="rec-input" id="recZonaRecomendador" placeholder="Ej: Nueva Córdoba, Argüello..." autocomplete="off">
         </div>
         <!-- 18/09 (Andrés): el WhatsApp de quien recomienda firma la recomendación y
@@ -530,7 +530,7 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
         <input type="text" class="rec-input" id="ofInputAuto" placeholder="Ej: plomero..." autocomplete="off" oninput="recOficioAuto(this.value)" onkeydown="recOficioAutoKey(event)">
         <div class="rec-oficio-sugg" id="recOficioSugg" style="display:none;"></div>
       </div>
-      <div style="font-size:12px;color:var(--ink-mute);font-family:var(--f-sans);margin-top:4px;">Podés agregar más de un rubro</div>
+      <div style="font-size:14px;color:var(--ink-mute);font-family:var(--f-sans);margin-top:4px;">Podés agregar más de un rubro</div>
       <div class="rec-quick-chips">
         <button type="button" class="rec-quick-chip" onclick="recOficioSelect('Plomero')">Plomero</button>
         <button type="button" class="rec-quick-chip" onclick="recOficioSelect('Electricista')">Electricista</button>
@@ -588,7 +588,7 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
           </button>
         </div>
-        <div style="font-family:var(--f-mono);font-size:11px;color:var(--ink-mute);text-align:right;margin-top:4px;" id="recCharCount">0 / 280</div>
+        <div style="font-family:var(--f-mono);font-size:14.5px;color:var(--ink-mute);text-align:right;margin-top:4px;" id="recCharCount">0 / 280</div>
       </div>
 
       <div class="rec-opt-label" style="margin-top:20px;">¿Cómo lo conocés?<span class="rec-opcional-badge">OPCIONAL</span></div>

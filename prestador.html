@@ -86,11 +86,11 @@
   width:28px; height:28px; border-radius:50%;
   border:2px solid var(--line-strong);
   display:flex; align-items:center; justify-content:center;
-  font-family:var(--f-mono); font-size:11px; font-weight:700;
+  font-family:var(--f-mono); font-size:14.5px; font-weight:700;
   color:var(--ink-mute); opacity:.4; flex-shrink:0; cursor:default;
   transition:all .3s;
 }
-.prest-dot.active { border-color:var(--accent); color:var(--accent); background:color-mix(in srgb,var(--accent) 10%,transparent); width:32px; height:32px; font-size:13px; opacity:1; }
+.prest-dot.active { border-color:var(--accent); color:var(--accent); background:color-mix(in srgb,var(--accent) 10%,transparent); width:32px; height:32px; font-size:15px; opacity:1; }
 .prest-dot.done   { border-color:var(--accent); background:var(--accent); color:var(--accent-ink); opacity:1; cursor:pointer; }
 .prest-dot-line { flex:1; height:2px; background:var(--line-strong); margin:0 6px; transition:background .3s; }
 .prest-dot-line.done { background:var(--accent); }
@@ -119,7 +119,7 @@
 .prest-back {
   padding:16px 20px; background:transparent;
   border:1px solid var(--line-strong); border-radius:14px;
-  color:var(--ink-dim); font-family:var(--f-mono); font-size:14px;
+  color:var(--ink-dim); font-family:var(--f-mono); font-size:15.5px;
   letter-spacing:.08em; text-transform:uppercase; cursor:pointer;
   display:flex; align-items:center; gap:8px;
   transition:color .2s,border-color .2s; white-space:nowrap; flex-shrink:0;
@@ -154,8 +154,8 @@ textarea.prest-input { font-size:18px; font-weight:400; resize:none; min-height:
 .prest-phone-prefix { padding:14px 0 14px 16px; font-family:var(--f-mono); font-size:18px; color:var(--ink-mute); white-space:nowrap; flex-shrink:0; }
 .prest-phone-wrap .prest-input { border:none; border-radius:0; background:transparent; padding-left:8px; }
 .prest-phone-wrap .prest-input:focus { background:transparent; }
-.prest-hint { font-family:var(--f-mono); font-size:13px; color:var(--ink-mute); letter-spacing:.04em; margin-top:6px; }
-.prest-err { display:none; font-family:var(--f-mono); font-size:13px; color:#F87171; margin-top:6px; letter-spacing:.04em; }
+.prest-hint { font-family:var(--f-mono); font-size:15px; color:var(--ink-mute); letter-spacing:.04em; margin-top:6px; }
+.prest-err { display:none; font-family:var(--f-mono); font-size:15px; color:#F87171; margin-top:6px; letter-spacing:.04em; }
 .prest-err.visible { display:block; }
 
 /* ===== CHIPS ===== */
@@ -174,12 +174,12 @@ textarea.prest-input { font-size:18px; font-weight:400; resize:none; min-height:
 /* ===== SECTION LABEL ===== */
 .prest-opt-label {
   display:flex; align-items:center; gap:12px; margin:20px 0 14px;
-  font-family:var(--f-mono); font-size:10px; letter-spacing:.12em;
+  font-family:var(--f-mono); font-size:14px; letter-spacing:.12em;
   text-transform:uppercase; color:var(--ink-mute);
 }
 .prest-opt-label::after { content:''; flex:1; height:1px; background:var(--line-strong); }
 .prest-opcional-badge {
-  font-family:var(--f-mono); font-size:10px; font-weight:700;
+  font-family:var(--f-mono); font-size:14px; font-weight:700;
   letter-spacing:.12em; text-transform:uppercase;
   color:var(--ink-mute); border:1px solid var(--line-strong);
   border-radius:999px; padding:2px 9px; vertical-align:middle; margin-left:4px;
@@ -197,7 +197,7 @@ textarea.prest-input { font-size:18px; font-weight:400; resize:none; min-height:
   display:flex; align-items:center; justify-content:center; gap:8px;
   width:100%; padding:12px; border:1px solid rgba(37,211,102,.35);
   border-radius:14px; color:#25d366; background:transparent;
-  font-family:var(--f-mono); font-size:12px; letter-spacing:.06em;
+  font-family:var(--f-mono); font-size:14px; letter-spacing:.06em;
   text-decoration:none; cursor:pointer; transition:background .2s,border-color .2s;
   box-sizing:border-box;
 }
@@ -211,7 +211,7 @@ textarea.prest-input { font-size:18px; font-weight:400; resize:none; min-height:
 
 /* ===== TEXTAREA WRAP + CHAR COUNT ===== */
 .prest-textarea-wrap { position:relative; }
-.prest-char-count { font-family:var(--f-mono); font-size:11px; color:var(--ink-mute); text-align:right; margin-top:4px; }
+.prest-char-count { font-family:var(--f-mono); font-size:14.5px; color:var(--ink-mute); text-align:right; margin-top:4px; }
 
 @media (max-width:600px) {
   .prest-content { padding:80px 20px 0; }
@@ -243,8 +243,8 @@ textarea.prest-input { font-size:18px; font-weight:400; resize:none; min-height:
 /* ===== MAP ===== */
 .prest-map-container { width:100%; height:200px; border-radius:14px; border:2px solid var(--line-strong); overflow:hidden; background:var(--bg-elev); }
 .prest-radius-row { display:flex; align-items:center; gap:10px; margin-top:10px; margin-bottom:16px; }
-.prest-radius-label { font-family:var(--f-mono); font-size:12px; color:var(--ink-dim); white-space:nowrap; }
-.prest-radius-val { font-family:var(--f-mono); font-size:12px; color:var(--accent); font-weight:700; min-width:52px; text-align:right; }
+.prest-radius-label { font-family:var(--f-mono); font-size:14px; color:var(--ink-dim); white-space:nowrap; }
+.prest-radius-val { font-family:var(--f-mono); font-size:14px; color:var(--accent); font-weight:700; min-width:52px; text-align:right; }
 input[type=range].prest-slider { -webkit-appearance:none; flex:1; height:4px; background:var(--line-strong); border-radius:2px; outline:none; }
 input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; width:18px; height:18px; border-radius:50%; background:var(--accent); cursor:pointer; }
 
@@ -253,7 +253,7 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
 .prest-foto-preview { width:60px; height:60px; border-radius:50%; background:var(--bg-elev); border:2px solid var(--line-strong); flex-shrink:0; display:flex; align-items:center; justify-content:center; overflow:hidden; }
 .prest-foto-preview img { width:100%; height:100%; object-fit:cover; }
 .prest-foto-preview svg { opacity:.4; }
-.prest-foto-btn { flex:1; padding:12px 16px; background:transparent; border:1.5px dashed var(--line-strong); border-radius:12px; color:var(--ink-dim); font-family:var(--f-sans); font-size:14px; cursor:pointer; text-align:center; transition:border-color .2s,color .2s; display:block; }
+.prest-foto-btn { flex:1; padding:12px 16px; background:transparent; border:1.5px dashed var(--line-strong); border-radius:12px; color:var(--ink-dim); font-family:var(--f-sans); font-size:15.5px; cursor:pointer; text-align:center; transition:border-color .2s,color .2s; display:block; }
 .prest-foto-btn:hover { border-color:var(--accent); color:var(--ink); }
 
 /* ===== PRECIO ===== */
@@ -262,19 +262,19 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
 
 /* ===== TERMS ===== */
 .prest-terms-box { background:color-mix(in srgb,var(--ink) 4%,transparent); border:1px solid var(--line-strong); border-radius:14px; padding:18px; margin-bottom:20px; }
-.prest-terms-value { font-family:var(--f-sans); font-size:15px; color:var(--ink); margin-bottom:18px; line-height:1.65; }
-.prest-terms-disclaimer { font-family:var(--f-mono); font-size:11px; color:var(--ink-mute); line-height:1.7; letter-spacing:.02em; border-top:1px solid var(--line-strong); padding-top:14px; }
-@media (max-width:600px) { .prest-terms-disclaimer { font-size:13px; } }
+.prest-terms-value { font-family:var(--f-sans); font-size:16.5px; color:var(--ink); margin-bottom:18px; line-height:1.65; }
+.prest-terms-disclaimer { font-family:var(--f-mono); font-size:14.5px; color:var(--ink-mute); line-height:1.7; letter-spacing:.02em; border-top:1px solid var(--line-strong); padding-top:14px; }
+@media (max-width:600px) { .prest-terms-disclaimer { font-size:15px; } }
 .prest-check-row { display:flex; align-items:flex-start; gap:12px; cursor:pointer; }
 .prest-check-row input[type=checkbox] { width:20px; height:20px; flex-shrink:0; accent-color:var(--accent); margin-top:1px; cursor:pointer; }
-.prest-check-label { font-family:var(--f-sans); font-size:14px; color:var(--ink-dim); line-height:1.5; cursor:pointer; }
+.prest-check-label { font-family:var(--f-sans); font-size:15.5px; color:var(--ink-dim); line-height:1.5; cursor:pointer; }
 .prest-title-opcional { font-size:0.38em; font-weight:700; color:var(--ink-mute); letter-spacing:.1em; text-transform:uppercase; vertical-align:middle; margin-left:4px; }
 
 /* ===== GEO + ADDR (ps1 zona) ===== */
 .prest-geo-btn {
   width:100%; padding:14px 20px; background:transparent;
   border:1.5px solid var(--line-strong); border-radius:12px;
-  color:var(--ink-dim); font-family:var(--f-sans); font-size:14px; font-weight:500;
+  color:var(--ink-dim); font-family:var(--f-sans); font-size:15.5px; font-weight:500;
   display:flex; align-items:center; justify-content:center; gap:8px;
   cursor:pointer; transition:color .2s,border-color .2s,background .2s;
   margin-bottom:10px; box-sizing:border-box;
@@ -293,13 +293,13 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
 .prest-addr-btn {
   padding:12px 20px; background:var(--accent); color:var(--accent-ink);
   border:none; border-radius:12px;
-  font-family:var(--f-mono); font-size:12px; letter-spacing:.08em; text-transform:uppercase;
+  font-family:var(--f-mono); font-size:14px; letter-spacing:.08em; text-transform:uppercase;
   cursor:pointer; white-space:nowrap; flex-shrink:0; transition:background .2s;
 }
 .prest-addr-btn:hover { background:var(--accent-hover); }
 .prest-section-label {
   display:flex; align-items:center; gap:12px; margin:0 0 14px;
-  font-family:var(--f-mono); font-size:10px; letter-spacing:.12em;
+  font-family:var(--f-mono); font-size:14px; letter-spacing:.12em;
   text-transform:uppercase; color:var(--ink-mute);
 }
 .prest-section-label::after { content:''; flex:1; height:1px; background:var(--line-strong); }
@@ -311,13 +311,13 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
   background:color-mix(in srgb,var(--accent) 6%,var(--bg-elev));
   border:1px solid color-mix(in srgb,var(--accent) 25%,transparent);
   border-radius:12px; padding:12px 14px; margin:14px 0;
-  font-family:var(--f-sans); font-size:15px; line-height:1.5;
+  font-family:var(--f-sans); font-size:16.5px; line-height:1.5;
   color:var(--ink-dim);
 }
 .prest-privacy-note svg { flex-shrink:0; margin-top:2px; color:var(--accent); }
 .prest-privacy-note span { color:var(--accent); font-weight:600; }
-.nombre-badge{display:flex;align-items:center;gap:10px;background:color-mix(in srgb,var(--accent) 10%,transparent);border:1px solid color-mix(in srgb,var(--accent) 25%,transparent);border-radius:10px;padding:8px 14px;margin-top:8px;font-size:14px;color:var(--ink-dim);font-family:var(--f-sans);}
-.nombre-badge-icon{width:20px;height:20px;border-radius:50%;background:var(--accent);color:#0B1A2B;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.nombre-badge{display:flex;align-items:center;gap:10px;background:color-mix(in srgb,var(--accent) 10%,transparent);border:1px solid color-mix(in srgb,var(--accent) 25%,transparent);border-radius:10px;padding:8px 14px;margin-top:8px;font-size:15.5px;color:var(--ink-dim);font-family:var(--f-sans);}
+.nombre-badge-icon{width:20px;height:20px;border-radius:50%;background:var(--accent);color:#0B1A2B;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 
 </style>
 </head>
@@ -429,7 +429,7 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
       <div class="prest-err" id="errPrestOficio" style="margin-top:8px;">Elegí al menos un rubro</div>
 
       <div class="prest-section-label" style="margin-top:24px;">Zona de cobertura <span style="color:var(--accent)">*</span></div>
-      <p style="font-family:var(--f-sans);font-size:13px;color:var(--ink-mute);margin:4px 0 12px;line-height:1.5;">¿En qué zonas o barrios de Córdoba desarrollás tu actividad?</p>
+      <p style="font-family:var(--f-sans);font-size:15px;color:var(--ink-mute);margin:4px 0 12px;line-height:1.5;">¿En qué zonas o barrios de Córdoba desarrollás tu actividad?</p>
 
       <!-- MAP (shown when Google Maps loads) -->
       <div id="prestMapWrap" style="display:none;">
@@ -460,7 +460,7 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
 
       <!-- CHIPS FALLBACK (shown until Maps loads) -->
       <div id="prestZonaChipsFallback">
-        <p style="font-family:var(--f-mono);font-size:11px;opacity:0.55;margin:0 0 8px;letter-spacing:.04em;">Elegí una o más zonas:</p>
+        <p style="font-family:var(--f-mono);font-size:14.5px;opacity:0.55;margin:0 0 8px;letter-spacing:.04em;">Elegí una o más zonas:</p>
         <div class="prest-chips" id="prestZonaChips">
           <button class="prest-chip" data-value="toda-ciudad">📍 Toda la ciudad</button>
           <button class="prest-chip" data-value="nueva-cordoba">Nueva Córdoba</button>
