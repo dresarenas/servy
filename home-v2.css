@@ -2006,3 +2006,18 @@ html, body {
   overflow-x: hidden;
   overflow-x: clip;
 }
+
+/* === 07/10: en pantallas grandes, el cuerpo de texto vuelve a su tamaño === */
+@media (min-width: 821px) {
+  .nav-links.open .nav-link { font-size: 15px; }
+  .nav-links.open .nav-login { font-size: 14px; }
+  .servy-login-sub { font-size: 15px; }
+  .servy-login-free { font-size: 14px; }
+  .search-float-pill { font-size: 14px; }
+  .search-float-pill { font-size: 15px; }
+  .search-submit { font-size: 15px; }
+  .search-hint { font-size: 15px; }
+  .pill { font-size: 15px; }
+  /* Footer */ .footer { font-size: 14px; }
+  .step-desc { font-size: 14px; }
+}

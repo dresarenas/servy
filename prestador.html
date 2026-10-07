@@ -319,6 +319,16 @@ input[type=range].prest-slider::-webkit-slider-thumb { -webkit-appearance:none; 
 .nombre-badge{display:flex;align-items:center;gap:10px;background:color-mix(in srgb,var(--accent) 10%,transparent);border:1px solid color-mix(in srgb,var(--accent) 25%,transparent);border-radius:10px;padding:8px 14px;margin-top:8px;font-size:15.5px;color:var(--ink-dim);font-family:var(--f-sans);}
 .nombre-badge-icon{width:20px;height:20px;border-radius:50%;background:var(--accent);color:#0B1A2B;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 
+/* === 07/10: en pantallas grandes, el cuerpo de texto vuelve a su tamaño === */
+@media (min-width: 821px) {
+  .prest-back { font-size: 14px; }
+  .prest-foto-btn { font-size: 14px; }
+  .prest-terms-value { font-size: 15px; }
+  .prest-check-label { font-size: 14px; }
+  /* ===== GEO + ADDR (ps1 zona) ===== */ .prest-geo-btn { font-size: 14px; }
+  /* ===== PRIVACY NOTE ===== */ .prest-privacy-note { font-size: 15px; }
+  .nombre-badge { font-size: 14px; }
+}
 </style>
 </head>
 <body class="loaded">

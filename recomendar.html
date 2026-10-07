@@ -366,6 +366,15 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
 .rec-quick-chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
 .rec-quick-chip { font-family:var(--f-sans); font-size:15px; padding:6px 14px; border-radius:20px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.06); color:var(--ink-dim); cursor:pointer; transition:all .15s; }
 .rec-quick-chip:hover, .rec-quick-chip:active { background:rgba(0,201,167,0.15); border-color:var(--accent); color:var(--accent); }
+/* === 07/10: en pantallas grandes, el cuerpo de texto vuelve a su tamaño === */
+@media (min-width: 821px) {
+  .rec-back { font-size: 14px; }
+  .rec-import-desc { font-size: 14px; }
+  .rec-chip { font-size: 14px; }
+  .rec-sugg-item { font-size: 15px; }
+  .rec-mobile-btn { font-size: 15px; }
+  .nombre-badge { font-size: 14px; }
+}
 </style>
 </head>
 <body class="loaded">

@@ -720,6 +720,20 @@
 
 /* ============ FOOTER 2 BUTTONS ============ */
 .wiz-foot-row { display: flex; gap: 10px; width: 100%; }
+/* 07/10 (Andrés, en el celular): con la letra más grande el pie del asistente
+   bajó y los botones Volver/Siguiente quedaban debajo del menú flotante, que
+   mide 68px y está fijo abajo. Se les deja ese espacio libre -- solo en
+   pantallas chicas, que es donde existe ese menú. */
+@media (max-width: 820px) {
+  /* El pie del asistente queda pegado abajo, por encima del menú flotante (68px),
+     en vez de perderse detrás cuando el paso es más alto que la pantalla. */
+  .wiz-foot {
+    position: sticky;
+    bottom: 0;
+    padding-bottom: 84px;
+    background: var(--bg);
+  }
+}
 .wiz-btn-back {
   padding: 18px 20px;
   background: transparent;
@@ -893,6 +907,22 @@
   box-sizing: border-box;
 }
 .wiz-wa-share:hover { background: rgba(37,211,102,0.14); border-color: rgba(37,211,102,0.65); }
+/* === 07/10: en pantallas grandes, el cuerpo de texto vuelve a su tamaño === */
+@media (min-width: 821px) {
+  .wiz-chip { font-size: 14px; }
+  /* Oficio badge */ .wiz-oficio-badge { font-size: 15px; }
+  .wiz-cta { font-size: 14px; }
+  /* back-button removed */ /* ============ STEP 1 — ZONA ============ */ .wiz-geo-btn { font-size: 14px; }
+  .wiz-geo-check { font-size: 15px; }
+  .wiz-time-chip { font-size: 14px; }
+  .wiz-results-summary { font-size: 14px; }
+  .testimonio { font-size: 14px; }
+  .btn-whatsapp { font-size: 14px; }
+  .btn-presupuesto { font-size: 14px; }
+  .exp-info-icon { font-size: 15px; }
+  .exp-bio { font-size: 14px; }
+  .wiz-date-input, .wiz-time-input { font-size: 15px; }
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.net.min.js"></script>
@@ -1184,6 +1214,7 @@ var WEBHOOK_WHISPER    = 'https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-wh
 // workflow de n8n sobre 56 casos reales, y en un tercio del tiempo) y cae al
 // workflow de siempre si Jev no contesta. Ver supabase/functions/clasificar-oficio.
 var WEBHOOK_CLASIFICAR = 'https://oupmslbpvtuszwkdcbvq.supabase.co/functions/v1/clasificar-oficio';
+var SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91cG1zbGJwdnR1c3p3a2RjYnZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3OTQ5NjIsImV4cCI6MjA5MDM3MDk2Mn0.6w3jb216pQ2UGfmCY6gSbpkBW9E_TnXvCskXNArctwI';
 
 /* ---- STATE ---- */
 var wizState = { descripcion: null, oficio: null, oficios: null, zonaText: '', zonaLat: null, zonaLng: null, tiempo: null, prestadores: [] };
@@ -1341,6 +1372,16 @@ async function wizNext() {
     }
 
     document.getElementById('wiz-err-0').classList.remove('visible');
+    // 07/10 (pedido de Andrés): se guarda LO QUE ESCRIBIÓ la persona junto con
+    // el oficio que se le asignó. Sin la frase original no hay forma de evaluar
+    // si la clasificación acierta: la tabla solo guardaba el oficio ya decidido.
+    try {
+      fetch('https://oupmslbpvtuszwkdcbvq.supabase.co/rest/v1/busquedas', {
+        method: 'POST',
+        headers: { 'apikey': SUPA_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ texto: desc, oficio: wizState.oficio, canal: 'web_texto' })
+      });
+    } catch(_lb) {}
     wizNext._pending = false;
     goToStep(1);
     if (!wizMapInited) setTimeout(wizInitMap, 80);
@@ -1505,7 +1546,18 @@ var oficioMap = {
   'luminaria':'Electricidad','tablero':'Electricidad','disyuntor':'Electricidad',
   'luz':'Electricidad','interruptor':'Electricidad','toma corriente':'Electricidad','no prende':'Electricidad',
   'gas':'Gasistas','gasist':'Gasistas','garrafa':'Gasistas','estufa':'Gasistas','caldera':'Gasistas','calefac':'Gasistas',
-  'cocina':'Gasistas','olor a gas':'Gasistas','fuga de gas':'Gasistas','medidor de gas':'Gasistas',
+  'olor a gas':'Gasistas','fuga de gas':'Gasistas','medidor de gas':'Gasistas',
+  // 07/10 (Andrés): "se me tapó la cocina" daba Gasistas, porque 'cocina' sola
+  // estaba en esta lista y gana la palabra más larga que aparezca. La cocina es
+  // un ambiente, no un indicio de gas: ahora el gas se reconoce por el artefacto
+  // ('cocina a gas', hornalla, anafe) y el síntoma de tapado manda sobre el lugar.
+  // Ojo: el texto se normaliza SIN tildes antes de comparar, así que las claves
+  // van sin tilde o no matchean nunca. Y gana la clave más larga que aparezca:
+  // por eso las frases completas van además de la palabra suelta.
+  'cocina a gas':'Gasistas','hornalla que no prende':'Gasistas','hornalla no prende':'Gasistas',
+  'hornalla':'Gasistas','anafe':'Gasistas','horno no enciende':'Gasistas',
+  'tapo':'Desagotes','tapada':'Desagotes','tapado':'Desagotes',
+  'obstru':'Desagotes','no baja el agua':'Desagotes','rebalsa':'Desagotes',
   'pint':'Pintura','pintur':'Pintura','repin':'Pintura','empape':'Pintura','lij':'Pintura','barniz':'Pintura','descascar':'Pintura',
   'alban':'Albañilería','refacc':'Albañilería','reforma':'Albañilería','grieta':'Albañilería',
   'piso':'Albañilería','techo':'Albañilería','construct':'Albañilería','construcción':'Albañilería',
