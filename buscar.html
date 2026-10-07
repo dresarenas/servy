@@ -1869,6 +1869,10 @@ function wizRenderResults(prestadores) {
   document.getElementById('wizLoading').classList.remove('visible');
   document.getElementById('wizResultsView').classList.add('visible');
   document.getElementById('wizResultsCount').textContent = prestadores.length;
+  // Con 0 resultados el "Encontrados 0" no aporta nada y pisa el mensaje de
+  // abajo, que es lo que el vecino tiene que leer (07/10, Andrés).
+  var headRow = document.querySelector('.results-header-row');
+  if (headRow) headRow.style.display = prestadores.length === 0 ? 'none' : '';
   var demoNote = document.getElementById('wizDemoNote');
   if (demoNote) demoNote.style.display = wizIsDemoData ? '' : 'none';
   if (wizIsDemoData) { var wt = document.getElementById('wizTitle'); if (wt) wt.innerHTML = 'Mostrando resultados<br>de <span>ejemplo</span>'; }
