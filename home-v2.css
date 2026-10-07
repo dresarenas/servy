@@ -1998,6 +1998,15 @@ main { position: relative; z-index: 1; }
     background: transparent;
   }
   .providers-track .provider { flex: 1 1 260px; max-width: 320px; }
+  /* La cinta de oficios tampoco se mueve: sin esto queda cortada al medio de
+     una palabra, como si la página estuviera rota (captura de Andrés, 07/10). */
+  .marquee { -webkit-mask-image: none; mask-image: none; }
+  .marquee-track {
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 6px;
+    padding-inline: 16px;
+  }
 }
 
 /* ============ CAUSA RAIZ DEL BUG DE ANDROID (15/09) ============ */
