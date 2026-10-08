@@ -687,6 +687,10 @@ main { position: relative; z-index: 1; }
 @keyframes marq {
   to { transform: translateX(-50%); }
 }
+/* La segunda copia de los oficios (la que hace que el loop no tenga costura)
+   va envuelta para poder esconderla cuando la cinta no se mueve; `contents`
+   la deja participar del mismo renglón que el original. */
+.marq-dup { display: contents; }
 
 /* ============ SECTIONS ============ */
 .section {
@@ -2006,7 +2010,16 @@ main { position: relative; z-index: 1; }
     justify-content: center;
     row-gap: 6px;
     padding-inline: 16px;
+    /* Sin esto no baja de renglón: `max-content` mide el ancho de la cinta
+       entera en una línea, así que el wrap nunca llega a aplicarse y en el
+       celular se veía igual de cortada (07/10). */
+    width: auto;
+    column-gap: 28px;
+    font-size: clamp(26px, 7vw, 54px);
   }
+  /* La cinta trae los oficios escritos dos veces para que el loop no tenga
+     costura. Quieta, esa copia solo se lee repetida. */
+  .marq-dup { display: none; }
 }
 
 /* ============ CAUSA RAIZ DEL BUG DE ANDROID (15/09) ============ */

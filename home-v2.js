@@ -31,6 +31,7 @@
     actualizarGapInferior();
   }
 
+
   /* ============ CURSOR ============ */
   if (!isCoarse) {
     const dot = document.querySelector('.cursor-dot');
@@ -331,6 +332,27 @@
          + p.icon + '<span>' + p.label + '</span></a>';
   }).join('') + '<a href="#" class="bottom-nav-item bottom-nav-login" onclick="servyOpenLogin(event)">' + loginIcon + '<span>Ingresar</span></a>';
   document.body.appendChild(nav);
+
+  /* ---- Alto real del menú, para que no tape lo de abajo ----
+     Bug real (07/10, Andrés): en el navegador del celular los botones del
+     asistente ya se veían bien y en la webapp instalada seguían tapados por
+     este menú, incluso cerrando y reabriendo la app. No era caché: instalada
+     no hay barra del navegador y el menú suma la franja del gesto de inicio
+     (`env(safe-area-inset-bottom)`, ~34px en iPhone), así que mide bastante
+     más que en el navegador y ningún hueco fijo en CSS le acierta a los dos.
+     Se mide acá y se publica en `--bnav-h`; el CSS trae 84px de fallback. */
+  var rootNav = document.documentElement;
+  function medirNavFlotante() {
+    var alto = getComputedStyle(nav).display === 'none'
+      ? 0
+      : Math.round(nav.getBoundingClientRect().height) + 24;
+    rootNav.style.setProperty('--bnav-h', alto + 'px');
+  }
+  medirNavFlotante();
+  window.addEventListener('resize', medirNavFlotante);
+  window.addEventListener('orientationchange', medirNavFlotante);
+  window.addEventListener('load', medirNavFlotante);
+  if (window.ResizeObserver) new ResizeObserver(medirNavFlotante).observe(nav);
 })();
 
 /* ============ AUTH PRESTADOR (Supabase) ============ */

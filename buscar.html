@@ -40,7 +40,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="home-v2.css?v=20261007">
+<link rel="stylesheet" href="home-v2.css?v=20261007b">
 <style>
 /* ============ VANTA BACKGROUND ============ */
 #wizVanta {
@@ -728,6 +728,19 @@
   /* Además del pie pegado, el contenido deja lugar abajo: los chips y el texto
      del paso también quedaban debajo del menú flotante (captura de Andrés, 07/10). */
   .wiz-content { padding-bottom: 24px; }
+  /* El menú flotante va por encima de todo: el pie reserva exactamente lo
+     que mide (home-v2.js lo mide en vivo, porque instalada como app mide
+     más que en el navegador). Antes los botones Atrás/Siguiente quedaban
+     abajo del menú (07/10, Andrés). */
+  .wiz-foot { padding-bottom: calc(16px + var(--bnav-h, 84px)) !important; }
+  /* Medido en vivo a 375x667 (07/10): el pie va pegado abajo, con fondo
+     opaco y 298px de alto -- casi media pantalla. En los dos primeros pasos
+     eso esta bien, porque deja "Siguiente" siempre a mano. En resultados
+     tapaba las fichas: quedaba "ENCONTRADOS 4" y debajo el pie, y habia que
+     adivinar que la lista estaba abajo (Andres paso la captura). Aca el pie
+     baja al final del contenido y la pantalla queda para los prestadores. */
+  #ws3 .wiz-foot { position: static; }
+  #ws3 .wiz-spacer { display: none; }
   /* El pie del asistente queda pegado abajo, por encima del menú flotante (68px),
      en vez de perderse detrás cuando el paso es más alto que la pantalla. */
   .wiz-foot {
@@ -832,6 +845,9 @@
 /* ============ MOBILE FONTS ============ */
 @media (max-width: 600px) {
   .wiz-title { font-size: 12vw !important; }
+  /* El de resultados es el más largo de los tres y a 12vw se comía la
+     pantalla entera, dejando las fichas abajo del pliegue (07/10). */
+  #ws3 .wiz-title { font-size: 8.5vw !important; }
   .wiz-sub { font-size: 17px; }
   .wiz-textarea {
     font-size: 20px;
@@ -1086,7 +1102,7 @@
     <div class="wiz-content">
       <div class="wiz-success-wrap">
         <div class="wiz-success-icon" id="wizSuccessIcon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-        <h1 class="wiz-title" id="wizTitle">¡Listo! Encontramos estos<br>prestadores <span>disponibles</span></h1>
+        <h1 class="wiz-title" id="wizTitle">Esto es lo que<br><span>encontramos</span></h1>
         <p class="wiz-results-summary" id="wizResultsSummary"></p>
         <p class="wiz-wrong-result"><a onclick="wizGoTo(0)">← Volvamos atrás, esto no es lo que necesito</a></p>
       </div>
@@ -1109,7 +1125,7 @@
         <div class="results-grid" id="wizResultsGrid"></div>
         <div class="no-results" id="wizNoResults" style="display:none;">
           <div class="no-results-title" id="wizNoResultsTitle">Todavía no tenemos prestadores en tu zona</div>
-          <p class="no-results-sub">Dejanos tu WhatsApp y te avisamos cuando sumemos prestadores cerca tuyo.</p>
+          <p class="no-results-sub" id="wizNoResultsSub">Dejanos tu WhatsApp y te avisamos cuando sumemos prestadores cerca tuyo.</p>
           <div class="no-results-wa">
             <input id="wizNoResultsWA" type="tel" autocomplete="off" placeholder="Tu WhatsApp (ej: 351 123 4567)" oninput="this.value=this.value.replace(/[^0-9 ]/g,'')">
             <button onclick="wizEnviarWA()">Avisar</button>
@@ -1217,6 +1233,7 @@ var WEBHOOK_WHISPER    = 'https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-wh
 // workflow de n8n sobre 56 casos reales, y en un tercio del tiempo) y cae al
 // workflow de siempre si Jev no contesta. Ver supabase/functions/clasificar-oficio.
 var WEBHOOK_CLASIFICAR = 'https://oupmslbpvtuszwkdcbvq.supabase.co/functions/v1/clasificar-oficio';
+var SUPA_REST          = 'https://oupmslbpvtuszwkdcbvq.supabase.co/rest/v1';
 var SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91cG1zbGJwdnR1c3p3a2RjYnZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3OTQ5NjIsImV4cCI6MjA5MDM3MDk2Mn0.6w3jb216pQ2UGfmCY6gSbpkBW9E_TnXvCskXNArctwI';
 
 /* ---- STATE ---- */
@@ -1423,7 +1440,7 @@ function wizReset() {
   document.getElementById('wizLoading').classList.remove('visible');
   document.getElementById('wizResultsView').classList.remove('visible');
   document.getElementById('wizNoResults').style.display = 'none';
-  document.getElementById('wizTitle').innerHTML = '¡Listo! Encontramos estos<br>prestadores <span>disponibles</span>';
+  document.getElementById('wizTitle').innerHTML = 'Esto es lo que<br><span>encontramos</span>';
   var si2 = document.getElementById('wizSuccessIcon'); if (si2) si2.style.display = '';
   document.querySelectorAll('.wiz-chip').forEach(function(c) { c.classList.remove('selected'); });
   document.querySelectorAll('.wiz-time-chip').forEach(function(c) { c.classList.remove('selected'); });
@@ -1827,6 +1844,21 @@ async function wizBuscar() {
     } else { prestadores = getDemoPrestadores(); wizIsDemoData = true; }
   } catch(e) { prestadores = getDemoPrestadores(); wizIsDemoData = true; }
   clearTimeout(aiMsgTimer); clearTimeout(timeoutTimer);
+  // Sin resultados hay dos motivos distintos y el vecino merece saber cuál:
+  // o SERVY no cubre ese oficio, o lo cubre y no hay nadie cerca suyo. Se
+  // pregunta solo en ese caso, que es raro, y si falla se asume cubierto
+  // (el mensaje de zona es el inofensivo de los dos).
+  wizState.oficioCubierto = true;
+  if (!wizIsDemoData && prestadores.length === 0 && wizState.oficio) {
+    try {
+      var rc = await fetch(SUPA_REST + '/rpc/oficio_cubierto', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON },
+        body: JSON.stringify({ oficio_texto: wizState.oficio })
+      });
+      if (rc.ok) wizState.oficioCubierto = (await rc.json()) !== false;
+    } catch(e) { /* queda en true */ }
+  }
   wizState.prestadores = prestadores;
   wizRenderResults(prestadores);
 }
@@ -1880,8 +1912,18 @@ function wizRenderResults(prestadores) {
   if (prestadores.length === 0) {
     document.getElementById('wizNoResults').style.display = '';
     var nrt = document.getElementById('wizNoResultsTitle');
-    if (nrt) nrt.textContent = wizState.oficio ? 'Aún no tenemos ' + wizState.oficio + ' en tu zona' : 'Todavía no tenemos prestadores en tu zona';
-    document.getElementById('wizTitle').innerHTML = 'No encontramos<br>prestadores <span>en tu zona</span>';
+    var nrs = document.getElementById('wizNoResultsSub');
+    var sinCobertura = wizState.oficio && wizState.oficioCubierto === false;
+    if (sinCobertura) {
+      // SERVY no tiene ese oficio: hablar de la zona sería engañoso.
+      if (nrt) nrt.textContent = 'Todavía no cubrimos ' + wizState.oficio;
+      if (nrs) nrs.textContent = 'Vamos sumando oficios nuevos. Dejanos tu WhatsApp y te avisamos apenas tengamos a alguien.';
+      document.getElementById('wizTitle').innerHTML = 'Ese oficio todavía<br>no está <span>en SERVY</span>';
+    } else {
+      if (nrt) nrt.textContent = wizState.oficio ? 'Aún no tenemos ' + wizState.oficio + ' en tu zona' : 'Todavía no tenemos prestadores en tu zona';
+      if (nrs) nrs.textContent = 'Dejanos tu WhatsApp y te avisamos cuando sumemos prestadores cerca tuyo.';
+      document.getElementById('wizTitle').innerHTML = 'No encontramos<br>prestadores <span>en tu zona</span>';
+    }
     var si = document.getElementById('wizSuccessIcon'); if (si) si.style.display = 'none';
     return;
   }
@@ -1900,6 +1942,17 @@ function wizRenderResults(prestadores) {
     setTimeout(function() { card.classList.add('reveal'); }, 50 + idx * 80);
     grid.appendChild(card);
   });
+  // En el celular el título llena la pantalla y las fichas quedan abajo del
+  // pliegue: parecía que la búsqueda no había traído nada (Andrés, 07/10).
+  // Se baja solo hasta la primera, con el título todavía asomando arriba.
+  if (window.matchMedia('(max-width: 820px)').matches) {
+    setTimeout(function() {
+      var first = grid.firstElementChild;
+      // 'nearest' no mueve nada si la ficha ya se ve: solo baja en las
+      // pantallas donde el titulo la empuja fuera.
+      if (first) first.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 260);
+  }
 }
 
 /* ---- MODAL ---- */
@@ -2057,7 +2110,7 @@ window.addEventListener('pageshow', function(e) { if (e.persisted) initFromURLPa
 document.querySelectorAll('.wiz-step:not(.active)').forEach(function(s) { s.inert = true; });
 </script>
 
-<script src="home-v2.js?v=20261007"></script>
+<script src="home-v2.js?v=20261007b"></script>
 <script>
 (function() {
   function initVanta() {
