@@ -2002,24 +2002,14 @@ main { position: relative; z-index: 1; }
     background: transparent;
   }
   .providers-track .provider { flex: 1 1 260px; max-width: 320px; }
-  /* La cinta de oficios tampoco se mueve: sin esto queda cortada al medio de
-     una palabra, como si la página estuviera rota (captura de Andrés, 07/10). */
-  .marquee { -webkit-mask-image: none; mask-image: none; }
-  .marquee-track {
-    flex-wrap: wrap;
-    justify-content: center;
-    row-gap: 6px;
-    padding-inline: 16px;
-    /* Sin esto no baja de renglón: `max-content` mide el ancho de la cinta
-       entera en una línea, así que el wrap nunca llega a aplicarse y en el
-       celular se veía igual de cortada (07/10). */
-    width: auto;
-    column-gap: 28px;
-    font-size: clamp(26px, 7vw, 54px);
-  }
-  /* La cinta trae los oficios escritos dos veces para que el loop no tenga
-     costura. Quieta, esa copia solo se lee repetida. */
-  .marq-dup { display: none; }
+  /* La cinta de oficios es decoración: sin movimiento no queda nada que
+     mirar. Probamos mostrarla en grilla (07/10) y en el celular daba dos
+     columnas de palabras con puntitos sueltos entre medio -- "se ve muy feo"
+     (Andrés, 09/10). No comunica nada que no esté en los chips de Buscar, y
+     va con `aria-hidden`, así que esconderla no saca información a nadie.
+     El carrusel de prestadores es otra cosa: ese trae datos y sigue cayendo
+     a grilla acá arriba. */
+  .marquee { display: none; }
 }
 
 /* ============ CAUSA RAIZ DEL BUG DE ANDROID (15/09) ============ */

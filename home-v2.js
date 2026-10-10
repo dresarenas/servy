@@ -564,7 +564,21 @@ window.servyConfirmarCodigo = function () {
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {});
+    // Ruta relativa: con '/sw.js' el registro falla en cualquier hosting que
+    // no sea la raiz del dominio (por ejemplo la vista previa de Pages).
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+  /* Cuando entra una version nueva del service worker, toma el control y la
+     pagina que esta abierta se queda con el HTML viejo. Eso es lo que hizo
+     que Andres viera en la webapp instalada, dos dias despues, un problema
+     ya arreglado (09/10). Con esto la pagina se recarga sola, una sola vez.
+     El guard evita el bucle: el navegador puede disparar este evento mas de
+     una vez mientras el service worker nuevo se activa. */
+  let _swRecargando = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (_swRecargando) return;
+    _swRecargando = true;
+    location.reload();
   });
 }
 
