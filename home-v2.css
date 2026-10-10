@@ -2009,7 +2009,26 @@ main { position: relative; z-index: 1; }
      va con `aria-hidden`, así que esconderla no saca información a nadie.
      El carrusel de prestadores es otra cosa: ese trae datos y sigue cayendo
      a grilla acá arriba. */
-  .marquee { display: none; }
+  .marquee { -webkit-mask-image: none; mask-image: none; padding: 18px 0; }
+  .marquee-track {
+    /* Chica y en una o dos lineas: a 26-54px la grilla ocupaba media
+       pantalla y parecia rota. Asi se lee como un pie de oficios. */
+    width: auto;
+    flex-wrap: wrap;
+    justify-content: center;
+    font-family: var(--f-sans);
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    column-gap: 10px;
+    row-gap: 2px;
+    padding-inline: 24px;
+    color: var(--ink-dim);
+  }
+  .marquee-track .it { color: var(--accent); }
+  .marquee-track .dot { width: 0.3em; height: 0.3em; vertical-align: 0.15em; margin: 0 0.05em; }
+  /* La copia que hace el loop no se lee: quieta solo se ve repetida. */
+  .marq-dup { display: none; }
 }
 
 /* ============ CAUSA RAIZ DEL BUG DE ANDROID (15/09) ============ */
