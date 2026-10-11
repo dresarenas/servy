@@ -40,7 +40,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="home-v2.css?v=20261009b">
+<link rel="stylesheet" href="home-v2.css?v=20261011a">
 <script>
 (function(){
   try {
@@ -655,6 +655,14 @@ function prestGoTo(n) {
     if (!isNaN(li)) l.classList.toggle('done', li < n);
   });
   prestCurrent = n;
+  /* El mapa se crea con el paso escondido y mide 0px: sin esto queda a un
+     zoom que no muestra el radio de cobertura (11/10, Andrés). */
+  if (n === 1 && prestMap && prestCircle) {
+    setTimeout(function() {
+      google.maps.event.trigger(prestMap, 'resize');
+      prestMap.fitBounds(prestCircle.getBounds());
+    }, 500);
+  }
   if (n === 3) {
     var btn3 = document.getElementById('prestEnviarBtn');
     if (btn3) { btn3.disabled = false; btn3.textContent = 'Verificar mi perfil'; }
@@ -703,12 +711,28 @@ function prestTelInput(el) {
   document.getElementById('prestPhoneWrap').style.borderColor = ok ? 'var(--accent)' : (d ? 'rgba(255,80,80,0.5)' : '');
 }
 /* ========== VALIDATION ========== */
+/* El nombre de un negocio ("NGK", "Ferretería López") no pasa el control de
+   nombres de persona. Se avisa UNA vez, con el mismo texto; si la persona
+   toca Siguiente de nuevo con ese mismo nombre, se la deja seguir. */
+var _prestNombreAvisado = '';
+function prestNombreError(nombre) {
+  var el = document.getElementById('errPrestNombre');
+  if (nombre.length >= 2 && nombre.length <= 60) {
+    _prestNombreAvisado = nombre.toLowerCase();
+    if (el) el.textContent = 'No parece un nombre y apellido. Si es el nombre de tu negocio, tocá Siguiente otra vez y seguimos.';
+  } else if (el) {
+    el.textContent = 'Ingresá un nombre válido (ej: Juan García)';
+  }
+  prestShowErr('errPrestNombre', true);
+}
+
 async function prestValidStep0() {
   var nombre = document.getElementById('prestNombre').value.trim();
   var tel    = document.getElementById('prestTel').value.replace(/\s/g, '');
   var ok = true;
+  var yaAvisado = nombre.length >= 2 && nombre.length <= 60 && _prestNombreAvisado === nombre.toLowerCase();
 
-  if (!SERVY.validarNombre(nombre)) { prestShowErr('errPrestNombre', true); ok = false; } else prestShowErr('errPrestNombre', false);
+  if (!yaAvisado && !SERVY.validarNombre(nombre)) { prestNombreError(nombre); ok = false; } else prestShowErr('errPrestNombre', false);
   var telOk = /^\d{10,11}$/.test(tel) && !/^(\d)\1+$/.test(tel);
   if (!telOk) { prestShowErr('errPrestTel', true); ok = false; } else prestShowErr('errPrestTel', false);
 
@@ -717,8 +741,10 @@ async function prestValidStep0() {
     else document.getElementById('prestTel').focus();
     return;
   }
-  var _iaP = await SERVY.validarNombreIA(nombre);
-  if (SERVY.nombreRechazadoIA(_iaP)) { prestShowErr('errPrestNombre', true); document.getElementById('prestNombre').focus(); return; }
+  if (!yaAvisado) {
+    var _iaP = await SERVY.validarNombreIA(nombre);
+    if (SERVY.nombreRechazadoIA(_iaP)) { prestNombreError(nombre); document.getElementById('prestNombre').focus(); return; }
+  }
   prestGoTo(1);
 }
 
@@ -1011,7 +1037,7 @@ function prestUpdatePinPosition(pos) {
 function prestInitMap() {
   var cordoba = { lat: -31.4135, lng: -64.1811 };
   prestMap = new google.maps.Map(document.getElementById('prestMap'), {
-    center: cordoba, zoom: 13,
+    center: cordoba, zoom: 10,
     disableDefaultUI: true, zoomControl: true
   });
   prestMarker = new google.maps.Marker({
@@ -1107,6 +1133,6 @@ function prestUpdateRadio() {
 })();
 </script>
 <script>document.querySelectorAll('.prest-step:not(.active)').forEach(function(s) { s.inert = true; });</script>
-<script src="home-v2.js?v=20261009b"></script>
+<script src="home-v2.js?v=20261011a"></script>
 </body>
 </html>

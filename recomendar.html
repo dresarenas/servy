@@ -40,7 +40,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="home-v2.css?v=20261009b">
+<link rel="stylesheet" href="home-v2.css?v=20261011a">
 <script>
 (function(){
   try {
@@ -202,6 +202,7 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
 .rec-stars { display:flex; gap:6px; margin-bottom:8px; }
 .rec-star { font-size:40px; cursor:pointer; color:var(--line-strong); transition:color .15s,transform .15s; user-select:none; line-height:1; }
 .rec-star.lit { color:#F5B731; }
+[data-palette="bone"] .rec-star.lit { color:#A8680F; }
 .rec-star:hover { transform:scale(1.1); }
 .rec-star-label { font-family:var(--f-mono); font-size:16px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-mute); margin-bottom:16px; }
 .rec-oficio-wrap { position:relative; }
@@ -336,6 +337,8 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
   transition: background .2s, transform .2s; margin-top: 8px;
 }
 .rec-mobile-btn:active { background: #1ebe5d; transform: translateY(-1px); }
+[data-palette="bone"] .rec-mobile-btn { background: #128C4A; color: #fff; }
+[data-palette="bone"] .rec-mobile-btn:active { background: #0F7A44; }
 .rec-mobile-form-link {
   display: block; text-align: center; margin-top: 14px;
   font-family: var(--f-mono); font-size: 14px; letter-spacing: .06em;
@@ -1191,7 +1194,7 @@ document.querySelectorAll('.rec-step:not(.active)').forEach(function(s) { s.iner
   initRecVanta();
 })();
 </script>
-<script src="home-v2.js?v=20261009b"></script>
+<script src="home-v2.js?v=20261011a"></script>
 <script>
 async function recAbrirWA() {
   var nombre = (document.getElementById('recRecomendadorNombre').value || '').trim();

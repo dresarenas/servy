@@ -352,6 +352,15 @@
   window.addEventListener('resize', medirNavFlotante);
   window.addEventListener('orientationchange', medirNavFlotante);
   window.addEventListener('load', medirNavFlotante);
+  /* A veces la franja del gesto de inicio (safe-area) recién vale algo después
+     del primer pintado, o cambia al volver a la app tras bloquear el celular
+     (11/10, Andrés: los botones salían tapados y al bloquear/desbloquear se
+     veían bien). Se vuelve a medir en esos momentos. */
+  window.addEventListener('pageshow', medirNavFlotante);
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) medirNavFlotante(); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(medirNavFlotante);
+  [250, 1000, 2500].forEach(function (ms) { setTimeout(medirNavFlotante, ms); });
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', medirNavFlotante);
   if (window.ResizeObserver) new ResizeObserver(medirNavFlotante).observe(nav);
 })();
 
@@ -435,7 +444,9 @@ window.servyAuth = {
     'background:rgba(60,230,197,.08);border:1px solid rgba(60,230,197,.3);color:rgba(242,238,230,.85);}' +
     '.servy-login-first strong{color:#3CE6C5;}' +
     '[data-palette="bone"] .servy-login-first{background:rgba(19,122,99,.08);border-color:rgba(19,122,99,.35);color:rgba(15,16,20,.8);}' +
-    '[data-palette="bone"] .servy-login-first strong{color:#137A63;}';
+    '[data-palette="bone"] .servy-login-first strong{color:#137A63;}' +
+    '[data-palette="bone"] .servy-login-links a{color:#137A63;}' +
+    '[data-palette="bone"] .servy-login-err{color:#B3261E;}';
   document.head.appendChild(st);
 })();
 

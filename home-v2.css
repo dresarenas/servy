@@ -950,6 +950,10 @@ main { position: relative; z-index: 1; }
   color: #F5B731;
   letter-spacing: 0.15em;
 }
+/* Tema claro (11/10, Andrés): dorado de estrellas y blanco sobre el verde de WhatsApp no se leían. */
+[data-palette="bone"] .provider-stars,
+[data-palette="bone"] div.prest-stars { color: #A8680F; }
+[data-palette="bone"] a.prest-wa { background: #128C4A; color: #fff; }
 
 /* ============ WHY (checklist) ============ */
 .why {
@@ -1741,7 +1745,7 @@ main { position: relative; z-index: 1; }
 [data-palette="bone"] .wiz-wa-share,
 [data-palette="bone"] .rec-wa-share {
   border-color: rgba(37,211,102,.5) !important;
-  color: #25d366 !important;
+  color: #0F7A44 !important;
 }
 
 /* ========== Bone palette: tres pasos step-desc stays white ========== */
@@ -1926,9 +1930,11 @@ main { position: relative; z-index: 1; }
   .nav-burger { display: none !important; }
   .nav-links { display: none !important; }
   body { padding-bottom: 88px; }
-  .rec-foot { padding-bottom: 92px !important; }
-  .wiz-foot { padding-bottom: 92px !important; }
-  .prest-foot { padding-bottom: 92px !important; }
+  /* Lo que mide el menú se publica en --bnav-h (home-v2.js). Antes era un
+     92px fijo: en la webapp instalada el menú mide más y tapaba Atrás/Siguiente. */
+  .rec-foot { padding-bottom: calc(16px + var(--bnav-h, 84px)) !important; }
+  .wiz-foot { padding-bottom: calc(16px + var(--bnav-h, 84px)) !important; }
+  .prest-foot { padding-bottom: calc(16px + var(--bnav-h, 84px)) !important; }
 }
 
 .footer-legal {
