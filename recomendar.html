@@ -486,6 +486,7 @@ textarea.rec-input { font-size:18px; font-weight:400; resize:vertical; min-heigh
           <input type="text" class="rec-input" id="recNombre" placeholder="Ej: Mario Rodríguez" autocomplete="off"
             oninput="this.value=this.value.replace(/[0-9]/g,''); recNombreInput(this)"
             onkeydown="if(event.key==='Enter'){event.preventDefault();}">
+          <div class="rec-err" id="errNombre">Ingresá un nombre válido (ej: Mario Rodríguez)</div>
         </div>
 
         <div class="rec-field">
@@ -841,13 +842,32 @@ function recTelInput(el, wrapId, errId) {
   document.getElementById(wrapId).style.borderColor = ok ? 'var(--accent)' : (d ? 'rgba(255,80,80,0.5)' : '');
 }
 /* ========== STEP VALIDATION ========== */
+/* El prestador que se recomienda puede ser un negocio ("Ferretería López",
+   "NGK"), que no pasa el control de nombres de persona. Se avisa UNA vez; si se
+   toca Siguiente de nuevo con el mismo nombre, se deja seguir (11/10, Andrés).
+   El nombre de quien recomienda sí sigue siendo estricto: es una persona. */
+var _recNombreAvisado = '';
+var _recNombreErrOriginal = '';
+function recNombreError(nombre) {
+  var el = document.getElementById('errNombre');
+  if (el && !_recNombreErrOriginal) _recNombreErrOriginal = el.textContent;
+  if (nombre.length >= 2 && nombre.length <= 60) {
+    _recNombreAvisado = nombre.toLowerCase();
+    if (el) el.textContent = 'No parece un nombre y apellido. Si es el nombre de un negocio, tocá Siguiente otra vez y seguimos.';
+  } else if (el && _recNombreErrOriginal) {
+    el.textContent = _recNombreErrOriginal;
+  }
+  recShowErr('errNombre', true);
+}
 async function recValidStep0() {
   var recNombreOk = SERVY.validarNombre((document.getElementById('recRecomendadorNombre').value||'').trim());
   if (!recNombreOk) { recShowErr('errRecomendadorNombre', true); document.getElementById('recRecomendadorNombre').focus(); } else recShowErr('errRecomendadorNombre', false);
   var nombre = document.getElementById('recNombre').value.trim();
   var tel = document.getElementById('recTel').value.replace(/\s/g, '');
   var ok = recNombreOk;
-  if (!SERVY.validarNombre(nombre)) { recShowErr('errNombre', true); ok = false; } else recShowErr('errNombre', false);
+  var yaAvisado = nombre.length >= 2 && nombre.length <= 60 && _recNombreAvisado === nombre.toLowerCase();
+  var nombreOk = yaAvisado || SERVY.validarNombre(nombre);
+  if (!nombreOk) { recNombreError(nombre); ok = false; } else recShowErr('errNombre', false);
   var telOk = /^\d{10,11}$/.test(tel) && !/^(\d)\1+$/.test(tel);
   if (!telOk) { recShowErr('errTel', true); ok = false; } else recShowErr('errTel', false);
   var telRecom = (document.getElementById('recTelRecomendador').value || '').replace(/\s/g, '');
@@ -857,13 +877,13 @@ async function recValidStep0() {
   if (!ok) {
     if (!recNombreOk) { var _rn = document.getElementById('recRecomendadorNombre'); _rn.focus(); document.getElementById('errRecomendadorNombre').scrollIntoView({behavior:'smooth',block:'center'}); }
     else if (!telRecomOk) { var _tr = document.getElementById('recTelRecomendador'); _tr.focus(); document.getElementById('errTelRecomendador').scrollIntoView({behavior:'smooth',block:'center'}); }
-    else if (!SERVY.validarNombre(nombre)) { var _nn = document.getElementById('recNombre'); _nn.focus(); document.getElementById('errNombre').scrollIntoView({behavior:'smooth',block:'center'}); }
+    else if (!nombreOk) { var _nn = document.getElementById('recNombre'); _nn.focus(); document.getElementById('errNombre').scrollIntoView({behavior:'smooth',block:'center'}); }
     else if (!telOk) { var _tt = document.getElementById('recTel'); _tt.focus(); document.getElementById('errTel').scrollIntoView({behavior:'smooth',block:'center'}); }
     return;
   }
   var _recOmb = (document.getElementById('recRecomendadorNombre').value||'').trim();
-  var _ia = await Promise.all([SERVY.validarNombreIA(nombre), SERVY.validarNombreIA(_recOmb)]);
-  if (SERVY.nombreRechazadoIA(_ia[0])) { recShowErr('errNombre', true); document.getElementById('recNombre').focus(); return; }
+  var _ia = await Promise.all([yaAvisado ? Promise.resolve(null) : SERVY.validarNombreIA(nombre), SERVY.validarNombreIA(_recOmb)]);
+  if (!yaAvisado && SERVY.nombreRechazadoIA(_ia[0])) { recNombreError(nombre); document.getElementById('recNombre').focus(); return; }
   if (SERVY.nombreRechazadoIA(_ia[1])) { recShowErr('errRecomendadorNombre', true); document.getElementById('recRecomendadorNombre').focus(); return; }
   document.getElementById('nombreDisplay1').textContent = nombre;
   recGoTo(1);
