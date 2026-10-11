@@ -181,7 +181,7 @@ const MODULES = {
   },
   prestadores: {
     label: 'Prestadores',
-    tables: [ {n:'prestadores',oid:17597}, {n:'prestador_telefonos',oid:17619}, {n:'prestador_categorias',oid:17636}, {n:'prestador_fotos',oid:34233}, {n:'feedback_prestadores',oid:34515} ],
+    tables: [ {n:'prestadores',oid:17597}, {n:'prestador_telefonos',oid:17619}, {n:'prestador_categorias',oid:17636}, {n:'prestador_fotos',oid:34233}, {n:'feedback_prestadores',oid:34515}, {n:'reclamos',oid:36316} ],
     wfs: [
       {id:'GdjOoM5JH8ePLHvD',n:'Registro Prestador'},
       {id:'FmL65k0HQwyyhD5P',n:'Migrar Propuesta→Prestador'}
@@ -558,6 +558,36 @@ async function renderCuraduriaResenas(){
     const resp = d.respuestas_pendientes || [];
     const pausados = d.pausados_racha || [];
     let h = '';
+
+    // Reclamos de vecinos (10/10). Arriba de todo: es lo más urgente de la caja.
+    const rc = await rpc('admin_reclamos_listar', {});
+    const reclamos = rc.pendientes || [];
+    const opcionesPrest = (rc.prestadores || []).map(p=>'<option value="'+p.id+'">'+esc(p.nombre)+'</option>').join('');
+    const BTN = 'border-radius:8px;padding:6px 12px;cursor:pointer;font-size:.88rem;';
+    h += '<div style="font-weight:700;margin-bottom:6px">Reclamos de vecinos ('+reclamos.length+')</div>';
+    h += reclamos.length ? reclamos.map(r=>{
+      const ident = !r.prestador_id ? '<span style="color:#e8a33c">sin identificar</span>'
+        : r.identificado_por==='telefono' ? '<span class="muted">por teléfono ✓</span>'
+        : r.identificado_por==='panel' ? '<span class="muted">vinculado por vos</span>'
+        : '<span style="color:#e8a33c">por nombre — verificá que sea él</span>';
+      const quien = r.prestador_id
+        ? '<b>'+esc(r.prestador_nombre)+'</b> · '+ident+' · promedio '+esc(String(r.promedio??'—'))+' ('+esc(String(r.total_resenas??0))+' reseñas)'+(r.prestador_estado!=='activo'?' · <b>'+esc(r.prestador_estado)+'</b>':'')
+        : '<b>Prestador</b> · '+ident;
+      const previa = r.resena_previa;
+      return '<div class="reclamo" data-id="'+r.id+'" style="margin:6px 0;padding:10px;border:1px solid var(--line);border-radius:8px">'
+        + quien + '<br>'
+        + '<div style="white-space:pre-wrap;margin:6px 0;font-size:.92rem">'+esc(r.relato)+'</div>'
+        + '<span class="muted" style="font-size:.82rem">Vecino '+esc(r.vecino_nombre||'')+' '+esc(r.vecino_tel)+' · '+fdt(r.creado_en)
+        + (previa ? ' · ya le había puesto '+esc(String(previa.estrellas))+'★' : ' · no tenía reseña de este prestador')+'</span>'
+        + '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">'
+        + '<select class="rc-prest" style="'+BTN+'background:none;color:var(--ink);border:1px solid var(--line);max-width:220px"><option value="">'+(r.prestador_id?'Es otro prestador…':'¿Quién es?')+'</option>'+opcionesPrest+'</select>'
+        + '<select class="rc-estrellas" style="'+BTN+'background:none;color:var(--ink);border:1px solid var(--line)"><option value="1">1★</option><option value="2">2★</option></select>'
+        + (previa ? '<button class="rc-btn" data-accion="bajar_resena" style="'+BTN+'background:var(--accent);color:#06251d;border:none;font-weight:700">Bajar su reseña</button>' : '')
+        + '<button class="rc-btn" data-accion="sumar_resena" style="'+BTN+(previa?'background:none;color:var(--ink);border:1px solid var(--line)':'background:var(--accent);color:#06251d;border:none;font-weight:700')+'">Sumar reseña baja</button>'
+        + '<button class="rc-btn" data-accion="descartar" style="'+BTN+'background:none;color:var(--ink-dim);border:1px solid var(--line)">Descartar</button>'
+        + '</div></div>';
+    }).join('') : '<div class="empty">Ninguno.</div>';
+    h += '<div class="note" style="margin:6px 0 14px">Bajar o sumar una reseña cuenta para la regla de suspensión: si las 3 reseñas más recientes (una por vecino) quedan en 2★ o menos, el prestador se suspende solo y aparece abajo, en pausados.</div>';
     h += '<div style="font-weight:700;margin-bottom:6px">Respuestas a moderar ('+resp.length+')</div>';
     h += resp.length ? resp.map(r=>
       '<div style="margin:6px 0;padding:8px 10px;border:1px solid var(--line);border-radius:8px">'
@@ -583,6 +613,7 @@ async function renderCuraduriaResenas(){
     el.innerHTML = h;
     el.querySelectorAll('.resp-btn').forEach(b=> b.addEventListener('click', ()=> moderarRespuesta(b.dataset.id, b.dataset.ok==='1', b)));
     el.querySelectorAll('.racha-btn').forEach(b=> b.addEventListener('click', ()=> resolverPausaRacha(b.dataset.id, b.dataset.ok==='1', b)));
+    el.querySelectorAll('.rc-btn').forEach(b=> b.addEventListener('click', ()=> resolverReclamo(b)));
   }catch(e){ el.innerHTML = '<div class="empty">Error: '+esc(e.message)+'</div>'; }
 }
 
@@ -593,6 +624,27 @@ async function moderarRespuesta(id, aprobar, btn){
   try{
     const r = await rpc('admin_moderar_respuesta', { p_resena_id: id, p_aprobar: aprobar });
     if(!r || !r.ok) throw new Error((r&&r.error)||'no se pudo resolver');
+    renderCuraduriaResenas();
+  }catch(e){ alert('Error: '+e.message); renderCuraduriaResenas(); }
+}
+
+async function resolverReclamo(btn){
+  const card = btn.closest('.reclamo');
+  const id = card.dataset.id;
+  const accion = btn.dataset.accion;
+  const prestElegido = card.querySelector('.rc-prest').value || null;
+  const estrellas = parseInt(card.querySelector('.rc-estrellas').value, 10);
+  if(accion !== 'descartar' && !confirm((accion==='bajar_resena' ? 'Bajar la reseña de este vecino a ' : 'Sumar una reseña de ')+estrellas+'★. Cuenta para la regla de suspensión. ¿Seguimos?')) return;
+  card.querySelectorAll('button,select').forEach(x=> x.disabled = true);
+  btn.textContent = '…';
+  try{
+    if(prestElegido){
+      const v = await rpc('admin_vincular_reclamo', { p_id: id, p_prestador_id: prestElegido });
+      if(!v || !v.ok) throw new Error('no se pudo vincular');
+    }
+    const r = await rpc('admin_resolver_reclamo', { p_id: id, p_accion: accion, p_estrellas: accion==='descartar' ? null : estrellas, p_prestador_id: prestElegido });
+    if(!r || !r.ok) throw new Error((r&&r.error)||'no se pudo resolver');
+    if(accion !== 'descartar') alert('Listo. Promedio ahora: '+r.promedio+' ('+r.total_resenas+' reseñas).' + (r.suspendio ? ' Con esto quedó SUSPENDIDO por racha de reseñas bajas: lo ves abajo, en pausados.' : ''));
     renderCuraduriaResenas();
   }catch(e){ alert('Error: '+e.message); renderCuraduriaResenas(); }
 }
