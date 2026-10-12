@@ -181,7 +181,7 @@ const MODULES = {
   },
   prestadores: {
     label: 'Prestadores',
-    tables: [ {n:'prestadores',oid:17597}, {n:'prestador_telefonos',oid:17619}, {n:'prestador_categorias',oid:17636}, {n:'prestador_fotos',oid:34233}, {n:'feedback_prestadores',oid:34515}, {n:'reclamos',oid:36316} ],
+    tables: [ {n:'prestadores',oid:17597}, {n:'prestador_telefonos',oid:17619}, {n:'prestador_categorias',oid:17636}, {n:'prestador_fotos',oid:34233}, {n:'feedback_prestadores',oid:34515}, {n:'reclamos',oid:36316}, {n:'prestador_documentos',oid:36234}, {n:'tipos_documento',oid:36224} ],
     wfs: [
       {id:'GdjOoM5JH8ePLHvD',n:'Registro Prestador'},
       {id:'FmL65k0HQwyyhD5P',n:'Migrar Propuesta→Prestador'}
@@ -543,12 +543,106 @@ function renderPrestadores(s){
     + (p.sin_geo_lista && p.sin_geo_lista.length ? '<div class="box"><h3>⚠️ Sin ubicar — aparecen en TODAS las búsquedas sin filtro de zona</h3>'
       + p.sin_geo_lista.map(x=>'<div style="margin:6px 0;padding:8px 10px;border:1px solid var(--line);border-radius:8px"><b>'+esc(x.nombre)+'</b> · zona cargada: "'+esc(x.direccion_base||'—')+'"</div>').join('')
       + '<div class="note" style="margin-top:8px">Corregir la zona a mano (SQL o panel) hasta que exista edición desde acá.</div></div>' : '')
+    + '<div class="box"><h3>Documentación por revisar</h3><div id="documentos-revisar"><div class="empty">Cargando…</div></div></div>'
     + '<div class="box"><h3>Curaduría de reseñas</h3><div id="curaduria-resenas"><div class="empty">Cargando…</div></div></div>'
     + '<div class="box"><h3>Últimos prestadores</h3><div id="ev-prestadores"><div class="empty">Cargando…</div></div></div>';
   mkChart('chPrest', { type:'bar',
     data:{ labels:p.por_categoria.map(x=>x.k), datasets:[{ data:p.por_categoria.map(x=>x.n), backgroundColor:'rgba(184,233,134,0.6)', borderRadius:4 }] },
     options:{ indexAxis:'y', plugins:{legend:{display:false}}, maintainAspectRatio:false, scales:{x:{beginAtZero:true,ticks:{precision:0}}} } });
+  renderDocumentosRevisar();
   renderCuraduriaResenas();
+}
+
+/* ===== Documentación por revisar (11/10): DNI, matrícula, seguro… =====
+   La imagen está en un bucket privado: acá se pide un enlace firmado de 5 minutos con la sesión del
+   admin. Aprobar suma los puntos del tipo de documento al nivel de verificación del prestador. */
+let docFiltro = 'pendiente';
+async function firmarDocAdmin(ruta){
+  const tk = await freshToken();
+  if(!tk || !ruta) return '';
+  const r = await fetch(SB + '/storage/v1/object/sign/' + ruta, {
+    method:'POST',
+    headers:{ 'apikey':ANON, 'Authorization':'Bearer '+tk, 'Content-Type':'application/json' },
+    body: JSON.stringify({ expiresIn: 300 })
+  });
+  if(!r.ok) return '';
+  const j = await r.json().catch(()=>({}));
+  return j.signedURL ? SB + '/storage/v1' + j.signedURL : '';
+}
+async function cargarMiniaturaDoc(card){
+  const ruta = card.dataset.ruta;
+  const a = card.querySelector('.doc-thumb');
+  const u = await firmarDocAdmin(ruta).catch(()=> '');
+  if(!u){ a.textContent = 'No se pudo abrir'; return; }
+  if(/\.pdf$/i.test(ruta)) a.textContent = 'Abrir PDF';
+  else a.innerHTML = '<img src="'+u+'" alt="Documento" style="width:100%;height:100%;object-fit:cover">';
+  a.href = u;
+  // El enlace vence a los 5 minutos: al tocarlo se pide uno nuevo.
+  a.addEventListener('click', async ev=>{
+    ev.preventDefault();
+    const w = window.open('', '_blank');
+    const nuevo = await firmarDocAdmin(ruta).catch(()=> '');
+    if(w){ if(nuevo){ w.opener = null; w.location = nuevo; } else w.close(); }
+  });
+}
+async function renderDocumentosRevisar(){
+  const el = $('#documentos-revisar');
+  if(!el) return;
+  try{
+    const d = await rpc('admin_documentos_listar', { p_estado: docFiltro });
+    const docs = d.documentos || [], cont = d.conteos || {};
+    const BTN = 'border-radius:8px;padding:6px 12px;cursor:pointer;font-size:.88rem;';
+    const chip = (est, lb)=> '<button class="doc-filtro" data-estado="'+est+'" style="'+BTN+(docFiltro===est ? 'background:var(--accent);color:#06251d;border:none;font-weight:700' : 'background:none;color:var(--ink-dim);border:1px solid var(--line)')+'">'+lb+' ('+(cont[est]||0)+')</button>';
+    const LECT = {
+      legible: '<span style="color:var(--accent)">el celu lo reconoció como un DNI ✓</span>',
+      no_reconocido: '<span style="color:#e8a33c">⚠ el celu NO lo reconoció como un DNI (la persona insistió en subirlo)</span>',
+      dorso: '<span style="color:#e8a33c">⚠ parece la parte de atrás del DNI</span>',
+      sin_verificar: '<span class="muted">el celu no pudo leerlo</span>'
+    };
+    let h = '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">'+chip('pendiente','Por revisar')+chip('aprobado','Aprobados')+chip('rechazado','Rechazados')+'</div>';
+    h += docs.length ? docs.map(x=>{
+      const lectura = x.tipo==='dni' && x.lectura ? (LECT[x.lectura]||'') : '';
+      return '<div class="doc" data-id="'+x.id+'" data-ruta="'+esc(x.archivo_url||'')+'" data-tipo="'+esc(x.tipo)+'" style="margin:8px 0;padding:10px;border:1px solid var(--line);border-radius:8px;display:flex;gap:12px;flex-wrap:wrap">'
+        + '<a class="doc-thumb" href="#" style="flex:none;width:150px;height:100px;border:1px solid var(--line);border-radius:6px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:.8rem;color:var(--ink-dim);text-decoration:none;text-align:center">Cargando…</a>'
+        + '<div style="flex:1;min-width:220px">'
+        + '<b>'+esc(x.prestador_nombre)+'</b> · '+esc(x.tipo_nombre)+' · <span class="muted">'+esc(x.telefono||'sin teléfono')+'</span><br>'
+        + '<span class="muted" style="font-size:.85rem">Subido '+fdt(x.creado_en)+' · nivel actual: '+esc(x.nivel||'sin documentación')+' ('+esc(String(x.puntos_prestador))+' pts) · este documento suma '+esc(String(x.puntos))+'</span><br>'
+        + (lectura ? '<span style="font-size:.85rem">'+lectura+'</span><br>' : '')
+        + (x.estado!=='pendiente' ? '<span class="muted" style="font-size:.85rem">'+esc(x.estado)+' el '+fdt(x.revisado_en)+(x.motivo_rechazo?' · motivo: '+esc(x.motivo_rechazo):'')+(x.nota_interna?' · '+esc(x.nota_interna):'')+'</span><br>' : '')
+        + '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">'
+        + (x.estado!=='aprobado' ? '<button class="doc-btn" data-ok="1" style="'+BTN+'background:var(--accent);color:#06251d;border:none;font-weight:700">Aprobar</button>' : '')
+        + (x.estado!=='rechazado' ? '<button class="doc-btn" data-ok="0" style="'+BTN+'background:none;color:var(--ink-dim);border:1px solid var(--line)">Rechazar</button>' : '')
+        + '</div></div></div>';
+    }).join('') : '<div class="empty">Nada en esta lista.</div>';
+    h += '<div class="note" style="margin-top:8px">Tocá la imagen para verla grande. Al rechazar escribís el motivo y el prestador lo ve en su panel. Aprobar suma los puntos del documento a su nivel de verificación, que se muestra en su ficha.</div>';
+    el.innerHTML = h;
+    el.querySelectorAll('.doc-filtro').forEach(b=> b.addEventListener('click', ()=>{ docFiltro = b.dataset.estado; renderDocumentosRevisar(); }));
+    el.querySelectorAll('.doc-btn').forEach(b=> b.addEventListener('click', ()=> resolverDocumento(b)));
+    el.querySelectorAll('.doc').forEach(cargarMiniaturaDoc);
+  }catch(e){ el.innerHTML = '<div class="empty">Error: '+esc(e.message)+'</div>'; }
+}
+async function resolverDocumento(btn){
+  const card = btn.closest('.doc');
+  const aprobar = btn.dataset.ok === '1';
+  let motivo = null, vence = null;
+  if(!aprobar){
+    motivo = prompt('Motivo del rechazo (lo va a ver el prestador). Por ejemplo: "No se lee, subí otra foto con más luz".');
+    if(motivo === null) return;
+    if(!motivo.trim()){ alert('Escribí un motivo.'); return; }
+  } else if(['matricula','seguro'].includes(card.dataset.tipo)){
+    const v = prompt('¿Hasta cuándo vale? (AAAA-MM-DD; dejalo vacío si no vence)');
+    if(v === null) return;
+    vence = v.trim() || null;
+    if(vence && !/^\d{4}-\d{2}-\d{2}$/.test(vence)){ alert('Escribí la fecha así: 2027-03-31'); return; }
+  }
+  card.querySelectorAll('button').forEach(b=> b.disabled = true);
+  btn.textContent = '…';
+  try{
+    const r = await rpc('admin_resolver_documento', { p_id: card.dataset.id, p_estado: aprobar ? 'aprobado' : 'rechazado', p_motivo: motivo, p_nota: null, p_vence: vence });
+    if(!r || !r.ok) throw new Error((r&&r.error)||'no se pudo resolver');
+    alert(aprobar ? 'Aprobado. Nivel del prestador: '+(r.nivel||'sin nivel')+' ('+r.puntos+' puntos).' : 'Rechazado. El prestador ve el motivo en su panel.');
+    renderDocumentosRevisar();
+  }catch(e){ alert('Error: '+e.message); renderDocumentosRevisar(); }
 }
 
 async function renderCuraduriaResenas(){

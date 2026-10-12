@@ -672,6 +672,11 @@ body.panel-lock .tab-content,body.panel-lock .topbar,body.panel-lock .panel-tabs
   font-family: "Geist", sans-serif;
   text-decoration: underline; text-underline-offset: 3px;
 }
+.dni-prog{display:none;margin-top:10px;font-size:13px;color:var(--ink-m);}
+.dni-prog .fila{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.dni-prog .giro{flex:none;width:14px;height:14px;border:2px solid var(--line-s);border-top-color:var(--ac);border-radius:50%;animation:dniGiro .8s linear infinite;}
+@keyframes dniGiro{to{transform:rotate(360deg);}}
+@media (prefers-reduced-motion: reduce){.dni-prog .giro{animation:none;border-color:var(--ac);}}
 </style>
 </head>
 <body>
@@ -919,6 +924,10 @@ body.panel-lock .tab-content,body.panel-lock .topbar,body.panel-lock .panel-tabs
         <div id="dniPreview" style="display:none;margin-bottom:8px;"><img id="dniImg" src="" alt="DNI" style="max-width:160px;border-radius:8px;border:1px solid var(--line-s);"></div>
         <button class="kit-btn" style="font-size:13px;" id="btnDni" onclick="document.getElementById('dniFile').click()">📷 Subir foto del DNI (solo el frente)</button>
         <input type="file" id="dniFile" accept="image/*" style="display:none;">
+        <div class="dni-prog" id="dniProg" role="status" aria-live="polite">
+          <div class="fila"><span class="giro" aria-hidden="true"></span><span id="dniProgTxt">Revisando…</span></div>
+          <div class="prog-bg"><div class="prog-fill" id="dniProgBarra" style="width:0%"></div></div>
+        </div>
       </div>
     </div>
     <div class="field-row">
@@ -1248,7 +1257,7 @@ async function guardarRedes(token) {
 }
 </script>
 <script src="home-v2.js?v=20261011a"></script>
-<script src="servy-shared.js?v=20261011b"></script>
+<script src="servy-shared.js?v=20261011c"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <script>
 var PSB = 'https://oupmslbpvtuszwkdcbvq.supabase.co';
@@ -1345,6 +1354,7 @@ function renderPanel() {
     document.getElementById('dniEstado').textContent = '✓ DNI cargado — en revisión';
     document.getElementById('dniEstado').classList.remove('missing');
     document.getElementById('dniEstado').style.color = 'var(--ac)';
+    cargarEstadoDni();
     urlFirmadaDoc(PD.dni_foto_url).then(function (u) {
       if (!u) return;
       document.getElementById('dniImg').src = u;
@@ -1446,6 +1456,25 @@ function resizeImg(file, maxPx) {
     img.onerror = reject;
     img.src = URL.createObjectURL(file);
   });
+}
+
+// En qué quedó la revisión del equipo: en revisión / verificado / rechazado (con el motivo).
+async function cargarEstadoDni() {
+  try {
+    var token = await servyAuth.token();
+    var r = await fetch(PSB + '/rest/v1/rpc/prestador_mis_documentos', { method: 'POST', headers: authHdr(token), body: '{}' });
+    if (!r.ok) return;
+    var docs = await r.json();
+    var dni = (docs || []).filter(function (d) { return d.tipo === 'dni'; })[0];
+    if (!dni) return;
+    var el = document.getElementById('dniEstado');
+    el.classList.remove('missing');
+    if (dni.estado === 'aprobado') { el.textContent = '✅ DNI verificado'; el.style.color = 'var(--ac)'; }
+    else if (dni.estado === 'rechazado') {
+      el.textContent = '⚠ No pudimos verificar tu DNI' + (dni.motivo ? ': ' + dni.motivo : '') + '. Subí otra foto.';
+      el.style.color = 'var(--ac2)';
+    } else { el.textContent = '✓ DNI cargado — en revisión'; el.style.color = 'var(--ac)'; }
+  } catch (e) { /* queda el texto de "cargado" */ }
 }
 
 async function subirFoto(blob, nombre, token, bucket) {
@@ -1758,7 +1787,18 @@ document.getElementById('dniFile').addEventListener('change', async function () 
     // Antes de subirlo, el celu intenta leerlo (Andrés, 11/10: dejaba subir cualquier imagen como DNI).
     // Si no parece un DNI se avisa UNA vez; si insiste con la misma foto, se sube igual y queda marcada
     // para que la revise una persona.
-    var chequeo = await SERVY.verificarDni(archivo, function (p) { btn.textContent = '⏳ Revisando… ' + Math.round(p * 100) + '%'; });
+    var prog = document.getElementById('dniProg'), progTxt = document.getElementById('dniProgTxt'), progBarra = document.getElementById('dniProgBarra');
+    prog.style.display = 'block'; progBarra.style.width = '3%'; progTxt.textContent = 'Preparando el lector…';
+    // Fases: bajar el lector (solo la primera vez, unos MB) -> prepararlo -> leer la foto.
+    var TEXTO_FASE = { lector: 'Preparando el lector… la primera vez tarda un poco más', descarga: 'Bajando el lector (solo la primera vez)…', inicio: 'Preparando el lector…', lectura: 'Leyendo la foto…' };
+    var chequeo = await SERVY.verificarDni(archivo, function (e) {
+      progTxt.textContent = TEXTO_FASE[e.fase] || 'Revisando…';
+      var base = { lector: 0, descarga: 3, inicio: 40, lectura: 45 }[e.fase] || 0;
+      var ancho = { lector: 3, descarga: 37, inicio: 5, lectura: 55 }[e.fase] || 0;
+      progBarra.style.width = Math.min(100, Math.round(base + ancho * (e.progreso || 0))) + '%';
+      if (e.fase === 'lectura') progTxt.textContent = 'Leyendo la foto… ' + Math.round((e.progreso || 0) * 100) + '%';
+    });
+    prog.style.display = 'none';
     var huella = archivo.name + ':' + archivo.size;
     if ((chequeo.estado === 'dorso' || chequeo.estado === 'no_dni') && _dniAvisado !== huella) {
       _dniAvisado = huella;
@@ -1769,22 +1809,26 @@ document.getElementById('dniFile').addEventListener('change', async function () 
       this.value = '';
       return;
     }
+    prog.style.display = 'none';
     lectura = ({ ok: 'legible', dorso: 'dorso', no_dni: 'no_reconocido' })[chequeo.estado] || 'sin_verificar';
     btn.textContent = '⏳ Subiendo…';
     var token = await servyAuth.token();
     var blob = await resizeImg(archivo, 1200);
     var url = await subirFoto(blob, 'dni_' + Date.now() + '.jpg', token, 'prestador-docs');
-    var r = await fetch(PSB + '/rest/v1/prestadores?id=eq.' + PD.id, {
-      method: 'PATCH', headers: authHdr(token, { Prefer: 'return=minimal' }),
-      body: JSON.stringify({ dni_foto_url: url, dni_lectura: lectura })
+    // Queda como documento "pendiente" para que lo revise el equipo (admin → Prestadores).
+    var r = await fetch(PSB + '/rest/v1/rpc/prestador_registrar_documento', {
+      method: 'POST', headers: authHdr(token),
+      body: JSON.stringify({ p_tipo: 'dni', p_ruta: url, p_lectura: lectura })
     });
-    if (!r.ok) throw new Error('patch fallo');
+    var res = r.ok ? await r.json() : null;
+    if (!res || !res.ok) throw new Error('registro fallo');
     PD.dni_foto_url = url;
     renderPanel();
     showToast('✓ DNI cargado. Lo revisamos y te confirmamos.', 'ok');
   } catch (e) {
     showToast('Error subiendo el DNI. Probá de nuevo.', 'err');
     btn.textContent = textoBtn;
+    document.getElementById('dniProg').style.display = 'none';
   }
   btn.disabled = false;
   this.value = '';

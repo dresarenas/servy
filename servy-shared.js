@@ -237,7 +237,11 @@ function _dniImagen(file) {
 // Devuelve {estado: 'ok' | 'dorso' | 'no_dni' | 'sin_ocr'}. 'sin_ocr' = no se pudo leer (sin red a la
 // librería, tiempo agotado): no se bloquea a nadie por una falla nuestra.
 S.verificarDni = async function (file, onProgreso) {
+  // El aviso trae la fase ('lector' | 'descarga' | 'inicio' | 'lectura') y un avance de 0 a 1 dentro de
+  // esa fase, para que la pantalla le diga a la persona qué está pasando (la primera vez se baja el lector).
+  var avisar = function (fase, p) { if (onProgreso) { try { onProgreso({ fase: fase, progreso: p || 0 }); } catch (e) { /* la pantalla no frena la lectura */ } } };
   try {
+    avisar('lector', 0);
     var T = await _cargarTesseract();
     var img = await _dniImagen(file);
     var limite = Date.now() + 70000;
@@ -249,7 +253,11 @@ S.verificarDni = async function (file, onProgreso) {
       if (restante < 5000) break;
       var lectura = await Promise.race([
         T.recognize(_dniPreparar(img, intentos[k]), 'spa', {
-          logger: function (m) { if (onProgreso && m.status === 'recognizing text') onProgreso(m.progress); }
+          logger: function (m) {
+            if (m.status === 'recognizing text') avisar('lectura', m.progress);
+            else if (/loading/.test(m.status)) avisar('descarga', m.progress);
+            else avisar('inicio', m.progress);
+          }
         }),
         new Promise(function (_, rej) { setTimeout(function () { rej(new Error('tiempo agotado')); }, restante); })
       ]);
