@@ -1248,7 +1248,7 @@ async function guardarRedes(token) {
 }
 </script>
 <script src="home-v2.js?v=20261011a"></script>
-<script src="servy-shared.js"></script>
+<script src="servy-shared.js?v=20261011b"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <script>
 var PSB = 'https://oupmslbpvtuszwkdcbvq.supabase.co';
@@ -1345,8 +1345,11 @@ function renderPanel() {
     document.getElementById('dniEstado').textContent = '✓ DNI cargado — en revisión';
     document.getElementById('dniEstado').classList.remove('missing');
     document.getElementById('dniEstado').style.color = 'var(--ac)';
-    document.getElementById('dniImg').src = PD.dni_foto_url;
-    document.getElementById('dniPreview').style.display = 'block';
+    urlFirmadaDoc(PD.dni_foto_url).then(function (u) {
+      if (!u) return;
+      document.getElementById('dniImg').src = u;
+      document.getElementById('dniPreview').style.display = 'block';
+    }).catch(function () {});
     document.getElementById('btnDni').textContent = '📷 Cambiar foto del DNI';
   }
   var btnP = document.getElementById('btnPausar');
@@ -1445,15 +1448,34 @@ function resizeImg(file, maxPx) {
   });
 }
 
-async function subirFoto(blob, nombre, token) {
+async function subirFoto(blob, nombre, token, bucket) {
+  bucket = bucket || 'prestador-fotos';
   var path = PD.id + '/' + nombre;
-  var r = await fetch(PSB + '/storage/v1/object/prestador-fotos/' + path, {
+  var r = await fetch(PSB + '/storage/v1/object/' + bucket + '/' + path, {
     method: 'POST',
     headers: { apikey: PANON, 'Authorization': 'Bearer ' + token, 'Content-Type': 'image/jpeg' },
     body: blob
   });
   if (!r.ok) throw new Error('upload fallo');
+  // Los documentos (DNI) van a un bucket privado: no hay enlace público, se
+  // guarda solo la ruta y se ve con un enlace firmado de 5 minutos.
+  if (bucket !== 'prestador-fotos') return bucket + '/' + path;
   return PSB + '/storage/v1/object/public/prestador-fotos/' + path;
+}
+
+// Enlace temporal para ver un documento privado (solo lo puede pedir su dueño o el equipo).
+async function urlFirmadaDoc(ruta) {
+  if (!ruta) return '';
+  if (/^https?:/.test(ruta)) return ruta; // formato viejo: no queda ninguno, pero no rompe
+  var token = await servyAuth.token();
+  var r = await fetch(PSB + '/storage/v1/object/sign/' + ruta, {
+    method: 'POST',
+    headers: { apikey: PANON, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ expiresIn: 300 })
+  });
+  if (!r.ok) return '';
+  var j = await r.json();
+  return j.signedURL ? PSB + '/storage/v1' + j.signedURL : '';
 }
 
 async function borrarFoto(id) {
@@ -1724,17 +1746,37 @@ document.getElementById('fotoPerfilFile').addEventListener('change', async funct
   this.value = '';
 });
 
+var _dniAvisado = '';
 document.getElementById('dniFile').addEventListener('change', async function () {
   if (!PD || !this.files.length) return;
+  var archivo = this.files[0];
   var btn = document.getElementById('btnDni');
-  btn.disabled = true; btn.textContent = '⏳ Subiendo…';
+  var textoBtn = PD.dni_foto_url ? '📷 Cambiar foto del DNI' : '📷 Subir foto del DNI (solo el frente)';
+  btn.disabled = true; btn.textContent = '⏳ Revisando que sea un DNI…';
+  var lectura = 'sin_verificar';
   try {
+    // Antes de subirlo, el celu intenta leerlo (Andrés, 11/10: dejaba subir cualquier imagen como DNI).
+    // Si no parece un DNI se avisa UNA vez; si insiste con la misma foto, se sube igual y queda marcada
+    // para que la revise una persona.
+    var chequeo = await SERVY.verificarDni(archivo, function (p) { btn.textContent = '⏳ Revisando… ' + Math.round(p * 100) + '%'; });
+    var huella = archivo.name + ':' + archivo.size;
+    if ((chequeo.estado === 'dorso' || chequeo.estado === 'no_dni') && _dniAvisado !== huella) {
+      _dniAvisado = huella;
+      showToast(chequeo.estado === 'dorso'
+        ? 'Esa parece la parte de atrás del DNI. Subí el frente, donde está tu foto.'
+        : 'No parece el frente de un DNI. Sacá la foto con buena luz y que se lean los datos. Si es tu DNI y no te deja, elegí la misma foto otra vez y la subimos igual para que la revise una persona.', 'err');
+      btn.disabled = false; btn.textContent = textoBtn;
+      this.value = '';
+      return;
+    }
+    lectura = ({ ok: 'legible', dorso: 'dorso', no_dni: 'no_reconocido' })[chequeo.estado] || 'sin_verificar';
+    btn.textContent = '⏳ Subiendo…';
     var token = await servyAuth.token();
-    var blob = await resizeImg(this.files[0], 1200);
-    var url = await subirFoto(blob, 'dni_' + Date.now() + '.jpg', token);
+    var blob = await resizeImg(archivo, 1200);
+    var url = await subirFoto(blob, 'dni_' + Date.now() + '.jpg', token, 'prestador-docs');
     var r = await fetch(PSB + '/rest/v1/prestadores?id=eq.' + PD.id, {
       method: 'PATCH', headers: authHdr(token, { Prefer: 'return=minimal' }),
-      body: JSON.stringify({ dni_foto_url: url })
+      body: JSON.stringify({ dni_foto_url: url, dni_lectura: lectura })
     });
     if (!r.ok) throw new Error('patch fallo');
     PD.dni_foto_url = url;
@@ -1742,6 +1784,7 @@ document.getElementById('dniFile').addEventListener('change', async function () 
     showToast('✓ DNI cargado. Lo revisamos y te confirmamos.', 'ok');
   } catch (e) {
     showToast('Error subiendo el DNI. Probá de nuevo.', 'err');
+    btn.textContent = textoBtn;
   }
   btn.disabled = false;
   this.value = '';

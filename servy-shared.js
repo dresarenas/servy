@@ -141,4 +141,124 @@ S.validarNombreIA = async function(nombre) {
 S.nombreRechazadoIA = function(res) {
   return !!(res && res.valido === false && (res.confianza == null || res.confianza >= 0.5));
 };
+
+// ===== ¿Es un DNI? (11/10/2026, pedido de Andrés) =====
+// El panel dejaba subir CUALQUIER imagen como "DNI". El DNI argentino tiene un
+// formato muy predecible, así que el propio celu intenta leer la foto (OCR con
+// Tesseract.js, que se baja recién cuando hace falta) y busca las palabras fijas
+// del frente. La imagen no sale a ningún servicio de terceros. Es una ayuda para
+// quien revisa, no una verificación de identidad: si la lectura falla, la
+// persona puede subirla igual y queda marcada.
+S.CLAVES_DNI = [
+  'REPUBLICA', 'ARGENTINA', 'DOCUMENTO', 'NACIONAL', 'IDENTIDAD', 'APELLIDO', 'NOMBRE',
+  'SEXO', 'NACIONALIDAD', 'NACIMIENTO', 'EMISION', 'VENCIMIENTO', 'TRAMITE', 'EJEMPLAR',
+  'SURNAME', 'NATIONALITY', 'DOMICILIO'
+];
+
+// Igual, o con una letra de diferencia (el OCR se equivoca de a una) -- solo en palabras largas.
+function _dniCerca(a, b) {
+  if (a === b) return true;
+  if (b.length < 6 || Math.abs(a.length - b.length) > 1) return false;
+  var i = 0;
+  while (i < a.length && i < b.length && a.charAt(i) === b.charAt(i)) i++;
+  if (a.length === b.length) return a.slice(i + 1) === b.slice(i + 1);
+  if (a.length > b.length) return a.slice(i + 1) === b.slice(i);
+  return a.slice(i) === b.slice(i + 1);
+}
+
+// Pura (sin cámara ni red): recibe el texto que leyó el OCR y dice qué es.
+//   ok      = frente de un DNI: 4 palabras propias del documento (o 3 + un número de documento) y
+//             por lo menos una del título ("República", "Nacional", "Identidad"). Sin esa condición una
+//             receta con "Apellido, Nombre, Documento, Sexo" pasaba por DNI.
+//   dorso   = la parte de atrás (la línea de lectura automática, "IDARG…<<<")
+//   no_dni  = otra cosa
+S.evaluarTextoDni = function (texto) {
+  var t = String(texto || '').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  var palabras = t.split(/[^A-Z0-9<]+/).filter(Boolean);
+  var aciertos = S.CLAVES_DNI.filter(function (k) {
+    return palabras.some(function (w) { return _dniCerca(w, k); });
+  });
+  var hayNumero = /(^|[^0-9])\d{1,2}[.\s]?\d{3}[.\s]?\d{3}([^0-9]|$)/.test(t);
+  var compacto = t.replace(/\s+/g, '');
+  var hayMRZ = /IDARG/.test(compacto) || (compacto.match(/</g) || []).length >= 12;
+  var titulo = aciertos.filter(function (k) { return k === 'REPUBLICA' || k === 'NACIONAL' || k === 'IDENTIDAD'; }).length;
+  if (titulo >= 1 && (aciertos.length >= 4 || (aciertos.length >= 3 && hayNumero))) return { estado: 'ok', aciertos: aciertos.length };
+  if (hayMRZ) return { estado: 'dorso', aciertos: aciertos.length };
+  return { estado: 'no_dni', aciertos: aciertos.length };
+};
+
+function _cargarTesseract() {
+  return new Promise(function (res, rej) {
+    if (window.Tesseract) return res(window.Tesseract);
+    var s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.1.1/tesseract.min.js';
+    s.onload = function () { res(window.Tesseract); };
+    s.onerror = function () { rej(new Error('no se pudo cargar el lector')); };
+    document.head.appendChild(s);
+  });
+}
+
+// Imagen en gris y con el contraste estirado, a un tamaño donde el OCR rinde; gira si hace falta.
+function _dniPreparar(img, giros) {
+  var maxLado = 1600;
+  var sc = Math.min(1, maxLado / Math.max(img.width, img.height));
+  var w = Math.round(img.width * sc), h = Math.round(img.height * sc);
+  var cv = document.createElement('canvas');
+  var giro = giros % 2 === 1;
+  cv.width = giro ? h : w; cv.height = giro ? w : h;
+  var cx = cv.getContext('2d');
+  cx.translate(cv.width / 2, cv.height / 2);
+  cx.rotate(giros * Math.PI / 2);
+  cx.drawImage(img, -w / 2, -h / 2, w, h);
+  cx.setTransform(1, 0, 0, 1, 0, 0);
+  var d = cx.getImageData(0, 0, cv.width, cv.height), px = d.data, min = 255, max = 0, i, y;
+  for (i = 0; i < px.length; i += 4) {
+    y = 0.299 * px[i] + 0.587 * px[i + 1] + 0.114 * px[i + 2];
+    px[i] = y; if (y < min) min = y; if (y > max) max = y;
+  }
+  var rango = Math.max(1, max - min);
+  for (i = 0; i < px.length; i += 4) {
+    y = Math.max(0, Math.min(255, (px[i] - min) * 255 / rango));
+    px[i] = px[i + 1] = px[i + 2] = y;
+  }
+  cx.putImageData(d, 0, 0);
+  return cv;
+}
+
+function _dniImagen(file) {
+  return new Promise(function (res, rej) {
+    var img = new Image();
+    img.onload = function () { URL.revokeObjectURL(img.src); res(img); };
+    img.onerror = function () { rej(new Error('imagen ilegible')); };
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+// Devuelve {estado: 'ok' | 'dorso' | 'no_dni' | 'sin_ocr'}. 'sin_ocr' = no se pudo leer (sin red a la
+// librería, tiempo agotado): no se bloquea a nadie por una falla nuestra.
+S.verificarDni = async function (file, onProgreso) {
+  try {
+    var T = await _cargarTesseract();
+    var img = await _dniImagen(file);
+    var limite = Date.now() + 70000;
+    var resultado = null;
+    // Una foto sacada de costado sale girada 90° (para un lado o para el otro): si de frente no se lee, se prueba girada.
+    var intentos = img.height > img.width ? [0, 1, 3] : [0];
+    for (var k = 0; k < intentos.length; k++) {
+      var restante = limite - Date.now();
+      if (restante < 5000) break;
+      var lectura = await Promise.race([
+        T.recognize(_dniPreparar(img, intentos[k]), 'spa', {
+          logger: function (m) { if (onProgreso && m.status === 'recognizing text') onProgreso(m.progress); }
+        }),
+        new Promise(function (_, rej) { setTimeout(function () { rej(new Error('tiempo agotado')); }, restante); })
+      ]);
+      resultado = S.evaluarTextoDni(lectura.data.text);
+      if (resultado.estado === 'ok') break;
+    }
+    return resultado || { estado: 'sin_ocr' };
+  } catch (e) {
+    return { estado: 'sin_ocr', error: String((e && e.message) || e) };
+  }
+};
 })();
