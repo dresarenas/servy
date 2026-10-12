@@ -253,6 +253,9 @@ S.verificarDni = async function (file, onProgreso) {
       if (restante < 5000) break;
       var lectura = await Promise.race([
         T.recognize(_dniPreparar(img, intentos[k]), 'spa', {
+          // Modelo "fast" del idioma: 1 MB en vez de 8 (con el completo, la primera vez eran ~10 MB de datos
+          // móviles para leer una foto). Para buscar palabras fijas alcanza.
+          langPath: 'https://tessdata.projectnaptha.com/4.0.0_fast',
           logger: function (m) {
             if (m.status === 'recognizing text') avisar('lectura', m.progress);
             else if (/loading/.test(m.status)) avisar('descarga', m.progress);

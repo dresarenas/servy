@@ -1257,7 +1257,7 @@ async function guardarRedes(token) {
 }
 </script>
 <script src="home-v2.js?v=20261011a"></script>
-<script src="servy-shared.js?v=20261011c"></script>
+<script src="servy-shared.js?v=20261011d"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <script>
 var PSB = 'https://oupmslbpvtuszwkdcbvq.supabase.co';
@@ -1790,12 +1790,15 @@ document.getElementById('dniFile').addEventListener('change', async function () 
     var prog = document.getElementById('dniProg'), progTxt = document.getElementById('dniProgTxt'), progBarra = document.getElementById('dniProgBarra');
     prog.style.display = 'block'; progBarra.style.width = '3%'; progTxt.textContent = 'Preparando el lector…';
     // Fases: bajar el lector (solo la primera vez, unos MB) -> prepararlo -> leer la foto.
-    var TEXTO_FASE = { lector: 'Preparando el lector… la primera vez tarda un poco más', descarga: 'Bajando el lector (solo la primera vez)…', inicio: 'Preparando el lector…', lectura: 'Leyendo la foto…' };
+    var maxPct = 3;
+    var TEXTO_FASE = { lector: 'Preparando el lector… la primera vez tarda un poco más', descarga: 'Bajando el lector (unos 3 MB, solo la primera vez)…', inicio: 'Preparando el lector…', lectura: 'Leyendo la foto…' };
     var chequeo = await SERVY.verificarDni(archivo, function (e) {
       progTxt.textContent = TEXTO_FASE[e.fase] || 'Revisando…';
       var base = { lector: 0, descarga: 3, inicio: 40, lectura: 45 }[e.fase] || 0;
       var ancho = { lector: 3, descarga: 37, inicio: 5, lectura: 55 }[e.fase] || 0;
-      progBarra.style.width = Math.min(100, Math.round(base + ancho * (e.progreso || 0))) + '%';
+      // La barra solo avanza (el lector pasa dos veces por "bajando" y "preparando").
+      maxPct = Math.max(maxPct, Math.min(100, Math.round(base + ancho * (e.progreso || 0))));
+      progBarra.style.width = maxPct + '%';
       if (e.fase === 'lectura') progTxt.textContent = 'Leyendo la foto… ' + Math.round((e.progreso || 0) * 100) + '%';
     });
     prog.style.display = 'none';
