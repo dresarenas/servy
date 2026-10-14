@@ -3,12 +3,18 @@
 var S = window.SERVY = window.SERVY || {};
 
 var _WC = 'https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-clasificar';
-var _WG = 'https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-categorias';
-var _FB = [
-  'Plomero','Electricista','Gasista','Pintor','Albañil','Carpintero',
-  'Jardinero','Cerrajero','Limpieza del hogar','Mudanzas',
-  'Instalador de aire acondicionado','Herrero'
-];
+// Las opciones de oficio salen DIRECTO del catálogo de Supabase (la lectura pública
+// de `categorias` ya está abierta, igual que en buscar.html). Antes pasaban por un
+// workflow de n8n que desde el 6/10 fallaba en cada llamada y devolvía vacío: los
+// formularios caían a una lista escrita a mano con nombres que no existen en el
+// catálogo ("Instalador de aire acondicionado"), y el servidor descartaba esos
+// oficios sin avisar (14/10, el registro de Andrés perdió uno de dos).
+var _SB = 'https://oupmslbpvtuszwkdcbvq.supabase.co/rest/v1/categorias?activo=eq.true&select=nombre&order=nombre.asc';
+var _SK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91cG1zbGJwdnR1c3p3a2RjYnZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3OTQ5NjIsImV4cCI6MjA5MDM3MDk2Mn0.6w3jb216pQ2UGfmCY6gSbpkBW9E_TnXvCskXNArctwI';
+// Los más pedidos van primero; el resto, por orden alfabético.
+var _TOP = ['Plomero','Electricista','Gasista','Pintor','Albañil','Carpintero','Jardinero','Cerrajero'];
+// Si no se puede leer el catálogo: nombres reales del catálogo, nunca inventados.
+var _FB = _TOP.concat(['Limpieza','Flete / Mudanza','Instalador de Aire Acond.','Herrero']);
 
 S.validatePhone = function (v) {
   var d = v.replace(/\D/g, '');
@@ -29,16 +35,16 @@ S.clasificar = async function (texto) {
 };
 
 S.getCategorias = async function () {
-  var K = 'servy_cats_v1';
+  var K = 'servy_cats_v2';
+  try { var c = sessionStorage.getItem(K); if (c) return JSON.parse(c); } catch (e) {}
   try {
-    var c = sessionStorage.getItem(K);
-    if (c) return JSON.parse(c);
-    var r = await fetch(_WG);
+    var r = await fetch(_SB, { headers: { apikey: _SK, Authorization: 'Bearer ' + _SK } });
     var d = await r.json();
-    var cats = Array.isArray(d)
-      ? d.map(function (x) { return typeof x === 'string' ? x : x.nombre; })
-      : _FB;
-    sessionStorage.setItem(K, JSON.stringify(cats));
+    if (!Array.isArray(d) || !d.length) return _FB;
+    var nombres = d.map(function (x) { return x.nombre; }).filter(Boolean);
+    var cats = _TOP.filter(function (n) { return nombres.indexOf(n) >= 0; })
+      .concat(nombres.filter(function (n) { return _TOP.indexOf(n) < 0; }));
+    try { sessionStorage.setItem(K, JSON.stringify(cats)); } catch (e) {}
     return cats;
   } catch (e) { return _FB; }
 };
