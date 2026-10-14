@@ -922,7 +922,7 @@ async function prestEnviar() {
   var WEBHOOK = 'https://n8n-n8n.8wg7if.easypanel.host/webhook/servy-prestador';
   try {
     var ctrl = new AbortController();
-    setTimeout(function() { ctrl.abort(); }, 25000);
+    setTimeout(function() { ctrl.abort(); }, 60000);
     var resp = await fetch(WEBHOOK, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -991,12 +991,29 @@ var prestFotoData = null;
 function prestFotoChange(input) {
   var file = input.files[0];
   if (!file) return;
-  if (file.size > 5000000) { alert('La foto no puede superar 5 MB.'); return; }
+  if (file.size > 15000000) { alert('La foto es demasiado pesada. Probá con otra.'); return; }
   var reader = new FileReader();
   reader.onload = function(e) {
-    prestFotoData = e.target.result;
-    var preview = document.getElementById('prestFotoPreview');
-    if (preview) preview.innerHTML = '<img src="' + e.target.result + '" style="width:100%;height:100%;object-fit:cover;">';
+    // La foto del celu pesa 3-5 MB y por datos móviles tardaba más de lo que
+    // espera el envío (14/10: "No pudimos enviar tus datos" con el registro
+    // ya guardado). Se achica antes de mandarla: para una ficha sobra.
+    var mostrar = function(dataUrl) {
+      prestFotoData = dataUrl;
+      var preview = document.getElementById('prestFotoPreview');
+      if (preview) preview.innerHTML = '<img src="' + dataUrl + '" style="width:100%;height:100%;object-fit:cover;">';
+    };
+    var img = new Image();
+    img.onload = function() {
+      try {
+        var lado = 1280, esc = Math.min(1, lado / Math.max(img.width, img.height));
+        var cv = document.createElement('canvas');
+        cv.width = Math.round(img.width * esc); cv.height = Math.round(img.height * esc);
+        cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+        mostrar(cv.toDataURL('image/jpeg', 0.82));
+      } catch (err) { mostrar(e.target.result); }
+    };
+    img.onerror = function() { mostrar(e.target.result); };
+    img.src = e.target.result;
   };
   reader.readAsDataURL(file);
 }

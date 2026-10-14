@@ -1321,6 +1321,7 @@ async function wizNext() {
   if (wizNext._pending) return; wizNext._pending = true;
   try {
   if (wizCurrent === 0) {
+    await wizDetenerMicSiGraba();
     var _multiPanel = document.getElementById('wizMultiOficio');
     if (_multiPanel && _multiPanel.style.display !== 'none') {
       document.getElementById('wiz-err-0').classList.remove('visible');
@@ -1648,6 +1649,18 @@ window.addEventListener('beforeunload', function() {
   if (_wizMicStream) _wizMicStream.getTracks().forEach(function(t) { t.stop(); });
 });
 
+// Pedido de Andrés (14/10): tocar "Siguiente" (la flecha del cuadro o el botón)
+// con el micrófono grabando corta la grabación, espera la transcripción y
+// sigue; no hace falta volver a tocar el micrófono para parar.
+var _wizMicFin = null;
+async function wizDetenerMicSiGraba() {
+  if (_wizMediaRecorder && _wizMediaRecorder.state === 'recording') {
+    var fin = new Promise(function(r) { _wizMicFin = r; });
+    _wizMediaRecorder.stop();
+    await fin;
+  }
+}
+
 async function toggleWizMic() {
   var btn = document.getElementById('wizMicBtn');
   var lbl = document.getElementById('wizMicLabel');
@@ -1661,6 +1674,10 @@ async function toggleWizMic() {
     _wizMediaRecorder = new MediaRecorder(stream, _mime ? { mimeType: _mime } : {});
     _wizMediaRecorder.ondataavailable = function(e) { _wizAudioChunks.push(e.data); };
     _wizMediaRecorder.onstop = async function() {
+      try { await _wizTranscribirAudio(); }
+      finally { updateWizCta0(); if (_wizMicFin) { var _f = _wizMicFin; _wizMicFin = null; _f(); } }
+    };
+    var _wizTranscribirAudio = async function() {
       clearTimeout(_wizAudioTimeout); _wizAudioTimeout = null;
       clearInterval(_wizAudioCountdown); _wizAudioCountdown = null;
       btn.classList.remove('recording');
@@ -1685,6 +1702,10 @@ async function toggleWizMic() {
     };
     _wizMediaRecorder.start(250);
     btn.classList.add('recording');
+    // Mientras graba, "Siguiente" ya vale para cortar y seguir: se muestra activo.
+    var _cta0 = document.getElementById('wizCtaBtn0'), _arr0 = document.getElementById('wizTextareaArrow');
+    if (_cta0) _cta0.classList.remove('sig-empty');
+    if (_arr0) { _arr0.classList.add('visible'); _arr0.classList.remove('locked'); }
     var _secs = 30;
     lbl.textContent = 'Grabando ' + _secs + 's...';
     _wizAudioCountdown = setInterval(function() {

@@ -751,6 +751,13 @@
 
   window.addEventListener('beforeunload', () => { if (_stream) _stream.getTracks().forEach(t => t.stop()); });
 
+  // Pedido de Andrés (14/10): con el micrófono grabando, "Buscar contacto" (o Enter)
+  // corta la grabación y sigue con lo que se dijo; no hace falta volver a tocar el micrófono.
+  const formBusqueda = document.querySelector('form.search');
+  if (formBusqueda) formBusqueda.addEventListener('submit', (ev) => {
+    if (_mr && _mr.state === 'recording') { ev.preventDefault(); _mr.stop(); }
+  });
+
   window.toggleMicLanding = async function() {
     const btn = document.getElementById('btnMicLanding');
     if (_mr && _mr.state === 'recording') { _mr.stop(); return; }
