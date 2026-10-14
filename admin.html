@@ -543,15 +543,175 @@ function renderPrestadores(s){
     + (p.sin_geo_lista && p.sin_geo_lista.length ? '<div class="box"><h3>⚠️ Sin ubicar — aparecen en TODAS las búsquedas sin filtro de zona</h3>'
       + p.sin_geo_lista.map(x=>'<div style="margin:6px 0;padding:8px 10px;border:1px solid var(--line);border-radius:8px"><b>'+esc(x.nombre)+'</b> · zona cargada: "'+esc(x.direccion_base||'—')+'"</div>').join('')
       + '<div class="note" style="margin-top:8px">Corregir la zona a mano (SQL o panel) hasta que exista edición desde acá.</div></div>' : '')
+    + '<div class="box"><h3>Prestadores por revisar</h3><div id="prestadores-revisar"><div class="empty">Cargando…</div></div></div>'
     + '<div class="box"><h3>Documentación por revisar</h3><div id="documentos-revisar"><div class="empty">Cargando…</div></div></div>'
     + '<div class="box"><h3>Curaduría de reseñas</h3><div id="curaduria-resenas"><div class="empty">Cargando…</div></div></div>'
     + '<div class="box"><h3>Últimos prestadores</h3><div id="ev-prestadores"><div class="empty">Cargando…</div></div></div>';
   mkChart('chPrest', { type:'bar',
     data:{ labels:p.por_categoria.map(x=>x.k), datasets:[{ data:p.por_categoria.map(x=>x.n), backgroundColor:'rgba(184,233,134,0.6)', borderRadius:4 }] },
     options:{ indexAxis:'y', plugins:{legend:{display:false}}, maintainAspectRatio:false, scales:{x:{beginAtZero:true,ticks:{precision:0}}} } });
+  renderPrestadoresRevisar();
   renderDocumentosRevisar();
   renderCuraduriaResenas();
 }
+
+/* ===== Prestadores por revisar (14/10): los que se registran solos por la web =====
+   Quedan "pendientes" hasta que alguien los activa. Acá se ve si tienen el perfil completo, cómo se les puede
+   escribir (WhatsApp deja mandar texto libre solo si ellos nos escribieron en las últimas 24 h; si no, hace falta
+   una plantilla aprobada) y se decide: activar, rechazar o pedirles lo que falta. */
+let prestFiltro = 'pendiente';
+const VIA_TXT = {
+  texto_libre: 'Mensaje libre de WhatsApp (nos escribió hace menos de 24 h).',
+  plantilla: 'Plantilla de WhatsApp aprobada (no nos escribió en las últimas 24 h).',
+  manual: 'NO se puede mandar desde acá todavía: no nos escribió en las últimas 24 h y la plantilla de WhatsApp aún no está aprobada. Te dejo el mensaje para que lo mandes vos desde tu WhatsApp.'
+};
+const TIPO_TXT = { faltan_datos: 'Pedirle los datos que faltan', bienvenida: 'Darle la bienvenida (su perfil ya está publicado)' };
+const BTN_PR = 'border-radius:8px;padding:6px 12px;cursor:pointer;font-size:.88rem;';
+const BTN_PR_OK = BTN_PR + 'background:var(--accent);color:#06251d;border:none;font-weight:700';
+const BTN_PR_SEC = BTN_PR + 'background:none;color:var(--ink-dim);border:1px solid var(--line)';
+
+function telLindo(n){
+  const d = String(n||'').replace(/\D/g,'').slice(-10);
+  return d.length === 10 ? '+54 9 '+d.slice(0,3)+' '+d.slice(3,6)+'-'+d.slice(6) : (n || 'sin teléfono');
+}
+async function llamarContacto(body){
+  const tk = await freshToken();
+  if(!tk){ showLogin(); throw new Error('sin sesión'); }
+  const res = await fetch(SB + '/functions/v1/admin-contactar-prestador', {
+    method:'POST',
+    headers:{ 'apikey':ANON, 'Authorization':'Bearer '+tk, 'Content-Type':'application/json' },
+    body: JSON.stringify(body)
+  });
+  const j = await res.json().catch(()=>({ ok:false, error:'Respuesta inválida ('+res.status+')' }));
+  if(res.status === 403){ clearSession(); showLogin(); throw new Error('sesión vencida o sin permisos'); }
+  return j;
+}
+function faltasDe(x){
+  return [!x.tiene_horarios && 'horarios', !x.tiene_cobro && 'cómo cobra', !x.tiene_descripcion && 'descripción'].filter(Boolean);
+}
+function tipoPrincipal(x){
+  if(x.estado === 'rechazado') return null;
+  if(faltasDe(x).length) return 'faltan_datos';
+  return x.estado === 'activo' ? 'bienvenida' : null;
+}
+function ventanaAbierta(x){ return !!x.escribio_en && (Date.now() - new Date(x.escribio_en).getTime()) < 24*3600*1000; }
+
+async function renderPrestadoresRevisar(){
+  const el = $('#prestadores-revisar');
+  if(!el) return;
+  try{
+    const d = await rpc('admin_prestadores_revisar', { p_estado: prestFiltro });
+    const lista = d.prestadores || [], cont = d.conteos || {};
+    const chip = (est, lb)=> '<button class="pr-filtro" data-estado="'+est+'" style="'+BTN_PR+(prestFiltro===est ? 'background:var(--accent);color:#06251d;border:none;font-weight:700' : 'background:none;color:var(--ink-dim);border:1px solid var(--line)')+'">'+lb+' ('+(cont[est]||0)+')</button>';
+    const OK = '<span style="color:var(--accent)">✓</span>', NO = '<span style="color:#e8a33c">✗</span>';
+    let h = '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">'+chip('pendiente','Por revisar')+chip('activo','Activados')+chip('rechazado','Rechazados')+'</div>';
+    h += lista.length ? lista.map(x=>{
+      const faltan = faltasDe(x);
+      const perfil = faltan.length
+        ? '<span style="color:#e8a33c;font-weight:700">Perfil incompleto: faltan '+esc(faltan.join(', '))+'</span>'
+        : '<span style="color:var(--accent);font-weight:700">Perfil completo ✓</span>';
+      const escribio = x.escribio_en
+        ? 'Nos escribió el '+fdt(x.escribio_en)+(ventanaAbierta(x) ? ' · ventana de 24 h <b>abierta</b>' : ' · ventana de 24 h cerrada')
+        : 'Todavía no nos escribió nunca';
+      const aviso = x.contactado_en ? 'Último aviso nuestro: '+fdt(x.contactado_en)+' ('+esc(String(x.contacto_tipo||'').replace(':',' · '))+')' : 'Todavía no le mandamos nada desde el tablero';
+      const tp = tipoPrincipal(x);
+      let siguiente = '';
+      if(x.estado === 'pendiente') siguiente = faltan.length
+        ? 'Tiene el registro hecho pero le faltan datos del perfil. Podés pedírselos antes de activarlo, o activarlo ya y que quede con el perfil flaco.'
+        : 'Está todo completo: si lo activás queda publicado en las búsquedas. Después le podés dar la bienvenida.';
+      else if(x.estado === 'activo') siguiente = faltan.length
+        ? 'Está publicado pero con el perfil incompleto: podés pedirle lo que falta.'
+        : (x.contacto_tipo && String(x.contacto_tipo).startsWith('bienvenida') ? 'Publicado y ya avisado.' : 'Está publicado y completo: falta darle la bienvenida.');
+      else siguiente = 'Rechazado el '+fdt(x.revisado_en)+' · motivo: '+esc(x.motivo_rechazo||'—');
+      const botones =
+        (x.estado === 'pendiente' ? '<button class="pr-btn" data-a="activar" style="'+BTN_PR_OK+'">Activar</button><button class="pr-btn" data-a="rechazar" style="'+BTN_PR_SEC+'">Rechazar…</button>' : '')
+        + (x.estado === 'activo' ? '<button class="pr-contactar" data-tipo="bienvenida" style="'+BTN_PR_OK+'">Enviar bienvenida</button>' : '')
+        + (x.estado !== 'rechazado' && faltan.length ? '<button class="pr-contactar" data-tipo="faltan_datos" style="'+(x.estado==='pendiente'?BTN_PR_SEC:BTN_PR_SEC)+'">Pedir datos que faltan</button>' : '')
+        + (x.estado !== 'pendiente' ? '<button class="pr-btn" data-a="volver_a_pendiente" style="'+BTN_PR_SEC+'">Volver a pendiente</button>' : '');
+      return '<div class="pr" data-id="'+esc(x.id)+'" data-nombre="'+esc(x.nombre)+'" data-tipo="'+esc(tp||'')+'" data-faltan="'+esc(faltan.join(', '))+'" style="margin:8px 0;padding:12px;border:1px solid var(--line);border-radius:8px">'
+        + '<b>'+esc(x.nombre)+'</b> · <span class="muted">'+esc(telLindo(x.telefono))+'</span> · <span class="muted">se registró el '+fdt(x.alta)+'</span><br>'
+        + '<span style="font-size:.9rem">'+esc((x.categorias||[]).join(' · ')||'sin oficio')+' · zona: '+esc(x.zona||'sin zona')+(x.radio_km?' (radio '+esc(x.radio_km)+' km)':'')+'</span><br>'
+        + '<span style="font-size:.88rem">Registro: nombre ✓ · teléfono ✓ · oficios '+((x.categorias||[]).length?OK:NO)+' · zona '+(x.zona?OK:NO)+' · foto '+(x.foto?OK:NO)+' · términos '+(x.terminos_ok?OK:NO)+'</span><br>'
+        + '<span style="font-size:.88rem">Perfil: horarios '+(x.tiene_horarios?OK:NO)+' · cómo cobra '+(x.tiene_cobro?OK:NO)+' · descripción '+(x.tiene_descripcion?OK:NO)+' &nbsp; '+perfil+'</span><br>'
+        + ((x.tiene_horarios||x.tiene_cobro||x.tiene_descripcion) ? '<span class="muted" style="font-size:.82rem">'+[x.horarios&&'Horarios: '+esc(x.horarios), x.cobro&&'Cobra: '+esc(x.cobro), x.descripcion&&'Descripción: '+esc(x.descripcion)].filter(Boolean).join(' · ')+'</span><br>' : '')
+        + '<span class="muted" style="font-size:.85rem">'+escribio+' · '+aviso+'</span><br>'
+        + '<div style="margin-top:6px;font-size:.9rem">👉 '+siguiente+'</div>'
+        + '<div class="pr-como muted" style="margin-top:6px;font-size:.85rem">'+(tp ? 'Calculando cómo se le puede escribir…' : '')+'</div>'
+        + '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">'+botones+'</div>'
+        + '<div class="pr-prev"></div></div>';
+    }).join('') : '<div class="empty">Nada en esta lista.</div>';
+    h += '<div class="note" style="margin-top:8px">Acá aparecen quienes se registran solos desde la web. <b>Activar</b> los hace visibles en las búsquedas. '
+      + 'A los que les falta información se les puede pedir por WhatsApp; a los ya publicados se les da la bienvenida. '
+      + 'WhatsApp solo deja escribir libremente a quien nos escribió en las últimas 24 h: si no, hace falta una plantilla aprobada, y mientras no esté te dejamos el mensaje para mandarlo vos.</div>';
+    el.innerHTML = h;
+    el.querySelectorAll('.pr-filtro').forEach(b=> b.addEventListener('click', ()=>{ prestFiltro = b.dataset.estado; renderPrestadoresRevisar(); }));
+    el.querySelectorAll('.pr-btn').forEach(b=> b.addEventListener('click', ()=> resolverPrestador(b)));
+    el.querySelectorAll('.pr-contactar').forEach(b=> b.addEventListener('click', ()=> prepararContactoPrestador(b.closest('.pr'), b.dataset.tipo)));
+    el.querySelectorAll('.pr').forEach(card=>{ if(card.dataset.tipo) resumenComoContactar(card); });
+  }catch(e){ el.innerHTML = '<div class="empty">Error: '+esc(e.message)+'</div>'; }
+}
+
+// La línea "cómo se le va a escribir", visible sin tocar nada.
+async function resumenComoContactar(card){
+  const caja = card.querySelector('.pr-como');
+  try{
+    const r = await llamarContacto({ accion:'preparar', prestador_id: card.dataset.id, tipo: card.dataset.tipo });
+    if(!r.ok){ caja.textContent = r.error || 'No se pudo calcular.'; return; }
+    caja.innerHTML = '📨 <b>'+esc(TIPO_TXT[r.tipo])+'</b> — '+esc(VIA_TXT[r.via]);
+  }catch(e){ caja.textContent = ''; }
+}
+
+// Muestra el mensaje exacto y por qué camino saldría, y recién ahí deja enviarlo.
+async function prepararContactoPrestador(card, tipo){
+  const prev = card.querySelector('.pr-prev');
+  prev.innerHTML = '<div class="muted" style="margin-top:8px">Preparando el mensaje…</div>';
+  try{
+    const r = await llamarContacto({ accion:'preparar', prestador_id: card.dataset.id, tipo });
+    if(!r.ok){ prev.innerHTML = '<div style="margin-top:8px;color:#e8a33c">'+esc(r.error||'No se pudo preparar el mensaje.')+'</div>'; return; }
+    prev.innerHTML = '<div style="margin-top:8px;padding:10px;border:1px dashed var(--line);border-radius:8px">'
+      + '<b>'+esc(TIPO_TXT[r.tipo])+'</b><br><span style="font-size:.88rem">'+esc(VIA_TXT[r.via])+'</span>'
+      + '<pre style="white-space:pre-wrap;margin:8px 0;font-family:inherit;font-size:.9rem">'+esc(r.texto)+'</pre>'
+      + '<div style="display:flex;gap:8px;flex-wrap:wrap">'
+      + (r.via !== 'manual' ? '<button class="pr-enviar" style="'+BTN_PR_OK+'">Enviar ahora</button>' : '<a href="'+esc(r.enlace_manual)+'" target="_blank" rel="noopener" style="'+BTN_PR_OK+'text-decoration:none;display:inline-block">Abrir WhatsApp con el mensaje</a>')
+      + '<button class="pr-copiar" style="'+BTN_PR_SEC+'">Copiar mensaje</button>'
+      + '<button class="pr-cerrar" style="'+BTN_PR_SEC+'">Cerrar</button></div>'
+      + (r.via === 'manual' ? '<div class="muted" style="margin-top:6px;font-size:.82rem">El enlace abre WhatsApp con el mensaje ya escrito: lo mandás desde tu WhatsApp (los mensajes que salen de la app son gratis).</div>' : '')
+      + '</div>';
+    prev.querySelector('.pr-cerrar').addEventListener('click', ()=>{ prev.innerHTML = ''; });
+    prev.querySelector('.pr-copiar').addEventListener('click', async ev=>{ try{ await navigator.clipboard.writeText(r.texto); ev.target.textContent = 'Copiado ✓'; }catch(e){ alert('No se pudo copiar. Seleccioná el texto a mano.'); } });
+    const bEnv = prev.querySelector('.pr-enviar');
+    if(bEnv) bEnv.addEventListener('click', async ()=>{
+      bEnv.disabled = true; bEnv.textContent = 'Enviando…';
+      try{
+        const e = await llamarContacto({ accion:'enviar', prestador_id: card.dataset.id, tipo });
+        if(e.enviado){ alert('Enviado por WhatsApp a '+card.dataset.nombre+'.'); renderPrestadoresRevisar(); }
+        else { alert('No se envió: '+(e.motivo||e.error||'motivo desconocido')); bEnv.disabled = false; bEnv.textContent = 'Enviar ahora'; }
+      }catch(err){ alert('Error: '+err.message); bEnv.disabled = false; bEnv.textContent = 'Enviar ahora'; }
+    });
+  }catch(e){ prev.innerHTML = '<div style="margin-top:8px;color:#e8a33c">Error: '+esc(e.message)+'</div>'; }
+}
+
+async function resolverPrestador(btn){
+  const card = btn.closest('.pr');
+  const accion = btn.dataset.a;
+  let motivo = null;
+  if(accion === 'activar'){
+    const falta = card.dataset.faltan;
+    if(!confirm('¿Activar a '+card.dataset.nombre+'? Queda visible en las búsquedas desde ya.'+(falta ? '\n\nOjo: todavía le falta: '+falta+'.' : ''))) return;
+  } else if(accion === 'rechazar'){
+    motivo = prompt('Motivo del rechazo (queda guardado). Por ejemplo: "Datos falsos" o "No hace ese oficio".');
+    if(motivo === null) return;
+    if(!motivo.trim()){ alert('Escribí un motivo.'); return; }
+  } else if(!confirm('¿Volver a poner a '+card.dataset.nombre+' como pendiente? Deja de verse en las búsquedas.')) return;
+  card.querySelectorAll('button').forEach(b=> b.disabled = true);
+  try{
+    const r = await rpc('admin_resolver_prestador', { p_id: card.dataset.id, p_accion: accion, p_motivo: motivo });
+    if(!r || !r.ok) throw new Error((r&&r.error)||'no se pudo resolver');
+    alert(accion === 'activar' ? 'Activado: '+card.dataset.nombre+' ya se ve en las búsquedas. Para avisarle, andá a "Activados" → "Enviar bienvenida".'
+        : accion === 'rechazar' ? 'Rechazado.' : 'Vuelve a pendiente.');
+    renderPrestadoresRevisar();
+  }catch(e){ alert('Error: '+e.message); renderPrestadoresRevisar(); }
+}
 
 /* ===== Documentación por revisar (11/10): DNI, matrícula, seguro… =====
    La imagen está en un bucket privado: acá se pide un enlace firmado de 5 minutos con la sesión del
