@@ -934,6 +934,9 @@ async function prestEnviar() {
       prestShowErr('errPrestSubmit', false);
       document.getElementById('prestGraciasSub').innerHTML =
         'Este WhatsApp <strong>ya está registrado en SERVY</strong>.<br>Si sos vos, entrá a tu panel desde <a href="panel.html" style="color:var(--accent)">tu acceso de prestador</a>. Si creés que es un error, escribinos por WhatsApp.';
+      // Quien reintenta después de un corte (el primer envío sí se guardó) también necesita
+      // el botón para completar el perfil por WhatsApp: sin él nadie lo contacta (14/10).
+      document.getElementById('prestCompletar').style.display = 'block';
       prestGoTo(4);
       return;
     }
