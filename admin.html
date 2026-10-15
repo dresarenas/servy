@@ -582,7 +582,7 @@ const VIA_TXT = {
 
 };
 
-const TIPO_TXT = { faltan_datos: 'Pedirle los datos que faltan', bienvenida: 'Darle la bienvenida (su perfil ya está publicado)' };
+const TIPO_TXT = { faltan_datos: 'Avisarle qué le falta cargar en su ficha', bienvenida: 'Darle la bienvenida (su perfil ya está publicado)' };
 
 const BTN_PR = 'border-radius:8px;padding:6px 12px;cursor:pointer;font-size:.88rem;';
 
@@ -704,7 +704,7 @@ async function renderPrestadoresRevisar(){
 
         + (x.estado === 'activo' ? '<button class="pr-contactar" data-tipo="bienvenida" style="'+BTN_PR_OK+'">Enviar bienvenida</button>' : '')
 
-        + (x.estado !== 'rechazado' && faltan.length ? '<button class="pr-contactar" data-tipo="faltan_datos" style="'+(x.estado==='pendiente'?BTN_PR_SEC:BTN_PR_SEC)+'">Pedir datos que faltan</button>' : '')
+        + (x.estado !== 'rechazado' && faltan.length ? '<button class="pr-contactar" data-tipo="faltan_datos" style="'+(x.estado==='pendiente'?BTN_PR_SEC:BTN_PR_SEC)+'">Avisarle qué le falta</button>' : '')
 
         + (x.estado !== 'pendiente' ? '<button class="pr-btn" data-a="volver_a_pendiente" style="'+BTN_PR_SEC+'">Volver a pendiente</button>' : '');
 
@@ -734,7 +734,7 @@ async function renderPrestadoresRevisar(){
 
     h += '<div class="note" style="margin-top:8px">Acá aparecen quienes se registran solos desde la web. <b>Activar</b> los hace visibles en las búsquedas. '
 
-      + 'A los que les falta información se les puede pedir por WhatsApp; a los ya publicados se les da la bienvenida. '
+      + 'A los que les falta información se les manda un aviso con el enlace a su ficha personal en la web (ahí cargan y corrigen todo ellos); a los ya publicados se les da la bienvenida con el mismo enlace. '
 
       + 'WhatsApp solo deja escribir libremente a quien nos escribió en las últimas 24 h: si no, hace falta una plantilla aprobada, y mientras no esté te dejamos el mensaje para mandarlo vos.</div>';
 
