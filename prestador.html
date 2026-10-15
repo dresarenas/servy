@@ -951,7 +951,7 @@ async function prestEnviar() {
   var _rO = categorias || 'su rubro';
   var _rZ = zonaTexto ? ' en ' + zonaTexto : '';
   document.getElementById('prestGraciasSub').innerHTML =
-    'Registramos a <strong>' + _rN + '</strong> como <strong>' + _rO + '</strong>' + _rZ + '.<br>Para entrar a tu panel más adelante, andá a <strong>servy.ar → Ingresá</strong> y pedí tu código de acceso.';
+    'Registramos a <strong>' + _rN + '</strong> como <strong>' + _rO + '</strong>' + _rZ + '.<br>Para entrar a tu ficha más adelante, usá <a href="panel.html" style="color:var(--accent)"><strong>este enlace</strong></a> y pedí tu código de acceso.';
   document.getElementById('prestCompletar').style.display = 'block';
   prestGoTo(4);
 }
